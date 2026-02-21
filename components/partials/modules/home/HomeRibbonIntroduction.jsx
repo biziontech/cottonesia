@@ -1,0 +1,235 @@
+'use client'
+
+import { useState } from 'react';
+import dynamic from 'next/dynamic';
+import { Button } from "@/components/ui/button";
+import { useModule } from "@/contexts/ModuleContext";
+import { Loader, RotateCcw, Save, Eye, EditIcon } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
+import { ModuleWorkspaceTitle } from '@/components/partials/modules/ModuleWorkspaceTitle';
+import { GradientGenerate } from '@/components/partials/GradientGenerate';
+import { SparkleLoader } from "@/components/partials/SparkleLoader";
+import { SparkleAi } from '@/components/partials/SparkleAi';
+import { Separator } from '@/components/ui/separator';
+
+const Editor = dynamic(() => import('@/components/editor/Editor'), {
+    ssr: false,
+    loading: () => (
+        <div className="w-full max-w-[1200px] mx-auto my-0">
+            <div className="min-h-[696px] flex items-center justify-center rounded-xl bg-white shadow-sm">
+                <div className="flex flex-col gap-4 items-center">
+                    <Loader className="animate-spin text-gray-500" size={32} />
+                    <p className="text-sm text-gray-600">Memuat Editor...</p>
+                </div>
+            </div>
+        </div>
+    ),
+});
+
+const EditorSwitchRender = ({ handleChange, editMode, introduction }) => {
+    const { module } = useModule();
+
+    return (
+        <div className='flex flex-col'>
+            {editMode ? (
+                <Editor onBlur={(c) => handleChange(c)} initialContent={introduction ? introduction : module?.introduction} />
+            ) : (
+                <div className='min-h-[652px] shadow-md bg-white p-8 rounded-3xl'>
+                    <article className='max-w-3xl py-10 mx-auto prose' dangerouslySetInnerHTML={{ __html: introduction ? introduction : module?.introduction }}>
+                    </article>
+                </div>
+            )}
+        </div>
+    )
+}
+
+export const HomeRibbonIntroduction = () => {
+    const { module, moduleTemp, setModuleTemp } = useModule();
+    const [introduction, setIntroduction] = useState(module?.introduction);
+    const [lastSavedIntroduction, setLastSavedIntroduction] = useState(module?.introduction);
+    const [isGenerating, setIsGenerating] = useState(false);
+    const [editMode, setEditMode] = useState(false);
+
+    // Perubahan
+    const handleChange = (c) => {
+        setIntroduction(c);
+    }
+
+    // Reset
+    const handleResetIntroduction = () => {
+        setIntroduction(module?.introduction);
+        setLastSavedIntroduction(module?.introduction);
+        setModuleTemp(prev => {
+            const { introduction: _, ...rest } = prev;
+            return rest;
+        });
+
+        // Check editor
+        if (window.editor) {
+            const defaultContent = module?.introduction || "";
+            window.editor.commands.setContent(defaultContent);
+        }
+    }
+
+    // Save
+    const handleSaveIntroduction = () => {
+        setModuleTemp(prev => ({
+            ...prev,
+            introduction: introduction
+        }));
+        setLastSavedIntroduction(introduction);
+    }
+
+    // Actions
+    const ActionButton = () => {
+        const hasChangedFromOriginal = introduction !== module?.introduction;
+        const hasChangedFromLastSaved = introduction !== lastSavedIntroduction;
+        const showButtons = hasChangedFromOriginal || hasChangedFromLastSaved;
+
+        return (
+            <>
+                <div className="items-center flex justify-center h-full gap-2">
+
+                    <div className='bg-gray-100 p-1 gap-1 flex rounded-lg inset-shadow-sm'>
+                        <Button
+                            size="sm"
+                            variant={!editMode ? 'outline' : 'ghost'}
+                            onClick={() => setEditMode(false)}
+                            className="hover:bg-white border-0"
+                        >
+                            <Eye />
+                            <span>Pratinjau</span>
+                        </Button>
+                        <Button
+                            size="sm"
+                            variant={editMode ? 'outline' : 'ghost'}
+                            onClick={() => setEditMode(true)}
+                            className="hover:bg-white border-0"
+                        >
+                            <EditIcon />
+                            <span>Edit</span>
+                        </Button>
+                    </div>
+
+                    <Separator orientation="vertical" className="!h-5" />
+
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                className="group"
+                                disabled={isGenerating}
+                                onClick={() => handleGenerateIntroduction()}
+                            >
+                                <SparkleAi />
+                                <span className="text-purple-600 font-semibold">Generate</span>
+                            </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                            <p>Generate dengan AI</p>
+                        </TooltipContent>
+                    </Tooltip>
+                    {showButtons && (
+                        <>
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <Button
+                                        size="sm"
+                                        variant="outline"
+                                        className="group"
+                                        onClick={() => handleResetIntroduction()}
+                                    >
+                                        <RotateCcw className="group-hover:-rotate-90 transition-transform" />
+                                        <span>Reset</span>
+                                    </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                    <p>Reset ke Default</p>
+                                </TooltipContent>
+                            </Tooltip>
+
+                            {hasChangedFromLastSaved && (
+                                <Tooltip>
+                                    <TooltipTrigger asChild>
+                                        <Button
+                                            size="sm"
+                                            onClick={() => handleSaveIntroduction()}
+                                        >
+                                            <Save />
+                                            <span>Simpan</span>
+                                        </Button>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                        <p>Simpan Perubahan</p>
+                                    </TooltipContent>
+                                </Tooltip>
+                            )}
+                        </>
+                    )}
+                </div>
+            </>
+        )
+    }
+
+    // Handle Introduction
+    const handleGenerateIntroduction = async () => {
+        // title
+        const title = module?.title ? module?.title : moduleTemp?.title ? moduleTemp?.title : null;
+        // check title jika belum ada
+        if (!title) {
+            toast.error("Silakan buat Judul Module terlebih dahulu");
+            return null;
+        }
+        // Generate
+        try {
+            setIsGenerating(true);
+            // response
+            const res = await fetch("https://agent.wahyuachmad.com/webhook/4f92efd7-4560-4ec5-9f2f-b6b050681bfa", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    type: "generate_introduction",
+                    text: "Buatkan Introduction untuk Module Training Berjudul: " + title
+                })
+            });
+            // ambil json
+            const data = await res.json();
+            // check
+            if (data?.success) {
+                // set data summary
+                setIntroduction(data?.data?.text);
+                // Check editor
+                if (window.editor) {
+                    window.editor.commands.setContent(data?.data?.text);
+                }
+            }
+        } catch (err) {
+            console.log(err);
+            toast.error("Error loading module");
+        } finally {
+            setIsGenerating(false);
+        }
+    }
+
+    return (
+        <>
+            <ModuleWorkspaceTitle Action={ActionButton} />
+            <GradientGenerate isGenerating={isGenerating} borderWidth="4px" borderRadius="15px" className='relative'>
+                <div className='min-h-[696px]'>
+                    {isGenerating && (
+                        <>
+                            <div className='absolute z-10 h-full w-full flex items-center justify-center'>
+                                <SparkleLoader size='sm' />
+                            </div>
+                            <div className='flex items-center justify-center animate-pulse absolute w-full h-full bg-linear-to-tr z-1 from-cyan-50/80 to-pink-100/80 rounded-[12px]'></div>
+                        </>
+                    )}
+                    <EditorSwitchRender editMode={editMode} handleChange={handleChange} introduction={introduction} />
+                </div>
+            </GradientGenerate>
+        </>
+    );
+}

@@ -1,0 +1,265 @@
+'use client';
+
+import * as React from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
+import * as LucideIcons from 'lucide-react';
+import { Calendar } from 'lucide-react';
+import { Loader } from 'lucide-react';
+import DateNow from '@/components/ui/date-now';
+import { SidebarProvider, SidebarInset, SidebarMenuSkeleton, SidebarTrigger, Sidebar, SidebarHeader, SidebarContent, SidebarFooter, SidebarRail, SidebarGroup, SidebarGroupLabel, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarMenuSub, SidebarMenuSubItem, SidebarMenuSubButton } from '@/components/animate-ui/components/radix/sidebar';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/animate-ui/primitives/radix/collapsible';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/animate-ui/components/radix/dropdown-menu';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { useAuth } from '@/contexts/AuthContext';
+import { useMenu } from '@/hooks/use-menu';
+import { Skeleton } from '@/components/ui/skeleton';
+import NotificationListener from '@/components/partials/NotificationListener';
+
+
+function LayoutContent({ children }) {
+    const router = useRouter();
+    const isMobile = useIsMobile();
+    const pathname = usePathname();
+    const { user, logout, loading: loading_auth } = useAuth();
+    const { menus, loading } = useMenu();
+    // set background for training modules
+    const pageName = pathname.split('/')[3] || 'home';
+
+    const data = {
+        app: {
+            title: 'Alex AC Mobil',
+            subtitle: 'Spesialis AC Mobil Semarang'
+        },
+        user: {
+            name: user?.full_name || user?.name,
+            initial_name: user?.initial_name,
+            email: user?.email,
+            avatar: user?.avatar,
+        },
+    };
+
+    const isSubmenuActive = (submenu) => {
+        return submenu?.some(sub => pathname === sub.path);
+    };
+
+    return (
+        <SidebarProvider>
+            <Sidebar collapsible="icon" animateOnHover={true}>
+                <SidebarHeader>
+                    <SidebarMenu>
+                        <SidebarMenuItem>
+                            <SidebarMenuButton
+                                size="lg"
+                                className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+                            >
+                                <div className="flex aspect-square size-8 items-center justify-center rounded-lg">
+                                    <LucideIcons.Fan className="size-6" />
+                                </div>
+                                <div className="grid flex-1 text-left text-sm leading-tight">
+                                    <span className="truncate font-semibold">
+                                        {data.app.title}
+                                    </span>
+                                    <span className="truncate text-xs">
+                                        {data.app.subtitle}
+                                    </span>
+                                </div>
+                            </SidebarMenuButton>
+                        </SidebarMenuItem>
+                    </SidebarMenu>
+                </SidebarHeader>
+
+                <SidebarContent>
+                    <SidebarGroup>
+                        <SidebarMenu className="gap-0">
+                            {loading ? (
+                                <>
+                                    <SidebarMenuSkeleton />
+                                    <SidebarMenuSkeleton />
+                                    <SidebarMenuSkeleton />
+                                    <SidebarMenuSkeleton />
+                                    <SidebarMenuSkeleton />
+                                </>
+                            ) : menus.map((menu) => {
+                                const Icon = menu.icon_component;
+                                const hasSubmenu = menu.submenu && menu.submenu.length > 0;
+                                const isActive = hasSubmenu
+                                    ? isSubmenuActive(menu.submenu)
+                                    : pathname === menu.path;
+
+                                if (menu.is_label) return (
+                                    <SidebarGroupLabel key={menu?.id} className="mt-2">{menu?.name}</SidebarGroupLabel>
+                                );
+
+                                if (hasSubmenu) {
+                                    return (
+                                        <Collapsible
+                                            key={menu.id}
+                                            asChild
+                                            defaultOpen={isActive}
+                                            className="group/collapsible"
+                                        >
+                                            <SidebarMenuItem>
+                                                <CollapsibleTrigger asChild>
+                                                    <SidebarMenuButton
+                                                        tooltip={menu.name}
+                                                        isActive={isActive}
+                                                        className="cursor-pointer"
+                                                    >
+                                                        <Icon className="size-4" />
+                                                        <span>{menu.name}</span>
+                                                        <LucideIcons.ChevronRight className="ml-auto transition-transform duration-300 group-data-[state=open]/collapsible:rotate-90" />
+                                                    </SidebarMenuButton>
+                                                </CollapsibleTrigger>
+                                                <CollapsibleContent>
+                                                    <SidebarMenuSub>
+                                                        {menu.submenu.map((subItem) => {
+                                                            const isSubActive = pathname === subItem.path;
+
+                                                            return (
+                                                                <SidebarMenuSubItem key={subItem.id}>
+                                                                    <SidebarMenuSubButton
+                                                                        asChild
+                                                                        isActive={isSubActive}
+                                                                    >
+                                                                        <Link href={subItem.path}>
+                                                                            <span>{subItem.name}</span>
+                                                                        </Link>
+                                                                    </SidebarMenuSubButton>
+                                                                </SidebarMenuSubItem>
+                                                            );
+                                                        })}
+                                                    </SidebarMenuSub>
+                                                </CollapsibleContent>
+                                            </SidebarMenuItem>
+                                        </Collapsible>
+                                    );
+                                }
+
+                                return (
+                                    <SidebarMenuItem key={menu.id}>
+                                        <SidebarMenuButton
+                                            asChild
+                                            tooltip={menu.name}
+                                            isActive={isActive}
+                                        >
+                                            <Link href={menu.path}>
+                                                <Icon className="size-4" />
+                                                <span>{menu.name}</span>
+                                            </Link>
+                                        </SidebarMenuButton>
+                                    </SidebarMenuItem>
+                                );
+                            })}
+                        </SidebarMenu>
+                    </SidebarGroup>
+                </SidebarContent>
+
+                <SidebarFooter>
+                    <SidebarMenu>
+                        <SidebarMenuItem>
+                            <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <SidebarMenuButton
+                                        size="lg"
+                                        className="data-[state=open]:bg-sidebar-accent cursor-pointer data-[state=open]:text-sidebar-accent-foreground"
+                                    >
+                                        <Avatar className="h-8 w-8 rounded-lg">
+                                            <AvatarImage
+                                                src={data.user.avatar}
+                                                alt={data.user.name}
+                                            />
+                                            <AvatarFallback className="rounded-lg">
+                                                {loading_auth ? (<Loader className='w-4 h-4 animate-spin text-stone-500' />) : data.user.initial_name}
+                                            </AvatarFallback>
+                                        </Avatar>
+                                        <div className="grid flex-1 text-left text-sm leading-tight">
+                                            {loading_auth ? (<Skeleton className="h-4.5 w-30" />) : (<span className="truncate font-semibold">{data.user.name}</span>)}
+                                            {loading_auth ? (<Skeleton className="h-3 mt-1 w-36" />) : (<span className="truncate text-xs">{data.user.email}</span>)}
+                                        </div>
+                                        <LucideIcons.ChevronsUpDown className="ml-auto size-4" />
+                                    </SidebarMenuButton>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent
+                                    className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
+                                    side={isMobile ? 'bottom' : 'right'}
+                                    align="end"
+                                    sideOffset={4}
+                                >
+                                    <DropdownMenuLabel className="p-0 font-normal">
+                                        <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
+                                            <Avatar className="h-8 w-8 rounded-lg">
+                                                <AvatarImage
+                                                    src={data.user.avatar}
+                                                    alt={data.user.name}
+                                                />
+                                                <AvatarFallback className="rounded-lg">
+                                                    {loading_auth ? (<Loader className='w-4 h-4 animate-spin text-stone-500' />) : data.user.initial_name}
+                                                </AvatarFallback>
+                                            </Avatar>
+                                            <div className="grid flex-1 text-left text-sm leading-tight">
+                                                {loading_auth ? (<Skeleton className="h-4.5 w-30" />) : (<span className="truncate font-semibold">{data.user.name}</span>)}
+                                                {loading_auth ? (<Skeleton className="h-3 mt-1 w-36" />) : (<span className="truncate text-xs">{data.user.email}</span>)}
+                                            </div>
+                                        </div>
+                                    </DropdownMenuLabel>
+                                    <DropdownMenuSeparator />
+                                    <DropdownMenuGroup>
+                                        <DropdownMenuItem onClick={() => router.push('/app/panel/profile')} className="cursor-pointer">
+                                            <LucideIcons.BadgeCheck />
+                                            Profile
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem className="cursor-pointer">
+                                            <LucideIcons.Settings />
+                                            Settings
+                                        </DropdownMenuItem>
+                                    </DropdownMenuGroup>
+                                    <DropdownMenuSeparator />
+                                    <DropdownMenuItem onClick={() => logout()}>
+                                        <LucideIcons.LogOut />
+                                        Log out
+                                    </DropdownMenuItem>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+                        </SidebarMenuItem>
+                    </SidebarMenu>
+                </SidebarFooter>
+                <SidebarRail />
+            </Sidebar>
+
+            <SidebarInset data-page={pageName} className="data-[page=training-modules]:bg-sidebar">
+                <header className="flex border-b h-14 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
+                    <div className="flex items-center gap-2 px-4">
+                        <SidebarTrigger className="rounded-lg" />
+                    </div>
+                    <div className="w-full max-w-6xl mx-auto flex justify-between items-center pe-4 xl:pe-16">
+                        <div className='flex gap-2 items-center'>
+                            <Calendar className='w-4 h-5 text-stone-500' />
+                            {loading_auth ? (<Skeleton className="h-5 w-52" />) : (<DateNow />)}
+                        </div>
+                        {user?.uuid && (<NotificationListener userUuid={user.uuid} modelType='admin' />)}
+                    </div>
+                </header>
+
+                {children}
+                
+                <footer className='border-t'>
+                    <div className='w-full max-w-6xl mx-auto'>
+                        <div className='p-4 flex justify-between items-center flex-col md:flex-row'>
+                            <small>Alex AC Mobil Semarang © 2025. All rights reserved.</small>
+                            <small>Made with 🧡 by <span className='text-orange-500 font-semibold'>I te team</span></small>
+                        </div>
+                    </div>
+                </footer>
+            </SidebarInset>
+        </SidebarProvider>
+    );
+}
+
+export default function Layout({ children }) {
+    return (
+        <LayoutContent>{children}</LayoutContent>
+    );
+}
