@@ -8,7 +8,7 @@ const nextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'alex_ac_mobil_api.dev',
+        hostname: 'alex_ac_mobil_api.test',
         pathname: '/storage/**',
       },
     ],

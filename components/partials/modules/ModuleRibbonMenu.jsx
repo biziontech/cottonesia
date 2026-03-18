@@ -2,13 +2,14 @@
 
 import { Button } from "@/components/ui/button";
 import { useModule } from "@/contexts/ModuleContext";
-import { BookDown, Milestone, PencilRuler, FileInput, BookOpenText } from "lucide-react";
+import { BookDown, Milestone, PencilRuler, FileInput, BookOpenText, Brain } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { HomeRibbonIntroduction } from '@/components/partials/modules/home/HomeRibbonIntroduction';
 import { HomeRibbonObjective } from '@/components/partials/modules/home/HomeRibbonObjective';
 import { HomeRibbonCreator } from '@/components/partials/modules/home/HomeRibbonCreator';
 import { HomeRibbonPublish } from '@/components/partials/modules/home/HomeRibbonPublish';
 import { HomeRibbonMateri } from '@/components/partials/modules/home/HomeRibbonMateri';
+import { HomeRibbonQuiz } from '@/components/partials/modules/home/HomeRibbonQuiz';
 import StripePattern from '@/components/partials/StripePattern';
 import { Separator } from "@/components/ui/separator";
 
@@ -52,6 +53,17 @@ export const ModuleRibbonMenu = () => {
         });
     }
 
+    /* Quiz */
+    const handleQuizSetup = () => {
+        setActive({
+            key: "quiz",
+            content: HomeRibbonQuiz,
+            title: "Quiz",
+            subtitle: "Buat dan kelola soal kuis untuk evaluasi pembelajaran",
+            icon: Brain
+        });
+    }
+
 
     return (
         <>
@@ -60,7 +72,7 @@ export const ModuleRibbonMenu = () => {
                 <span className="border-primary/20 bg-white absolute bottom-0 right-0 z-30 size-2.5 translate-x-1/2 translate-y-1/2 rotate-45 rounded-xs border"></span>
                 <div className='z-1 flex flex-col xl:flex-row gap-2 items-center justify-center'>
 
-                    <div className="gap-1 flex items-center justify-center">
+                    <div className="gap-1 flex items-center justify-center flex-wrap">
                         {/* LATAR BELAKANG */}
                         <Tooltip>
                             <TooltipTrigger asChild>
@@ -136,9 +148,28 @@ export const ModuleRibbonMenu = () => {
                                 <p>Import atau tambah materi modul</p>
                             </TooltipContent>
                         </Tooltip>
+
+                        {/* Quiz */}
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <Button
+                                    size="sm"
+                                    variant={active?.key === "quiz" ? "outline" : "ghost"}
+                                    data-active={active?.key === "quiz"}
+                                    onClick={() => handleQuizSetup()}
+                                    className={`data-[active=true]:text-primary data-[active=true]:bg-white data-[active=true]:hover:bg-gray-100 items-center group gap-2 ${active?.key !== "quiz" && 'border border-transparent'}`}
+                                >
+                                    <Brain />
+                                    <span>Quiz</span>
+                                </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                                <p>Buat Quiz untuk module ini</p>
+                            </TooltipContent>
+                        </Tooltip>
                     </div>
 
-                    <div className="gap-1 flex items-center justify-center">
+                    <div className="gap-1 flex items-center flex-wrap justify-center">
                         <Separator orientation="vertical" className="!h-5 mx-0.5 hidden xl:block" />
 
                         <HomeRibbonCreator />
@@ -154,74 +185,3 @@ export const ModuleRibbonMenu = () => {
 
     );
 }
-
-{/* <div className="flex bg-white divide-x divide-dotted rounded-xl shadow-sm w-fit">
-            <div className="text-sm text-gray-600 flex flex-col items-center">
-                <div className="flex flex-col flex-1 items-center justify-end p-2 rounded-lg gap-2">
-                    <div className="flex divide-x">
-
-                        <div className="pe-1.5">
-                            <Button
-                                variant="ghost"
-                                data-active={active?.key === "pendahuluan"}
-                                onClick={() => handleIntroductionSetup()}
-                                className="data-[active=true]:text-primary data-[active=true]:bg-gray-50 data-[active=true]:hover:bg-gray-100 flex h-auto flex-col gap-1.5 items-center justify-center cursor-pointer group"
-                            >
-                                <PencilRuler />
-                                <small>Setup</small>
-                            </Button>
-                        </div>
-
-                        <div className="ps-1.5">
-                            <Tooltip>
-                                <TooltipTrigger asChild>
-                                    <Button
-                                        variant="ghost"
-                                        data-active={active?.key === "tujuan"}
-                                        className="data-[active=true]:text-primary data-[active=true]:bg-gray-50 data-[active=true]:hover:bg-gray-100 flex h-auto flex-col gap-1.5 items-center justify-center cursor-pointer group"
-                                        onClick={() => handleTujuanSetup()}
-                                    >
-                                        <Milestone />
-                                        <small>Tujuan</small>
-                                    </Button>
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                    <p>Tujuan dari modul ini dibuat</p>
-                                </TooltipContent>
-                            </Tooltip>
-                        </div>
-
-                    </div>
-                </div>
-                <div className="px-3 pb-1.5 pt-1 border-t w-full text-center">
-                    <small className="font-semibold">Pendahuluan</small>
-                </div>
-            </div>
-
-            <HomeRibbonCreator />
-
-            <HomeRibbonPublish />
-
-            <div className="flex gap-3">
-                <div className="text-sm text-gray-600 flex flex-col items-center">
-                    <div className="flex flex-col flex-1 items-center justify-end p-2 rounded-lg gap-2">
-                        <div className="flex divide-x">
-                            <div className="pe-1.5">
-                                <Button
-                                    variant="ghost"
-                                    data-active={active?.key === "import"}
-                                    onClick={() => handleImportMateri()}
-                                    className="data-[active=true]:text-primary data-[active=true]:bg-gray-50 data-[active=true]:hover:bg-gray-100 flex h-auto flex-col gap-1.5 items-center justify-center cursor-pointer group"
-                                >
-                                    <FileInput />
-                                    <small>Import</small>
-                                </Button>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="px-3 pb-1.5 pt-1 border-t w-full text-center">
-                        <small className="font-semibold">Materi</small>
-                    </div>
-                </div>
-            </div>
-        </div> */}

@@ -12,8 +12,6 @@ const ThumbnailSlide = ({ item, index, isSelected }) => {
 
     const { selectedSlide, setSelectedSlide } = useModule();
 
-    console.log(selectedSlide);
-
     return (
         <div className='flex relative gap-1 cursor-pointer' onClick={() => setSelectedSlide(item)}>
             <div className='absolute p-0.5 pt-1 pr-1 rounded-tr-md bottom-1 left-7 aspect-square flex items-center justify-center bg-white text-xs font-semibold mt-2 text-gray-600 text-left z-10'>
@@ -66,13 +64,17 @@ const ThumbnailSlide = ({ item, index, isSelected }) => {
                 className={`${isSelected && 'outline-primary outline-2 shadow-primary'} transition-colors hover:outline-2 hover:outline-primary flex-1 bg-white p-1 shadow-sm rounded-xl flex items-center justify-center text-sm gap-2 font-medium group relative overflow-hidden`}
             >
                 <div className='absolute m-1 inset-0 bg-linear-to-t from-white/50 from-0% via-transparent via-35% to-transparent to-95%% rounded-lg transition-colors'></div>
-                <img
-                    src={item.page_thumbnail}
-                    alt={item.ulid}
-                    className="object-cover rounded-lg aspect-video"
-                    loading="eager"
-                    quality={50}
-                />
+                {!item.page_thumbnail ? (
+                    <span className='aspect-video w-full'></span>
+                ) : (
+                    <img
+                        src={item.page_thumbnail}
+                        alt={item.ulid}
+                        className="object-cover rounded-lg aspect-video"
+                        loading="eager"
+                        quality={50}
+                    />
+                )}
             </div>
         </div>
     );
@@ -203,7 +205,7 @@ export const ModuleSlideContent = () => {
                         <ThumbnailSlide item={item} index={index} isSelected={selectedSlide?.ulid === item.ulid} />
                     </SortableItem>
                 )) : (
-                    <div className='text-sm text-gray-500 italic'>Tidak ada slide tersedia.</div>
+                    <div className='text-sm text-gray-500 italic text-center'>Slide Kosong</div>
                 )}
             </SortableContent>
 

@@ -10,6 +10,7 @@ import { SparkleAi } from '@/components/partials/SparkleAi';
 import { GradientGenerate } from '@/components/partials/GradientGenerate';
 import { SparkleLoader } from "@/components/partials/SparkleLoader";
 import { Skeleton } from '@/components/ui/skeleton';
+import { Badge } from '@/components/ui/badge';
 
 export const ModuleStatusDetail = () => {
     const { module, moduleTemp, setModuleTemp } = useModule();
@@ -28,7 +29,13 @@ export const ModuleStatusDetail = () => {
                         <span className='font-semibold text-xs'>Status</span>
                     </div>
                     <div>
-                        <span className='font-semibold text-sm text-amber-600'>Draft</span>
+                        {module?.status == 1 ?
+                            (
+                                <Badge variant="secondary" className='font-semibold text-xs rounded-md'>Draft</Badge>
+                            ) : (
+                                <Badge className='font-semibold text-xs rounded-md'>Published</Badge>
+                            )}
+
                     </div>
                 </div>
 
@@ -45,21 +52,11 @@ export const ModuleStatusDetail = () => {
                 <div className='flex gap-2'>
                     <div className='flex items-center gap-2 text-sm min-w-30 text-gray-600'>
                         <GraduationCap className='size-4' />
-                        <span className='font-semibold text-xs'>learning</span>
+                        <span className='font-semibold text-xs'>Total Slides</span>
                     </div>
                     <div className='flex gap-1 items-center'>
-                        <span className='font-semibold text-sm'>5</span>
-                        <span className='font-medium text-sm text-gray-500'>user</span>
-                    </div>
-                </div>
-
-                <div className='flex gap-2'>
-                    <div className='flex items-center gap-2 text-sm min-w-30 text-gray-600'>
-                        <Calendar className='size-4' />
-                        <span className='font-semibold text-xs'>Last Updated</span>
-                    </div>
-                    <div>
-                        <span className='font-semibold text-sm'>31 Jan 2026</span>
+                        <span className='font-semibold text-sm'>{module?.slides?.length || 0}</span>
+                        <span className='font-medium text-sm text-gray-500'>slide</span>
                     </div>
                 </div>
 

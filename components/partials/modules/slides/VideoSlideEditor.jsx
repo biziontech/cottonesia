@@ -277,8 +277,18 @@ export const VideoSlideEditor = ({ item, onUpdate }) => {
                 ) : (
                     <div className="h-full flex flex-col items-center justify-center gap-4 border-2 border-dashed rounded-lg hover:bg-accent/30 transition-colors">
                         <div className="flex flex-col items-center gap-2 text-center">
-                            <div className="flex items-center justify-center rounded-xl border p-2.5">
-                                <VideoIcon className="size-5 text-muted-foreground" />
+                            <div className="flex items-center justify-center rounded-xl border p-2">
+                                <svg className='size-5' xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                                    <g>
+                                        <path d="M18.7 8.97989L4.14 17.7099C4.05 17.3799 4 17.0299 4 16.6699V7.32989C4 4.24989 7.33 2.32989 10 3.86989L14.04 6.19989L18.09 8.53989C18.31 8.66989 18.52 8.80989 18.7 8.97989Z" className='fill-rose-500' />
+                                        <path opacity="0.4" d="M18.0902 15.4598L14.0402 17.7998L10.0002 20.1298C8.09022 21.2298 5.84021 20.5698 4.72021 18.9598L5.14021 18.7098L19.5802 10.0498C20.5802 11.8498 20.0902 14.3098 18.0902 15.4598Z" className='fill-rose-500' />
+                                    </g>
+                                    <defs>
+                                        <clipPath id="clip0_4418_4372">
+                                            <rect className='size-5 fill-rose-500' />
+                                        </clipPath>
+                                    </defs>
+                                </svg>
                             </div>
                             <p className="font-medium text-sm">
                                 Belum ada video. Silakan unggah video.

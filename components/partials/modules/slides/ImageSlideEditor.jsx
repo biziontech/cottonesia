@@ -12,7 +12,6 @@ import { Cropper, CropperArea, CropperImage } from "@/components/ui/cropper";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { ImageZoom } from "@/components/partials/ImageZoom";
-import { SparkleLoader } from "@/components/partials/SparkleLoader";
 import { toast } from "sonner";
 import { Upload, X, Crop, RotateCcw, Save, Trash, Mic, StopCircle, Image as ImageIcon, Type, Video as VideoIcon, Camera } from "lucide-react";
 import NextImage from "next/image";
@@ -189,7 +188,6 @@ export const ImageSlideEditor = ({ item, onUpdate }) => {
         setImageUrl(null);
         setFiles([]);
         setFilesWithCrops(new Map());
-        if (onUpdate) onUpdate({ page_image: null });
         toast.success("Gambar berhasil dihapus");
     };
 
@@ -210,11 +208,10 @@ export const ImageSlideEditor = ({ item, onUpdate }) => {
         }
     };
 
-    // Check if current image is different from default
-    const isModified = imageUrl !== defaultImage;
-
     return (
         <div className="flex flex-col gap-4 p-1">
+
+
             <div className="aspect-video relative bg-white p-3 shadow-sm rounded-xl">
                 {imageUrl ? (
                     <div className="relative h-full w-full">
@@ -243,8 +240,19 @@ export const ImageSlideEditor = ({ item, onUpdate }) => {
                         {files.length === 0 ? (
                             <FileUploadDropzone className="h-full">
                                 <div className="flex flex-col items-center gap-2 text-center">
-                                    <div className="flex items-center justify-center rounded-xl border p-2.5">
-                                        <Upload className="size-5 text-muted-foreground" />
+                                    <div className="flex items-center justify-center rounded-xl border p-2">
+                                        <svg className='size-5 fill-white' xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" >
+                                            <g>
+                                                <path className='fill-sky-500' opacity="0.4" d="M22 7.81V13.9L20.37 12.5C19.59 11.83 18.33 11.83 17.55 12.5L13.39 16.07C12.61 16.74 11.35 16.74 10.57 16.07L10.23 15.79C9.52 15.17 8.39 15.11 7.59 15.65L2.67 18.95L2.56 19.03C2.19 18.23 2 17.28 2 16.19V7.81C2 4.17 4.17 2 7.81 2H16.19C19.83 2 22 4.17 22 7.81Z" />
+                                                <path className='fill-sky-500' d="M9.00012 10.3801C10.3146 10.3801 11.3801 9.31456 11.3801 8.00012C11.3801 6.68568 10.3146 5.62012 9.00012 5.62012C7.68568 5.62012 6.62012 6.68568 6.62012 8.00012C6.62012 9.31456 7.68568 10.3801 9.00012 10.3801Z" />
+                                                <path className='fill-sky-500' d="M22.0001 13.8996V16.1896C22.0001 19.8296 19.8301 21.9996 16.1901 21.9996H7.81006C5.26006 21.9996 3.42006 20.9296 2.56006 19.0296L2.67006 18.9496L7.59006 15.6496C8.39006 15.1096 9.52006 15.1696 10.2301 15.7896L10.5701 16.0696C11.3501 16.7396 12.6101 16.7396 13.3901 16.0696L17.5501 12.4996C18.3301 11.8296 19.5901 11.8296 20.3701 12.4996L22.0001 13.8996Z" />
+                                            </g>
+                                            <defs>
+                                                <clipPath>
+                                                    <rect className='size-5 fill-white' fill="white" />
+                                                </clipPath>
+                                            </defs>
+                                        </svg>
                                     </div>
                                     <p className="font-medium text-sm">Seret & lepas gambar di sini</p>
                                     <p className="text-muted-foreground text-xs">
@@ -310,6 +318,18 @@ export const ImageSlideEditor = ({ item, onUpdate }) => {
                             )}
                         </>
                     )}
+                    {console.log(item)}
+                    {(!imageUrl && item?.slide_type == "image" && item?.page_image) && (
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <Button variant="outline" size="sm" onClick={handleResetToDefault}>
+                                    <RotateCcw />
+                                    <span>Reset</span>
+                                </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>Reset ke Default</TooltipContent>
+                        </Tooltip>
+                    )}
 
                     {(imageUrl || files.length > 0) && (
                         <>
@@ -325,15 +345,6 @@ export const ImageSlideEditor = ({ item, onUpdate }) => {
 
                             {files.length > 0 && (
                                 <>
-                                    <Tooltip>
-                                        <TooltipTrigger asChild>
-                                            <Button variant="outline" size="sm" onClick={handleResetToDefault}>
-                                                <RotateCcw />
-                                                <span>Reset</span>
-                                            </Button>
-                                        </TooltipTrigger>
-                                        <TooltipContent>Reset ke Default</TooltipContent>
-                                    </Tooltip>
 
                                     <Tooltip>
                                         <TooltipTrigger asChild>
@@ -403,6 +414,8 @@ export const ImageSlideEditor = ({ item, onUpdate }) => {
                     </DialogContent>
                 </Dialog>
             </ModuleActionSlides>
+
+
         </div>
     );
 };

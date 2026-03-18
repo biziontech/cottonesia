@@ -23,16 +23,16 @@ const TimeScrollPicker = ({ hour, minute, setHour, setMinute }) => {
             <div className="flex gap-1">
                 <div className="flex flex-col items-center">
                     <p className="text-xs text-slate-500 mb-1">Hour</p>
-                    <ScrollArea className="h-[280px] w-[50px] [&_[data-slot='scroll-area-scrollbar']]:w-1.5">
+                    <ScrollArea className="h-[280px] w-[42px] [&_[data-slot='scroll-area-scrollbar']]:w-1.5">
                         <ScrollBar />
-                        <div className="flex flex-col gap-1 pr-2">
+                        <div className="flex flex-col gap-1">
                             {generateHours().map((h) => (
                                 <Button
                                     key={h}
                                     variant={hour === h ? "default" : "ghost"}
                                     size="icon"
                                     onClick={() => setHour(h)}
-                                    className="justify-center text-sm w-full"
+                                    className="justify-center text-sm rounded-lg"
                                 >
                                     {h}
                                 </Button>
@@ -42,15 +42,15 @@ const TimeScrollPicker = ({ hour, minute, setHour, setMinute }) => {
                 </div>
                 <div className="flex flex-col items-center">
                     <p className="text-xs text-slate-500 mb-1">Min</p>
-                    <ScrollArea className="h-[280px] w-[50px] [&_[data-slot='scroll-area-scrollbar']]:w-1.5">
-                        <div className="flex flex-col gap-1 pr-2">
+                    <ScrollArea className="h-[280px] w-[42px] [&_[data-slot='scroll-area-scrollbar']]:w-1.5">
+                        <div className="flex flex-col gap-1">
                             {generateMinutes().map((m) => (
                                 <Button
                                     key={m}
                                     variant={minute === m ? "default" : "ghost"}
                                     size="icon"
                                     onClick={() => setMinute(m)}
-                                    className="justify-center text-sm w-full"
+                                    className="justify-center text-sm rounded-lg"
                                 >
                                     {m}
                                 </Button>
@@ -146,8 +146,7 @@ export const HomeRibbonPublish = () => {
     };
 
     return (
-        <div className="flex w-full gap-1.5 items-center">
-
+        <>
             {/* ── Tombol Tanggal ── */}
             <Popover>
                 <PopoverTrigger asChild>
@@ -225,6 +224,6 @@ export const HomeRibbonPublish = () => {
                     </TooltipContent>
                 </Tooltip>
             )}
-        </div>
+        </>
     );
 }

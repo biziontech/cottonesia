@@ -1,6 +1,6 @@
 import { TagsInput, TagsInputClear, TagsInputInput, TagsInputItem, TagsInputLabel, TagsInputList, TagsInputDropdown } from "@/components/ui/tags-input";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { X, Trash, Save, TextCursorInputIcon, Dot } from 'lucide-react';
+import { X, Trash, Save, TextCursorInputIcon, Dot, Trash2 } from 'lucide-react';
 import { Separator } from "@/components/ui/separator";
 import Required from "@/components/partials/Required";
 import { Button } from "@/components/ui/button";
@@ -53,6 +53,7 @@ export const ModuleSlideAttactments = ({ initialCategories = [] }) => {
                                 <Button
                                     size="sm"
                                     variant="outline"
+                                    disabled={!selectedSlide}
                                     onClick={() => handleSetAttachmentType('text')}
                                 >
                                     <Type />
@@ -62,6 +63,7 @@ export const ModuleSlideAttactments = ({ initialCategories = [] }) => {
                                 <Button
                                     size="sm"
                                     variant="outline"
+                                    disabled={!selectedSlide}
                                     onClick={() => handleSetAttachmentType('audio')}
                                 >
                                     <AudioLines />
@@ -73,37 +75,33 @@ export const ModuleSlideAttactments = ({ initialCategories = [] }) => {
                 ) : (
                     <div>
                         {hasAttachment == "audio" ? (
-                            <div className="flex flex-1 items-center justify-between w-full ps-3 pe-4 py-3 gap-2 bg-linear-to-r from-white from-30% to-sky-50 border rounded-xl">
-                                <div className="size-10 flex items-center justify-center bg-sky-50 rounded-xl">
-                                    <svg className="size-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                                        <g>
-                                            <path opacity="0.4" d="M16.1898 2H7.81976C4.17976 2 2.00977 4.17 2.00977 7.81V16.18C2.00977 19.82 4.17976 21.99 7.81976 21.99H16.1898C19.8298 21.99 21.9998 19.82 21.9998 16.18V7.81C21.9998 4.17 19.8298 2 16.1898 2Z" className="fill-sky-500" />
-                                            <path d="M6 14.8896C5.59 14.8896 5.25 14.5496 5.25 14.1396V9.84961C5.25 9.43961 5.59 9.09961 6 9.09961C6.41 9.09961 6.75 9.43961 6.75 9.84961V14.1396C6.75 14.5596 6.41 14.8896 6 14.8896Z" className="fill-sky-500" />
-                                            <path d="M9 16.3197C8.59 16.3197 8.25 15.9797 8.25 15.5697V8.42969C8.25 8.01969 8.59 7.67969 9 7.67969C9.41 7.67969 9.75 8.01969 9.75 8.42969V15.5697C9.75 15.9897 9.41 16.3197 9 16.3197Z" className="fill-sky-500" />
-                                            <path d="M12 17.75C11.59 17.75 11.25 17.41 11.25 17V7C11.25 6.59 11.59 6.25 12 6.25C12.41 6.25 12.75 6.59 12.75 7V17C12.75 17.41 12.41 17.75 12 17.75Z" className="fill-sky-500" />
-                                            <path d="M15 16.3197C14.59 16.3197 14.25 15.9797 14.25 15.5697V8.42969C14.25 8.01969 14.59 7.67969 15 7.67969C15.41 7.67969 15.75 8.01969 15.75 8.42969V15.5697C15.75 15.9897 15.41 16.3197 15 16.3197Z" className="fill-sky-500" />
-                                            <path d="M18 14.8896C17.59 14.8896 17.25 14.5496 17.25 14.1396V9.84961C17.25 9.43961 17.59 9.09961 18 9.09961C18.41 9.09961 18.75 9.43961 18.75 9.84961V14.1396C18.75 14.5596 18.41 14.8896 18 14.8896Z" className="fill-sky-500" />
-                                        </g>
-                                        <defs>
-                                            <clipPath>
-                                                <rect className="size-6" fill="white" />
-                                            </clipPath>
-                                        </defs>
-                                    </svg>
+                            <div className="bg-linear-to-tr from-white from-30% to-sky-50 border rounded-xl">
+                                <div className="flex flex-1 items-center justify-between w-full gap-2 ps-3 pe-2 py-2">
+                                    <div className="size-6 flex items-center justify-center bg-sky-50 rounded-md">
+                                        <svg className="size-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                                            <g>
+                                                <path opacity="0.4" d="M16.1898 2H7.81976C4.17976 2 2.00977 4.17 2.00977 7.81V16.18C2.00977 19.82 4.17976 21.99 7.81976 21.99H16.1898C19.8298 21.99 21.9998 19.82 21.9998 16.18V7.81C21.9998 4.17 19.8298 2 16.1898 2Z" className="fill-sky-500" />
+                                                <path d="M6 14.8896C5.59 14.8896 5.25 14.5496 5.25 14.1396V9.84961C5.25 9.43961 5.59 9.09961 6 9.09961C6.41 9.09961 6.75 9.43961 6.75 9.84961V14.1396C6.75 14.5596 6.41 14.8896 6 14.8896Z" className="fill-sky-500" />
+                                                <path d="M9 16.3197C8.59 16.3197 8.25 15.9797 8.25 15.5697V8.42969C8.25 8.01969 8.59 7.67969 9 7.67969C9.41 7.67969 9.75 8.01969 9.75 8.42969V15.5697C9.75 15.9897 9.41 16.3197 9 16.3197Z" className="fill-sky-500" />
+                                                <path d="M12 17.75C11.59 17.75 11.25 17.41 11.25 17V7C11.25 6.59 11.59 6.25 12 6.25C12.41 6.25 12.75 6.59 12.75 7V17C12.75 17.41 12.41 17.75 12 17.75Z" className="fill-sky-500" />
+                                                <path d="M15 16.3197C14.59 16.3197 14.25 15.9797 14.25 15.5697V8.42969C14.25 8.01969 14.59 7.67969 15 7.67969C15.41 7.67969 15.75 8.01969 15.75 8.42969V15.5697C15.75 15.9897 15.41 16.3197 15 16.3197Z" className="fill-sky-500" />
+                                                <path d="M18 14.8896C17.59 14.8896 17.25 14.5496 17.25 14.1396V9.84961C17.25 9.43961 17.59 9.09961 18 9.09961C18.41 9.09961 18.75 9.43961 18.75 9.84961V14.1396C18.75 14.5596 18.41 14.8896 18 14.8896Z" className="fill-sky-500" />
+                                            </g>
+                                            <defs>
+                                                <clipPath>
+                                                    <rect className="size-6" fill="white" />
+                                                </clipPath>
+                                            </defs>
+                                        </svg>
+                                    </div>
+                                    <div className="flex flex-col flex-1">
+                                        <p className="font-semibold text-xs">Audio Attactment</p>
+                                    </div>
                                 </div>
-                                <div className="flex flex-col flex-1">
-                                    <p className="font-semibold text-xs">Audio Attactment</p>
-                                    <span className="text-xs text-gray-600 font-medium">245 words</span>
-                                </div>
-                                {hasAttachment && (
-                                    <Button size="icon-sm" variant="outline" onClick={() => handleAttachmentDelete()}>
-                                        <Trash />
-                                    </Button>
-                                )}
                             </div>
                         ) : (
                             <div className="bg-linear-to-tr from-white from-30% to-yellow-50 border rounded-xl">
-                                <div className="flex flex-1 items-center justify-between w-full gap-2 ps-3 pe-4 py-2">
+                                <div className="flex flex-1 items-center justify-between w-full gap-2 ps-3 pe-2 py-2">
                                     <div className="size-6 flex items-center justify-center bg-yellow-50 rounded-md">
                                         <svg className="size-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                                             <g>
@@ -122,31 +120,6 @@ export const ModuleSlideAttactments = ({ initialCategories = [] }) => {
                                     <div className="flex flex-col flex-1">
                                         <p className="font-semibold text-xs">Text Attactment</p>
                                     </div>
-                                </div>
-                                <div className="border-t border-dashed p-2 flex flex-col">
-
-                                    <div className='flex gap-2'>
-                                        <div className='flex items-center gap-2 text-sm min-w-30 text-gray-600'>
-                                            <Dot className='size-4' />
-                                            <span className='font-semibold text-xs'>Word Count</span>
-                                        </div>
-                                        <div>
-                                            <span className='font-semibold text-sm'>250</span>
-                                        </div>
-                                    </div>
-                                    
-                                    <div className='flex gap-2'>
-                                        <div className='flex items-center gap-2 text-sm min-w-30 text-gray-600'>
-                                            <Dot className='size-4' />
-                                            <span className='font-semibold text-xs'>Duration Read</span>
-                                        </div>
-                                        <div>
-                                            <span className='font-semibold text-sm'>~ 1m 40s</span>
-                                        </div>
-                                    </div>
-
-                                </div>
-                                <div className="pb-1">
                                 </div>
                             </div>
                         )}

@@ -10,6 +10,7 @@ const ModuleContext = createContext(null);
 export function ModuleProvider({ children, uuid }) {
     const [active, setActive] = useState(null);
     const [module, setModule] = useState(null);
+    const [category, setCategory] = useState(null);
     const [staff, setStaff] = useState(null);
     const [moduleTemp, setModuleTemp] = useState({});
     const [actions, setActions] = useState({});
@@ -45,9 +46,35 @@ export function ModuleProvider({ children, uuid }) {
         }
     };
 
+    // -------------- Load Module --------------
+    const loadCategories = async () => {
+        if (!uuid) return;
+
+        try {
+            setLoading(true);
+
+            const response = await api.fetch(
+                `${API_URL}/office/category/data`,
+                { method: "GET" }
+            );
+
+            if (response?.success) {
+                setCategory(response.data);
+            } else {
+                toast.error(response?.message || "Error loading category");
+            }
+        } catch (err) {
+            console.log(err);
+            toast.error("Error loading category");
+        } finally {
+            setLoading(false);
+        }
+    };
+
     // autoload
     useEffect(() => {
         loadModule();
+        loadCategories();
     }, [uuid]);
 
     // Save
@@ -102,7 +129,10 @@ export function ModuleProvider({ children, uuid }) {
                 setOpenSideSlideDrawer,
                 openSideTabDrawer,
                 setOpenSideTabDrawer,
-                loadModule
+                category,
+                setCategory,
+                loadModule,
+
             }}
         >
             {children}

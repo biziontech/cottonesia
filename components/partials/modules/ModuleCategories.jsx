@@ -1,29 +1,44 @@
+'use client';
+
 import { TagsInput, TagsInputClear, TagsInputInput, TagsInputItem, TagsInputLabel, TagsInputList, TagsInputDropdown } from "@/components/ui/tags-input";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { X, Trash, Save } from 'lucide-react';
 import Required from "@/components/partials/Required";
 import { Button } from "@/components/ui/button";
-import { RefreshCcw } from 'lucide-react';
-import { useState } from "react";
+import { useModule } from "@/contexts/ModuleContext";
+import { useEffect, useState } from "react";
 
-export const ModuleCategories = ({ initialCategories = [] }) => {
-    const [categories, setCategories] = useState(initialCategories);
+export const ModuleCategories = () => {
+    const { category, module, setModuleTemp } = useModule();
+    const [categories, setCategories] = useState(module?.categories?.map(c => c.name) ?? []);
+    const [lastSavedCategories, setLastSavedCategories] = useState(module?.categories?.map(c => c.name) ?? []);
     const [edit, setEdit] = useState(false);
 
-    const categorySuggestions = [
-        "Technology",
-        "Business",
-        "Science",
-        "Health",
-        "Sports",
-        "Entertainment",
-        "Politics",
-        "Education"
-    ];
+    const originalCategories = module?.categories?.map(c => c.name) ?? [];
+    const hasChangedFromOriginal = JSON.stringify(categories) !== JSON.stringify(originalCategories);
+    const hasChangedFromLastSaved = JSON.stringify(categories) !== JSON.stringify(lastSavedCategories);
+    console.log(hasChangedFromOriginal, hasChangedFromLastSaved);
+    const showSaveButton = hasChangedFromOriginal || hasChangedFromLastSaved;
+
+    // Filter out already-added categories from suggestions
+    const filteredSuggestions = category
+        ?.map(c => c.name)
+        ?.filter(name => !categories.includes(name));
 
     const handleSaveCategories = () => {
-
+        setModuleTemp(prev => ({
+            ...prev,
+            categories: categories
+        }));
+        console.log("pawa", categories)
+        console.log("as", lastSavedCategories)
+        setLastSavedCategories([...categories]);
     }
+
+    const handleCancel = () => {
+        setEdit(false);
+    }
+
 
     return (
         <div className='rounded-xl bg-white shadow-sm'>
@@ -37,19 +52,19 @@ export const ModuleCategories = ({ initialCategories = [] }) => {
                     onValueChange={setCategories}
                     editable={edit}
                     addOnPaste
-                    suggestions={categorySuggestions}
+                    suggestions={filteredSuggestions}
                 >
-                    <TagsInputList className="rounded-xl border-0 p-0 focus-visible:outline-none focus-within:ring-0">
+                    <TagsInputList className="rounded-xl border-0 p-0 focus-visible:outline-none focus-within:ring-0 gap-2">
                         {(categories?.length === 0 && !edit) ? (
                             <div className="flex items-center justify-center w-full">
                                 <p className="text-gray-600">Belum ada categories</p>
                             </div>
                         ) : categories.map((category) => (
-                            <TagsInputItem key={category} value={category} className="rounded-lg">
+                            <TagsInputItem key={category} value={category} className="rounded-lg bg-gray-100 text-xs">
                                 {category}
                             </TagsInputItem>
                         ))}
-                        <TagsInputInput placeholder="Tambah Kategori" className="py-2 border px-3 rounded-lg" />
+                        <TagsInputInput placeholder="Tambah Kategori ..." className="px-3 rounded-lg text-xs" />
                         <TagsInputDropdown
                             onSelect={(suggestion) => {
                                 if (!categories.includes(suggestion)) {
@@ -63,7 +78,7 @@ export const ModuleCategories = ({ initialCategories = [] }) => {
             <div className="flex flex-1 items-center justify-end w-full px-4 py-3 border-t border-dashed gap-2">
                 <Tooltip>
                     <TooltipTrigger asChild>
-                        <Button variant="outline" size="sm" onClick={() => setEdit(!edit)}>
+                        <Button variant="outline" size="sm"  onClick={() => setEdit(!edit)}>
                             {edit ? (
                                 <span>Batal</span>
                             ) : (
@@ -78,12 +93,12 @@ export const ModuleCategories = ({ initialCategories = [] }) => {
                         <p>Ubah Categories</p>
                     </TooltipContent>
                 </Tooltip>
-                {edit && (
+                {(edit && showSaveButton) && (
                     <Tooltip>
                         <TooltipTrigger asChild>
                             <Button
                                 size="sm"
-                                onClick={() => handleSaveCategories()}
+                                onClick={handleSaveCategories}
                             >
                                 <Save />
                                 <span>Simpan</span>

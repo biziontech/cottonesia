@@ -1,6 +1,6 @@
 "use client"
 
-import { use, useState, useEffect } from 'react';
+import { use, useEffect } from 'react';
 import { ModuleTitle } from '@/components/partials/modules/ModuleTitle';
 import { ModuleSlides } from '@/components/partials/modules/ModuleSlides';
 import { ModuleCoverPage } from '@/components/partials/modules/ModuleCoverPage';
@@ -10,11 +10,10 @@ import { ModuleCategories } from '@/components/partials/modules/ModuleCategories
 import { ModuleWorkspace } from '@/components/partials/modules/ModuleWorkspace';
 import { ModuleSlideWorkspace } from '@/components/partials/modules/ModuleSlideWorkspace';
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
-import { ModuleRibbonHome } from "@/components/partials/modules/ModuleRibbonHome";
 import { ModuleRibbonMenu } from "@/components/partials/modules/ModuleRibbonMenu";
 import { ModuleStatusDetail } from "@/components/partials/modules/ModuleStatusDetail";
 import { ButtonGroup } from '@/components/ui/button-group';
-import { PencilRuler, PanelLeft, Save } from 'lucide-react';
+import { PanelLeft, Save } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import api from '@/lib/api';
@@ -188,7 +187,7 @@ const ModuleContent = () => {
             case 'slide':
                 return (
                     <div className='w-80 p-3 max-h-[calc(100dvh-48px)] overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden'>
-                        <RightPanelGeneral />
+                        <RightPanelSlides />
                     </div>
                 );
             default:
