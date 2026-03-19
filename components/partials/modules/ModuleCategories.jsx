@@ -15,10 +15,8 @@ export const ModuleCategories = () => {
     const [edit, setEdit] = useState(false);
 
     const originalCategories = module?.categories?.map(c => c.name) ?? [];
-    const hasChangedFromOriginal = JSON.stringify(categories) !== JSON.stringify(originalCategories);
     const hasChangedFromLastSaved = JSON.stringify(categories) !== JSON.stringify(lastSavedCategories);
-    console.log(hasChangedFromOriginal, hasChangedFromLastSaved);
-    const showSaveButton = hasChangedFromOriginal || hasChangedFromLastSaved;
+    const showSaveButton = hasChangedFromLastSaved;
 
     // Filter out already-added categories from suggestions
     const filteredSuggestions = category
@@ -26,17 +24,15 @@ export const ModuleCategories = () => {
         ?.filter(name => !categories.includes(name));
 
     const handleSaveCategories = () => {
+        setLastSavedCategories([...categories]);
         setModuleTemp(prev => ({
             ...prev,
             categories: categories
         }));
-        console.log("pawa", categories)
-        console.log("as", lastSavedCategories)
-        setLastSavedCategories([...categories]);
     }
 
     const handleCancel = () => {
-        setEdit(false);
+        setCategories([...originalCategories]);
     }
 
 
@@ -78,7 +74,12 @@ export const ModuleCategories = () => {
             <div className="flex flex-1 items-center justify-end w-full px-4 py-3 border-t border-dashed gap-2">
                 <Tooltip>
                     <TooltipTrigger asChild>
-                        <Button variant="outline" size="sm"  onClick={() => setEdit(!edit)}>
+                        <Button variant="outline" size="sm" onClick={() => {
+                            setEdit(!edit);
+                            if (edit) {
+                                handleCancel();
+                            }
+                        }}>
                             {edit ? (
                                 <span>Batal</span>
                             ) : (
@@ -93,7 +94,7 @@ export const ModuleCategories = () => {
                         <p>Ubah Categories</p>
                     </TooltipContent>
                 </Tooltip>
-                {(edit && showSaveButton) && (
+                {(showSaveButton) && (
                     <Tooltip>
                         <TooltipTrigger asChild>
                             <Button

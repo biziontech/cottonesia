@@ -21,14 +21,14 @@ export const MENU_CONFIG = [
         roles: ['super_admin'],
         submenu: null
     },
-    {
+    /* {
         id: 'quiz-results',
         name: 'Quiz Results',
         path: '/app/panel/quiz-results',
         icon: 'ClipboardCheck',
         roles: ['super_admin'],
         submenu: null
-    },
+    }, */
     {
         id: "app",
         is_label: true,
@@ -41,14 +41,6 @@ export const MENU_CONFIG = [
         icon: 'DatabaseZap',
         roles: ['super_admin'],
         submenu: [
-            {
-                id: 'angkatan',
-                name: 'Angkatan',
-                path: '/app/panel/batches',
-                icon: 'Building2',
-                roles: ['super_admin'],
-                submenu: null
-            },
             {
                 id: 'employees',
                 name: 'Karyawan',

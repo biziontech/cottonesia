@@ -1,6 +1,6 @@
 import { toast } from 'sonner';
 import { useState } from 'react';
-import { CircleDashed, Star, Calendar, GraduationCap } from 'lucide-react';
+import { CircleDashed, Star, Calendar, GraduationCap, Loader2 } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import Required from '@/components/partials/Required';
 import { useModule } from '@/contexts/ModuleContext';
@@ -32,8 +32,13 @@ export const ModuleStatusDetail = () => {
                         {module?.status == 1 ?
                             (
                                 <Badge variant="secondary" className='font-semibold text-xs rounded-md'>Draft</Badge>
-                            ) : (
+                            ) : module?.status == 2 ? (
                                 <Badge className='font-semibold text-xs rounded-md'>Published</Badge>
+                            ) : (
+                                <Badge variant="secondary" className='font-semibold text-xs rounded-md'>
+                                    <Loader2 className='animate-spin' />
+                                    <span>Loading..</span>
+                                </Badge>
                             )}
 
                     </div>

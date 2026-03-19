@@ -52,13 +52,24 @@
   --radius-4xl: calc(var(--radius) + 16px);
   --animate-spin-around: spin-around 0.8s linear infinite;
   @keyframes spin-around {
-  0% {
-    transform: rotate(-90deg);
+    0% {
+      transform: rotate(-90deg);
     }
-  100% {
-    transform: rotate(270deg);
+    100% {
+      transform: rotate(270deg);
     }
   }
+}
+
+@theme {
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
+  --color-danger: var(--danger);
+  --color-danger-foreground: var(--danger-foreground);
 }
 
 :root {
@@ -94,6 +105,15 @@
   --sidebar-accent-foreground: oklch(0.21 0.006 285.885);
   --sidebar-border: oklch(0.92 0.004 286.32);
   --sidebar-ring: oklch(0.708 0 0);
+  /* Alerts — fresh flat UI */
+  --success: #3dad72;
+  --success-foreground: #ffffff;
+  --warning: #f0a020;
+  --warning-foreground: #ffffff;
+  --info: #3a8fc6;
+  --info-foreground: #ffffff;
+  --danger: #e04848;
+  --danger-foreground: #ffffff;
 }
 
 .dark {
@@ -128,6 +148,15 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.439 0 0);
+  /* Alerts — fresh flat UI */
+  --success: #3dad72;
+  --success-foreground: #ffffff;
+  --warning: #f0a020;
+  --warning-foreground: #ffffff;
+  --info: #3a8fc6;
+  --info-foreground: #ffffff;
+  --danger: #e04848;
+  --danger-foreground: #ffffff;
 }
 
 @layer base {

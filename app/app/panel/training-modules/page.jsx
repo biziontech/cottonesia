@@ -11,7 +11,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { ToggleGroup, ToggleGroupItem } from '@/components/animate-ui/components/radix/toggle-group';
 import { SelectContent, SelectGroup, SelectItem, SelectLabel } from "@/components/ui/select"
 import { InputGroup, InputGroupAddon, InputGroupInput, InputGroupSelect } from "@/components/ui/input-group";
-import { Search, List, Grid2X2, ListFilter, X } from 'lucide-react';
+import { Search, List, Grid2X2, ListFilter, X, Brain } from 'lucide-react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from '@/components/ui/skeleton';
 import { useDebounce } from "use-debounce";
@@ -110,18 +110,25 @@ const DetailModule = ({ module, isListView }) => {
             {/* Author */}
             <div className={`py-3 flex items-center justify-between transition-all duration-300 ${!isListView && 'px-4'}`}>
                 <div className='flex gap-2 items-center justify-start text-xs font-medium flex-1 cursor-default'>
-                    <Avatar className="w-4.5 h-4.5">
-                        <AvatarImage src="#" alt="aa" />
-                        <AvatarFallback>{module?.creator?.initial_name}</AvatarFallback>
+                    <Avatar className="w-5 h-5">
+                        <AvatarImage src="https://github.com/shadcn.png" alt={module?.creator?.initial_name} />
+                        <AvatarFallback className="!text-xs">{module?.creator?.initial_name}</AvatarFallback>
                     </Avatar>
-                    <span className='line-clamp-1'>nama kretor</span>
+                    <span className='line-clamp-1'>{module?.creator ? module?.creator?.full_name : 'Unknown'}</span>
                 </div>
-                <div>
-                    {/* {item?.has_quiz ? (
-                                        <span className='px-2 py-0.5 me-1 cursor-default bg-lime-200 text-xs rounded-md font-medium'>{item?.quiz_count} Quiz</span>
-                                    ) : (
-                                        <span className='px-2 py-0.5 me-1 cursor-default bg-yellow-200 text-xs rounded-md font-medium'>No Quiz</span>
-                                    )} */}
+                <div className='flex gap-2'>
+                    {(module?.questions?.length > 0) && (
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <div className='px-1 py-1 me-1 bg-lime-200 text-xs rounded-md font-semibold cursor-pointer'>
+                                    <Brain className='size-3.5' />
+                                </div>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                                <p>{module?.questions?.length} Pertanyaan quiz</p>
+                            </TooltipContent>
+                        </Tooltip>
+                    )}
                 </div>
             </div>
             {/* detail */}
@@ -163,9 +170,8 @@ const DetailModule = ({ module, isListView }) => {
 
 // Module Card Component
 const ModuleCard = ({ module, isListView }) => {
-    console.log(module);
     return (
-        <div className="w-full transition-all duration-300 ease-in-out">
+        <div className="w-full transition-all duration-300 ease-in-out group">
             <Card className="border-0 shadow-xs rounded-2xl py-0 hover:shadow-sm transition-all duration-300">
                 <CardContent className="flex p-0 flex-col">
                     <div className={`flex p-0 group transition-all duration-500 ease-in-out ${isListView ? 'flex-row' : 'flex-col'}`}>
@@ -175,7 +181,7 @@ const ModuleCard = ({ module, isListView }) => {
                                     src={module?.cover_page ?? '/images/thumbnail.webp'}
                                     alt={module?.title}
                                     //fill
-                                    className="object-cover transition-transform duration-300"
+                                    className="object-cover transition-transform duration-300 group-hover:scale-105"
                                 />
                                 {/* Rating */}
                                 <div className='absolute bottom-3 left-3 z-10 bg-white rounded-md flex gap-1 py-1 ps-1 pe-2 items-center transition-all duration-300'>
@@ -269,7 +275,7 @@ export default function TrainingModules() {
 
     return (
         <LayoutContainer>
-            <div className='max-w-6xl mx-auto w-full'>
+            <div className='max-w-6xl mx-auto w-full mb-10'>
                 <PageTitle title="Training Modules" subtitle="Daftar materi pelatihan yang tersedia" />
 
                 <div className='flex flex-col gap-5'>
@@ -311,7 +317,7 @@ export default function TrainingModules() {
                                             </SelectContent>
                                         </InputGroupSelect>
                                     </InputGroup>
-                                    <ToggleGroup type="single" variant="outline" defaultValue="grid" size="sm" className="bg-white">
+                                    <ToggleGroup type="single" variant="outline" defaultValue="grid" size="icon" className="bg-white">
                                         <ToggleGroupItem className="cursor-pointer" value="grid" aria-label="Toggle bold" onClick={() => setViewMode('grid')}>
                                             <Grid2X2 />
                                         </ToggleGroupItem>
@@ -330,7 +336,7 @@ export default function TrainingModules() {
                         <div className={`grid gap-4 items-center justify-start flex-wrap transition-all duration-500 ${viewMode === 'grid' ? 'grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4' : 'grid-cols-1 xl:grid-cols-2'}`}>
                             {loading ? (
                                 <SkeletonModule isListView={viewMode === 'list'} />
-                            ) : modules?.data.length === 0 ? (
+                            ) : modules?.data?.length === 0 ? (
                                 <div className='flex min-h-96 items-center justify-center col-span-4 gap-4'>
                                     <small>Tidak ada data yang ditemukan</small>
                                 </div>

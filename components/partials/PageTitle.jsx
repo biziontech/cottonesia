@@ -17,20 +17,20 @@ export default function PageTitle({ title, subtitle = '', className }) {
     }, [pathname, userRoles]);
 
     return (
-        <div className={cn('flex flex-col lg:flex-row justify-between items-start lg:items-end gap-y-3 lg:gap-y-0 pt-1 pb-5', className)}>
+        <div className={cn('flex flex-col lg:flex-row my-5 justify-between items-start lg:items-end gap-y-3 lg:gap-y-0 pt-1 pb-5', className)}>
             <div className='flex flex-col'>
                 {title ? (
-                    <h2 className='text-xl font-bold'>{title}</h2>
+                    <h2 className='text-xl font-bold z-[1]'>{title}</h2>
                 ) : (
                     <Skeleton className="h-6 w-36" />
                 )}
                 {subtitle ? (
-                    <small className='text-xs text-stone-600'>{subtitle}</small>
+                    <small className='text-xs text-stone-600 z-[1]'>{subtitle}</small>
                 ) : (
                     <Skeleton className="h-4 mt-1 w-56" />
                 )}
             </div>
-            <Breadcrumb>
+            <Breadcrumb className="z-[1]">
                 <BreadcrumbList>
                     {breadcrumbs.length > 0 ? (
                         <>

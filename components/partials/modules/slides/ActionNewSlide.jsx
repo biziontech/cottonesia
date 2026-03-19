@@ -32,7 +32,7 @@ export function ActionNewSlide() {
             // Update module slides
             setModule(prev => ({
                 ...prev,
-                slides: [...prev.slides, data.data]
+                slides: [...prev?.slides, data.data]
             }));
 
             toast.success(data.message || "Berhasil membuat slide")

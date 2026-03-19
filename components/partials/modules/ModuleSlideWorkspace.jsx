@@ -115,7 +115,7 @@ export const ModuleSlideWorkspace = () => {
                     // Update module slides
                     setModule(prev => ({
                         ...prev,
-                        slides: prev.slides.map(slide =>
+                        slides: prev?.slides.map(slide =>
                             slide.ulid === data.data.ulid
                                 ? { ...slide, ...data.data }
                                 : slide
@@ -173,7 +173,7 @@ export const ModuleSlideWorkspace = () => {
             // Update module slides
             setModule(prev => ({
                 ...prev,
-                slides: prev.slides.map(slide =>
+                slides: prev?.slides.map(slide =>
                     slide.ulid === data.data.ulid
                         ? { ...slide, ...data.data }
                         : slide
@@ -230,7 +230,7 @@ export const ModuleSlideWorkspace = () => {
                 // Update module slides
                 setModule(prev => ({
                     ...prev,
-                    slides: prev.slides.map(slide =>
+                    slides: prev?.slides.map(slide =>
                         slide.ulid === data.data.ulid
                             ? { ...slide, ...data.data }
                             : slide

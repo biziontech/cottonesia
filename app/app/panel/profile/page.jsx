@@ -2,6 +2,7 @@
 
 
 import PageTitle from '@/components/partials/PageTitle';
+import LayoutContainer from '@/components/partials/LayoutContainer';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { User, KeyRound } from "lucide-react";
 import { useState, useEffect } from 'react';
@@ -958,53 +959,58 @@ export default function Profile() {
     const { user, loading } = useAuth();
     // return
     return (
-        <>
-            <PageTitle title="Profile" subtitle="Manage your profile settings" />
-            <div className='p-5 border rounded-2xl flex gap-5 justify-between divide-y lg:divide-y-0 lg:divide-x flex-col lg:flex-row'>
-                <div className='flex gap-5 flex-1 pb-5 lg:pb-0'>
-                    <Avatar className="size-16">
-                        <AvatarImage src="https://github.com/shadcn.png" alt={user?.full_name} />
-                        <AvatarFallback>{user?.initial_name}</AvatarFallback>
-                    </Avatar>
-                    <div className='flex items-start justify-center flex-col flex-1'>
-                        {loading ? (<Skeleton className="h-6 w-36" />) : (<h4 className='font-bold'>{user?.full_name}</h4>)}
-                        {loading ? (<Skeleton className="h-4 w-20 mt-1" />) : (<p className='text-sm'>Web Developer</p>)}
-                        {loading ? (<Skeleton className="h-4 w-40 mt-2" />) : (<small className='text-stone-500 mt-1'>✨ Jangan Pernah menyerah</small>)}
-                    </div>
-                </div>
-                <div className='flex-1 flex flex-col gap-1'>
-                    <Label className="font-semibold">Roles</Label>
-                    <div>
-                        {loading ? (
-                            <div className='flex gap-2 mt-1'>
-                                <Skeleton className="h-5 w-20" />
-                                <Skeleton className="h-5 w-16" />
+        <LayoutContainer>
+            <div className='max-w-6xl mx-auto w-full'>
+                <PageTitle title="Profile" subtitle="Manage your profile settings" />
+
+                <div className='flex flex-col gap-5'>
+                    <div className='p-5 border rounded-2xl flex gap-5 justify-between divide-y lg:divide-y-0 lg:divide-x flex-col lg:flex-row'>
+                        <div className='flex gap-5 flex-1 pb-5 lg:pb-0'>
+                            <Avatar className="size-16">
+                                <AvatarImage src="https://github.com/shadcn.png" alt={user?.full_name} />
+                                <AvatarFallback>{user?.initial_name}</AvatarFallback>
+                            </Avatar>
+                            <div className='flex items-start justify-center flex-col flex-1'>
+                                {loading ? (<Skeleton className="h-6 w-36" />) : (<h4 className='font-bold'>{user?.full_name}</h4>)}
+                                {loading ? (<Skeleton className="h-4 w-20 mt-1" />) : (<p className='text-sm'>Web Developer</p>)}
+                                {loading ? (<Skeleton className="h-4 w-40 mt-2" />) : (<small className='text-stone-500 mt-1'>✨ Jangan Pernah menyerah</small>)}
                             </div>
-                        ) : user?.roles.map((role, index) => {
-                            return (<Badge key={index} variant="outline" className='rounded-md'>{role}</Badge>)
-                        })}
+                        </div>
+                        <div className='flex-1 flex flex-col gap-1'>
+                            <Label className="font-semibold">Roles</Label>
+                            <div>
+                                {loading ? (
+                                    <div className='flex gap-2 mt-1'>
+                                        <Skeleton className="h-5 w-20" />
+                                        <Skeleton className="h-5 w-16" />
+                                    </div>
+                                ) : user?.roles.map((role, index) => {
+                                    return (<Badge key={index} variant="outline" className='rounded-md'>{role}</Badge>)
+                                })}
+                            </div>
+                        </div>
                     </div>
+                    <Tabs defaultValue={tabs[0].value} className="w-full">
+                        <TabsList className="px-1 ">
+                            {tabs.map((tab) => (
+                                <TabsTrigger key={tab.value} value={tab.value} className="flex items-center text-xs cursor-pointer">
+                                    <tab.icon />
+                                    {tab.name}
+                                </TabsTrigger>
+                            ))}
+                        </TabsList>
+
+                        {tabs.map((tab) => {
+                            const Content = tab.content
+                            return (
+                                <TabsContent key={tab.value} value={tab.value}>
+                                    <Content />
+                                </TabsContent>
+                            )
+                        })}
+                    </Tabs>
                 </div>
             </div>
-            <Tabs defaultValue={tabs[0].value} className="w-full">
-                <TabsList className="px-1 ">
-                    {tabs.map((tab) => (
-                        <TabsTrigger key={tab.value} value={tab.value} className="flex items-center text-xs cursor-pointer">
-                            <tab.icon />
-                            {tab.name}
-                        </TabsTrigger>
-                    ))}
-                </TabsList>
-
-                {tabs.map((tab) => {
-                    const Content = tab.content
-                    return (
-                        <TabsContent key={tab.value} value={tab.value}>
-                            <Content />
-                        </TabsContent>
-                    )
-                })}
-            </Tabs>
-        </>
+        </LayoutContainer>
     )
 }

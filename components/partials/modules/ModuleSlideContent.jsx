@@ -130,16 +130,18 @@ const ThumbnailSlideSkeleton = ({ item, index, isSelected }) => {
                 <GripVertical className="h-5 w-5" />
             </div>
             <div
-                className={`${isSelected && 'outline-primary outline-2 shadow-primary'} transition-colors hover:outline-2 hover:outline-primary aspect-video relative flex-1 bg-white p-1 shadow-sm rounded-xl flex items-center justify-center text-sm gap-2 font-medium group relative`}
+                className={`${isSelected && 'outline-primary outline-2 shadow-primary'} transition-colors hover:outline-2 hover:outline-primary aspect-video relative flex-1 bg-white p-1 shadow-sm rounded-xl flex items-center justify-center text-sm gap-2 font-medium group`}
             >
                 <div className='absolute m-1 inset-0 bg-linear-to-t from-gray-600/50 from-0% via-transparent via-35% to-transparent to-95%% rounded-lg transition-colors'></div>
-                <img
-                    src={item.page_thumbnail}
-                    alt={item.ulid}
-                    className="object-cover rounded-lg"
-                    loading="eager"
-                    quality={50}
-                />
+                {item?.page_thumbnail && (
+                    <img
+                        src={item?.page_thumbnail}
+                        alt={item?.ulid}
+                        className="object-cover rounded-lg"
+                        loading="eager"
+                        quality={50}
+                    />
+                )}
             </div>
         </div>
     );
