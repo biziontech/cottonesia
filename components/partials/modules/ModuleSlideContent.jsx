@@ -14,7 +14,7 @@ const ThumbnailSlide = ({ item, index, isSelected }) => {
 
     return (
         <div className='flex relative gap-1 cursor-pointer' onClick={() => setSelectedSlide(item)}>
-            <div className='absolute p-0.5 pt-1 pr-1 rounded-tr-md bottom-1 left-7 aspect-square flex items-center justify-center bg-white text-xs font-semibold mt-2 text-gray-600 text-left z-10'>
+            <div className='absolute p-0.5 pt-1 pr-1 rounded-tr-md bottom-1 left-7 aspect-square flex items-center justify-center bg-card text-xs font-semibold mt-2 text-muted-foreground text-left z-10 border border-border/60'>
                 {item?.slide_type == 'image' ? (
                     <svg className='size-4 fill-white' xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" >
                         <g>
@@ -56,14 +56,14 @@ const ThumbnailSlide = ({ item, index, isSelected }) => {
                     </svg>
                 )}
             </div>
-            <div className='absolute shadow-sm h-5 px-1 rounded-sm bottom-2 right-2 aspect-square flex items-center justify-center bg-white text-xs font-semibold mt-2 text-gray-600 text-left z-10'>{index + 1}</div>
-            <SortableItemHandle className="cursor-grab py-1 text-gray-400">
+            <div className='absolute shadow-sm h-5 px-1 rounded-sm bottom-2 right-2 aspect-square flex items-center justify-center bg-card text-xs font-semibold mt-2 text-muted-foreground text-left z-10 border border-border/60'>{index + 1}</div>
+            <SortableItemHandle className="cursor-grab py-1 text-muted-foreground">
                 <GripVertical className="h-5 w-5" />
             </SortableItemHandle>
             <div
-                className={`${isSelected && 'outline-primary outline-2 shadow-primary'} transition-colors hover:outline-2 hover:outline-primary flex-1 bg-white p-1 shadow-sm rounded-xl flex items-center justify-center text-sm gap-2 font-medium group relative overflow-hidden`}
+                className={`${isSelected && 'outline-primary outline-2 shadow-primary'} transition-colors hover:outline-2 hover:outline-primary flex-1 bg-card p-1 shadow-sm rounded-xl flex items-center justify-center text-sm gap-2 font-medium group relative overflow-hidden border border-border/60`}
             >
-                <div className='absolute m-1 inset-0 bg-linear-to-t from-white/50 from-0% via-transparent via-35% to-transparent to-95%% rounded-lg transition-colors'></div>
+                <div className='absolute m-1 inset-0 bg-linear-to-t from-background/50 from-0% via-transparent via-35% to-transparent to-95%% rounded-lg transition-colors'></div>
                 {!item.page_thumbnail ? (
                     <span className='aspect-video w-full'></span>
                 ) : (
@@ -83,7 +83,7 @@ const ThumbnailSlide = ({ item, index, isSelected }) => {
 const ThumbnailSlideSkeleton = ({ item, index, isSelected }) => {
     return (
         <div className='flex relative gap-1'>
-            <div className='absolute p-0.5 pt-1 pr-1 rounded-tr-md bottom-1 left-7 aspect-square flex items-center justify-center bg-white text-xs font-semibold mt-2 text-gray-600 text-left z-10'>
+            <div className='absolute p-0.5 pt-1 pr-1 rounded-tr-md bottom-1 left-7 aspect-square flex items-center justify-center bg-card text-xs font-semibold mt-2 text-muted-foreground text-left z-10 border border-border/60'>
                 {item?.slide_type == 'image' ? (
                     <svg className='size-4 fill-white' xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" >
                         <g>
@@ -125,14 +125,14 @@ const ThumbnailSlideSkeleton = ({ item, index, isSelected }) => {
                     </svg>
                 )}
             </div>
-            <div className='absolute h-5 px-1 rounded-sm bottom-2 right-2 aspect-square flex items-center justify-center bg-white/80 backdrop-blur-sm text-xs font-semibold mt-2 text-gray-600 text-left z-10'>{index + 1}</div>
-            <div className="cursor-grab py-1 text-gray-400 flex items-center">
+            <div className='absolute h-5 px-1 rounded-sm bottom-2 right-2 aspect-square flex items-center justify-center bg-card/85 backdrop-blur-sm text-xs font-semibold mt-2 text-muted-foreground text-left z-10 border border-border/60'>{index + 1}</div>
+            <div className="cursor-grab py-1 text-muted-foreground flex items-center">
                 <GripVertical className="h-5 w-5" />
             </div>
             <div
-                className={`${isSelected && 'outline-primary outline-2 shadow-primary'} transition-colors hover:outline-2 hover:outline-primary aspect-video relative flex-1 bg-white p-1 shadow-sm rounded-xl flex items-center justify-center text-sm gap-2 font-medium group`}
+                className={`${isSelected && 'outline-primary outline-2 shadow-primary'} transition-colors hover:outline-2 hover:outline-primary aspect-video relative flex-1 bg-card p-1 shadow-sm rounded-xl flex items-center justify-center text-sm gap-2 font-medium group border border-border/60`}
             >
-                <div className='absolute m-1 inset-0 bg-linear-to-t from-gray-600/50 from-0% via-transparent via-35% to-transparent to-95%% rounded-lg transition-colors'></div>
+                <div className='absolute m-1 inset-0 bg-linear-to-t from-foreground/20 from-0% via-transparent via-35% to-transparent to-95%% rounded-lg transition-colors'></div>
                 {item?.page_thumbnail && (
                     <img
                         src={item?.page_thumbnail}
@@ -207,7 +207,7 @@ export const ModuleSlideContent = () => {
                         <ThumbnailSlide item={item} index={index} isSelected={selectedSlide?.ulid === item.ulid} />
                     </SortableItem>
                 )) : (
-                    <div className='text-sm text-gray-500 italic text-center'>Slide Kosong</div>
+                    <div className='text-sm text-muted-foreground italic text-center'>Slide Kosong</div>
                 )}
             </SortableContent>
 

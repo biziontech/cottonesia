@@ -156,16 +156,16 @@ const ModuleContent = () => {
         switch (rightPanel) {
             case 'general':
                 return (
-                    <div className='w-80 p-3 border-s border-dashed relative'>
-                        <span className="border-primary/20 bg-white absolute top-0 left-0 z-30 size-2.5 -translate-x-1/2 -translate-y-1/2 rotate-45 rounded-xs border"></span>
+                    <div className='w-80 p-3 border-s border-dashed border-border relative'>
+                        <span className="border-primary/20 bg-white dark:bg-zinc-800 absolute top-0 left-0 z-30 size-2.5 -translate-x-1/2 -translate-y-1/2 rotate-45 rounded-xs border"></span>
                         <RightPanelGeneral />
                     </div>
                 );
             case 'slide':
                 return (
                     <div className='h-full w-fit relative'>
-                        <span className="border-primary/20 bg-white absolute top-0 left-0 z-30 size-2.5 -translate-x-1/2 -translate-y-1/2 rotate-45 rounded-xs border"></span>
-                        <div className='w-80 relative p-3 border-s border-dashed h-[calc(100dvh-170px)] overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden'>
+                        <span className="border-primary/20 bg-white dark:bg-zinc-800 absolute top-0 left-0 z-30 size-2.5 -translate-x-1/2 -translate-y-1/2 rotate-45 rounded-xs border"></span>
+                        <div className='w-80 relative p-3 border-s border-dashed border-border h-[calc(100dvh-170px)] overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden'>
                             <RightPanelSlides />
                         </div>
                     </div>
@@ -235,12 +235,12 @@ const ModuleContent = () => {
     return (
         <div className='mx-auto w-full relative'>
 
-            <div className='border-b p-3 relative z-10'>
+            <div className='border-b border-border p-3 relative z-10'>
                 <div className='flex justify-between p-2 z-1'>
                     <div className='flex gap-2  items-center'>
                         <span className='text-sm font-medium'>Detail Modul</span>
                         <Separator orientation='vertical' className="!h-5" />
-                        <span className='text-xs text-gray-500'>Perbarui informasi modul pelatihan</span>
+                        <span className='text-xs text-muted-foreground'>Perbarui informasi modul pelatihan</span>
                     </div>
 
                     <Button
@@ -257,7 +257,7 @@ const ModuleContent = () => {
             </div>
 
 
-            <div className={`flex divide-x divide-dashed`}>
+            <div className={`flex divide-x divide-dashed divide-border`}>
                 <div className='flex flex-1'>
                     <div className='hidden 2xl:flex'>
                         {(rightPanel == 'slide' && openSideSlide) && (
@@ -297,11 +297,11 @@ const ModuleContent = () => {
 
             {/* Draw Panel kanan */}
             <Drawer direction="right" open={openSideTabDrawer} onOpenChange={setOpenSideTabDrawer}>
-                <DrawerContent className="!w-[384.89px] bg-gray-100">
+                <DrawerContent className="!w-[384.89px] bg-muted">
                     <DrawerHeader>
                         <DrawerTitle className="text-xs">Panel Slides</DrawerTitle>
                     </DrawerHeader>
-                    <div className='flex h-full divide-x'>
+                    <div className='flex h-full divide-x divide-border'>
                         <div className='w-80'>
                             {renderRightPanelDrawerContent()}
                         </div>

@@ -39,13 +39,13 @@ export const ModuleSlideAttactments = ({ initialCategories = [] }) => {
 
 
     return (
-        <div className='rounded-xl bg-white shadow-sm'>
+        <div className='rounded-xl bg-card text-card-foreground shadow-sm'>
             <div className='flex p-4 items-center justify-between gap-2'>
                 <div className="flex  flex-col">
                     <h4 className='font-semibold text-sm'>Attactment</h4>
                 </div>
             </div>
-            <div className='border-t border-dashed px-3 py-3 flex flex-col gap-2 justify-center'>
+            <div className='border-t border-dashed border-border px-3 py-3 flex flex-col gap-2 justify-center'>
                 {!hasAttachment ? (
                     <>
                         <div className="flex flex-col items-center gap-3 text-center">
@@ -75,9 +75,9 @@ export const ModuleSlideAttactments = ({ initialCategories = [] }) => {
                 ) : (
                     <div>
                         {hasAttachment == "audio" ? (
-                            <div className="bg-linear-to-tr from-white from-30% to-sky-50 border rounded-xl">
+                            <div className="bg-linear-to-tr from-card from-30% to-sky-50/60 dark:to-sky-500/10 border border-border rounded-xl">
                                 <div className="flex flex-1 items-center justify-between w-full gap-2 ps-3 pe-2 py-2">
-                                    <div className="size-6 flex items-center justify-center bg-sky-50 rounded-md">
+                                    <div className="size-6 flex items-center justify-center bg-sky-50 dark:bg-sky-500/10 rounded-md">
                                         <svg className="size-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                                             <g>
                                                 <path opacity="0.4" d="M16.1898 2H7.81976C4.17976 2 2.00977 4.17 2.00977 7.81V16.18C2.00977 19.82 4.17976 21.99 7.81976 21.99H16.1898C19.8298 21.99 21.9998 19.82 21.9998 16.18V7.81C21.9998 4.17 19.8298 2 16.1898 2Z" className="fill-sky-500" />
@@ -100,9 +100,9 @@ export const ModuleSlideAttactments = ({ initialCategories = [] }) => {
                                 </div>
                             </div>
                         ) : (
-                            <div className="bg-linear-to-tr from-white from-30% to-yellow-50 border rounded-xl">
+                            <div className="bg-linear-to-tr from-card from-30% to-yellow-50/60 dark:to-yellow-500/10 border border-border rounded-xl">
                                 <div className="flex flex-1 items-center justify-between w-full gap-2 ps-3 pe-2 py-2">
-                                    <div className="size-6 flex items-center justify-center bg-yellow-50 rounded-md">
+                                    <div className="size-6 flex items-center justify-center bg-yellow-50 dark:bg-yellow-500/10 rounded-md">
                                         <svg className="size-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                                             <g>
                                                 <path d="M22 6V8.42C22 10 21 11 19.42 11H16V4.01C16 2.9 16.91 2 18.02 2C19.11 2.01 20.11 2.45 20.83 3.17C21.55 3.9 22 4.9 22 6Z" className="fill-yellow-500" />

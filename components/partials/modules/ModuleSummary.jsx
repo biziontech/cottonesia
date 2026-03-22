@@ -135,13 +135,13 @@ export const ModuleSummary = ({ initialSummary = "" }) => {
 
     return (
         <GradientGenerate isGenerating={isGenerating} borderRadius="15px">
-            <div className='rounded-xl bg-white shadow-sm'>
+            <div className='rounded-xl bg-card text-card-foreground shadow-sm'>
                 <div className='flex flex-col p-4'>
                     <h4 className='font-semibold text-sm'>Summary <Required /></h4>
-                    <p className='text-xs text-gray-600'>Deskripsi singkat untuk materi training</p>
+                    <p className='text-xs text-muted-foreground'>Deskripsi singkat untuk materi training</p>
                 </div>
-                <div className='border-t border-dashed p-4 flex flex-col gap-2 text-end'>
-                    <div className='border rounded-xl overflow-hidden'>
+                <div className='border-t border-dashed border-border p-4 flex flex-col gap-2 text-end'>
+                    <div className='border border-border rounded-xl overflow-hidden'>
                         {isGenerating ? (
                             <div className='min-h-28 relative bg-linear-to-tr from-cyan-50 to-pink-100'>
                                 <div className='absolute top-3 left-3 w-full h-full flex flex-col gap-2'>
@@ -161,11 +161,11 @@ export const ModuleSummary = ({ initialSummary = "" }) => {
                                 onChange={(e) => setSummary(e.target.value)}
                             />
                         )}
-                        <div className='text-gray-600 text-xs py-2 px-3 border-t border-dotted bg-gray-50'>{summary.length} / {MAX_SUMMARY} karakter</div>
+                        <div className='text-muted-foreground text-xs py-2 px-3 border-t border-dotted border-border bg-muted/50'>{summary.length} / {MAX_SUMMARY} karakter</div>
                     </div>
                 </div>
                 {!editSummary && (
-                    <div className="flex flex-1 items-center justify-end w-full px-4 py-3 border-t border-dashed">
+                    <div className="flex flex-1 items-center justify-end w-full px-4 py-3 border-t border-dashed border-border">
                         <Tooltip>
                             <TooltipTrigger asChild>
                                 <Button variant="outline" size="sm" onClick={() => setEditSummary(true)}>

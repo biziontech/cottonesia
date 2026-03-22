@@ -107,9 +107,9 @@ const PromptTab = () => {
 
     return (
         <div className='flex flex-col gap-5'>
-            <div className='flex flex-col bg-white shadow-sm rounded-xl'>
+            <div className='flex flex-col bg-card text-card-foreground shadow-sm rounded-xl'>
                 <div className='flex items-start justify-center w-full flex-col gap-0'>
-                    <div className="px-5 pt-3 text-xs font-semibold text-gray-600 whitespace-nowrap flex items-center gap-2 justify-between w-full">
+                    <div className="px-5 pt-3 text-xs font-semibold text-muted-foreground whitespace-nowrap flex items-center gap-2 justify-between w-full">
                         <div className='flex items-center gap-2 h-8'>
                             <FileCog className='size-4' />
                             <span>Modul Prompt</span>
@@ -145,7 +145,7 @@ const PromptTab = () => {
                                 value={prompt}
                                 onChange={(e) => setPrompt(e.target.value)}
                             />
-                            <div className='flex bg-gray-50 gap-2 text-gray-600 px-3 py-3 items-center text-sm'>
+                            <div className='flex bg-muted gap-2 text-muted-foreground px-3 py-3 items-center text-sm'>
                                 <InfoIcon className='size-4' />
                                 <span className='text-xs'>Modul Prompt ini akan digunakan sebagai prompt untuk generate soal otomatis.</span>
                             </div>
@@ -279,7 +279,7 @@ const QuestionCard = ({ item, index, questions, setQuestions, onUpdate, onDelete
         <div className='flex gap-3 w-full'>
             {/* Nomor */}
             <div className='flex flex-col gap-3 items-center'>
-                <div className='flex top-3 sticky bg-white aspect-square min-w-9 items-center justify-center shadow-sm p-2 rounded-lg font-semibold text-sm text-gray-700 h-fit'>
+                <div className='flex top-3 sticky bg-card aspect-square min-w-9 items-center justify-center shadow-sm p-2 rounded-lg font-semibold text-sm text-foreground h-fit border border-border/60'>
                     {item.sort}
                 </div>
                 <Separator orientation='vertical' className={`${isLastItem ? '!h-[calc(100%-50px)]' : '!h-[calc(100%-20px)]'}`} />
@@ -289,8 +289,8 @@ const QuestionCard = ({ item, index, questions, setQuestions, onUpdate, onDelete
 
                 {/* Question Box */}
                 <div className='flex flex-col shadow-sm rounded-xl overflow-hidden'>
-                    <div className='bg-white pb-4 py-3 px-5 flex-1 flex flex-col'>
-                        <div className='text-xs font-medium text-gray-500 mb-2 mt-1 flex items-center gap-1 ms-2'>
+                    <div className='bg-card pb-4 py-3 px-5 flex-1 flex flex-col'>
+                        <div className='text-xs font-medium text-muted-foreground mb-2 mt-1 flex items-center gap-1 ms-2'>
                             <MessageCircleQuestionMark className='size-4' />
                             <span>Pertanyaan</span>
                         </div>
@@ -301,23 +301,23 @@ const QuestionCard = ({ item, index, questions, setQuestions, onUpdate, onDelete
                             onInput={handleInput}
                             rows={1}
                             readOnly={!isEditing || isSaving} // ✅ disabled saat saving
-                            className={`text-sm resize-none overflow-hidden focus-visible:border-gray-300 focus-visible:ring-0 shadow-none text-wrap text-gray-800 underline underline-offset-4 decoration-dotted decoration-1 decoration-gray-200 leading-[22px] focus-within:outline-0 w-full bg-transparent ${!isEditing ? 'cursor-default select-text' : ''} ${isSaving ? 'opacity-60' : ''}`}
+                            className={`text-sm resize-none overflow-hidden focus-visible:border-border focus-visible:ring-0 shadow-none text-wrap text-foreground underline underline-offset-4 decoration-dotted decoration-1 decoration-border leading-[22px] focus-within:outline-0 w-full bg-transparent ${!isEditing ? 'cursor-default select-text' : ''} ${isSaving ? 'opacity-60' : ''}`}
                             placeholder='Tambahkan pertanyaan disini'
                         />
                     </div>
 
                     {/* Bottom toolbar */}
-                    <div className='border-t bg-gray-50 border-dashed px-5 py-2 flex gap-2 items-center flex-wrap'>
+                    <div className='border-t bg-muted/60 border-dashed border-border px-5 py-2 flex gap-2 items-center flex-wrap'>
 
                         {/* Type */}
-                        <InputGroup className="bg-white w-fit h-8 overflow-hidden">
+                        <InputGroup className="bg-background border-border w-fit h-8 overflow-hidden">
                             <InputGroupAddon><Layers /></InputGroupAddon>
                             <InputGroupSelect
                                 value={type}
                                 onValueChange={val => isEditing && !isSaving && setType(val)}
                                 size="sm"
                                 variant="outline"
-                                className={`w-fit text-xs hover:bg-white ps-2 ${!isEditing || isSaving ? 'pointer-events-none opacity-60' : ''}`}
+                                className={`w-fit text-xs hover:bg-accent ps-2 ${!isEditing || isSaving ? 'pointer-events-none opacity-60' : ''}`}
                             >
                                 <SelectContent position='popper'>
                                     <SelectGroup>
@@ -330,14 +330,14 @@ const QuestionCard = ({ item, index, questions, setQuestions, onUpdate, onDelete
                         </InputGroup>
 
                         {/* Difficulty */}
-                        <InputGroup className="bg-white w-fit h-8 overflow-hidden">
+                        <InputGroup className="bg-background border-border w-fit h-8 overflow-hidden">
                             <InputGroupAddon><Gauge className='text-muted-foreground' /></InputGroupAddon>
                             <InputGroupSelect
                                 value={difficulty}
                                 onValueChange={val => isEditing && !isSaving && setDifficulty(val)}
                                 size="sm"
                                 variant="outline"
-                                className={`w-fit text-xs hover:bg-white ps-2 ${!isEditing || isSaving ? 'pointer-events-none opacity-60' : ''}`}
+                                className={`w-fit text-xs hover:bg-accent ps-2 ${!isEditing || isSaving ? 'pointer-events-none opacity-60' : ''}`}
                             >
                                 <SelectContent position="popper">
                                     <SelectGroup>
@@ -350,8 +350,8 @@ const QuestionCard = ({ item, index, questions, setQuestions, onUpdate, onDelete
                         </InputGroup>
 
                         {/* Weight */}
-                        <InputGroup className="bg-white w-fit h-8">
-                            <InputGroupAddon className="text-xs text-gray-800">
+                        <InputGroup className="bg-background border-border w-fit h-8">
+                            <InputGroupAddon className="text-xs text-foreground">
                                 <Scale className='text-muted-foreground' />
                                 <span className={`${!isEditing ? 'opacity-70' : ''}`}>Bobot</span>
                             </InputGroupAddon>
@@ -375,12 +375,12 @@ const QuestionCard = ({ item, index, questions, setQuestions, onUpdate, onDelete
                                         variant="outline"
                                         onClick={handleToggleLock}
                                         disabled={isSaving}
-                                        className={isLocked ? 'bg-gray-100 border-gray-300 text-gray-700' : ''}
+                                        className={isLocked ? 'bg-muted border-border text-foreground' : ''}
                                     >
                                         {isLocked ? (
-                                            <Lock className={isLocked ? 'text-gray-700' : 'text-muted-foreground'} />
+                                            <Lock className={isLocked ? 'text-foreground' : 'text-muted-foreground'} />
                                         ) : (
-                                            <LockOpen className={isLocked ? 'text-gray-700' : 'text-muted-foreground'} />
+                                            <LockOpen className={isLocked ? 'text-foreground' : 'text-muted-foreground'} />
                                         )}
                                     </Button>
                                 </TooltipTrigger>
@@ -392,9 +392,9 @@ const QuestionCard = ({ item, index, questions, setQuestions, onUpdate, onDelete
                             {/* Edit switch */}
                             <Tooltip>
                                 <TooltipTrigger asChild>
-                                    <Label className={`cursor-pointer flex items-center gap-2 bg-white border rounded-lg ps-2.5 pe-2 h-8 ${isDisabled ? 'opacity-80 pointer-events-none' : ''}`}>
+                                    <Label className={`cursor-pointer flex items-center gap-2 bg-background border border-border rounded-lg ps-2.5 pe-2 h-8 ${isDisabled ? 'opacity-80 pointer-events-none' : ''}`}>
                                         <FilePenLine className='size-3.5 text-muted-foreground' />
-                                        <span className='text-xs text-gray-600'>Ubah</span>
+                                        <span className='text-xs text-muted-foreground'>Ubah</span>
                                         <Switch
                                             checked={isEditing}
                                             onCheckedChange={handleToggleEdit}
@@ -418,7 +418,7 @@ const QuestionCard = ({ item, index, questions, setQuestions, onUpdate, onDelete
                                         disabled={isDisabled}
                                         className={isDisabled ? 'opacity-80' : ''}
                                     >
-                                        <Eraser className={isDisabled ? 'text-gray-700' : 'text-muted-foreground'} />
+                                        <Eraser className={isDisabled ? 'text-foreground' : 'text-muted-foreground'} />
                                     </Button>
                                 </TooltipTrigger>
                                 <TooltipContent>
@@ -459,9 +459,9 @@ const QuestionCard = ({ item, index, questions, setQuestions, onUpdate, onDelete
                 {type === "multiple_choice" && (
                     <div className='flex flex-col gap-3'>
                         <div className='flex gap-3 items-center'>
-                            <span className='text-xs font-medium text-gray-600'>Pilihan Jawaban</span>
+                            <span className='text-xs font-medium text-muted-foreground'>Pilihan Jawaban</span>
                             <Separator orientation='vertical' className="!h-2.5" />
-                            <span className='text-xs text-gray-500'>Pilih opsi yang benar</span>
+                            <span className='text-xs text-muted-foreground'>Pilih opsi yang benar</span>
                         </div>
                         <RadioGroup value={String(correctAnswer)} onValueChange={val => isEditing && setCorrectAnswer(Number(val))}>
                             <div className="grid grid-cols-1 gap-3 text-sm">
@@ -474,13 +474,13 @@ const QuestionCard = ({ item, index, questions, setQuestions, onUpdate, onDelete
                                                 <TooltipTrigger asChild>
                                                     <RadioGroupItem
                                                         value={String(idx)}
-                                                        className={`bg-white size-5 [&_svg]:size-2.5 ${isEditing ? 'cursor-pointer' : 'pointer-events-none'}`}
+                                                        className={`bg-background border border-border size-5 [&_svg]:size-2.5 ${isEditing ? 'cursor-pointer' : 'pointer-events-none'}`}
                                                     />
                                                 </TooltipTrigger>
                                                 <TooltipContent><p>Pilih Jawaban Benar</p></TooltipContent>
                                             </Tooltip>
-                                            <InputGroup className={`${isCorrect ? 'border-primary/50' : ''} bg-gray-50 flex-1 shadow-none flex gap-0 items-center ps-1.5 pe-3 rounded-xl border h-fit`}>
-                                                <div className={`${isCorrect ? 'bg-primary text-white' : 'bg-gray-100'} size-7 flex items-center justify-center font-medium rounded-lg shrink-0`}>
+                                            <InputGroup className={`${isCorrect ? 'border-primary/50' : 'border-border'} bg-muted/70 flex-1 shadow-none flex gap-0 items-center ps-1.5 pe-3 rounded-xl border h-fit`}>
+                                                <div className={`${isCorrect ? 'bg-primary text-white' : 'bg-background'} size-7 flex items-center justify-center font-medium rounded-lg shrink-0`}>
                                                     <span className="text-sm font-medium">{huruf}</span>
                                                 </div>
                                                 <InputGroupInput
@@ -498,7 +498,7 @@ const QuestionCard = ({ item, index, questions, setQuestions, onUpdate, onDelete
                                                             size="icon-sm"
                                                             variant="ghost"
                                                             onClick={() => handleDeleteOption(idx)}
-                                                            className="bg-gray-50 text-gray-500 hover:bg-rose-50 hover:text-rose-500 hover:border-rose-100 rounded-lg"
+                                                            className="bg-muted/70 text-muted-foreground hover:bg-rose-50 hover:text-rose-500 hover:border-rose-100 rounded-lg"
                                                         >
                                                             <Trash />
                                                         </Button>
@@ -524,9 +524,9 @@ const QuestionCard = ({ item, index, questions, setQuestions, onUpdate, onDelete
                 {type === "complex_multiple_choice" && (
                     <div className='flex flex-col gap-3'>
                         <div className='flex gap-3 items-center'>
-                            <span className='text-xs font-medium text-gray-600'>Pilihan Jawaban</span>
+                            <span className='text-xs font-medium text-muted-foreground'>Pilihan Jawaban</span>
                             <Separator orientation='vertical' className="!h-2.5" />
-                            <span className='text-xs text-gray-500'>Pilih semua opsi yang benar</span>
+                            <span className='text-xs text-muted-foreground'>Pilih semua opsi yang benar</span>
                         </div>
                         <div className="grid grid-cols-1 gap-3 text-sm">
                             {options.map((option, idx) => {
@@ -539,13 +539,13 @@ const QuestionCard = ({ item, index, questions, setQuestions, onUpdate, onDelete
                                                 <Checkbox
                                                     checked={isChecked}
                                                     onCheckedChange={checked => isEditing && handleComplexCheck(idx, checked)}
-                                                    className={`size-5 rounded-md ${!isEditing ? 'pointer-events-none' : 'cursor-pointer'} ${isChecked ? 'bg-primary text-white [&_span_svg]:stroke-3' : 'bg-white'}`}
+                                                    className={`size-5 rounded-md border border-border ${!isEditing ? 'pointer-events-none' : 'cursor-pointer'} ${isChecked ? 'bg-primary text-white [&_span_svg]:stroke-3' : 'bg-background'}`}
                                                 />
                                             </TooltipTrigger>
                                             <TooltipContent><p>Tandai Jawaban Benar</p></TooltipContent>
                                         </Tooltip>
-                                        <InputGroup className={`${isChecked ? 'border-primary/50' : ''} bg-gray-50 flex-1 shadow-none flex gap-0 items-center ps-1.5 pe-3 rounded-xl border h-fit`}>
-                                            <div className={`${isChecked ? 'bg-primary text-white' : 'bg-gray-100'} size-7 flex items-center justify-center font-medium rounded-lg shrink-0`}>
+                                        <InputGroup className={`${isChecked ? 'border-primary/50' : 'border-border'} bg-muted/70 flex-1 shadow-none flex gap-0 items-center ps-1.5 pe-3 rounded-xl border h-fit`}>
+                                            <div className={`${isChecked ? 'bg-primary text-white' : 'bg-background'} size-7 flex items-center justify-center font-medium rounded-lg shrink-0`}>
                                                 <span className="text-sm font-medium">{huruf}</span>
                                             </div>
                                             <InputGroupInput
@@ -563,7 +563,7 @@ const QuestionCard = ({ item, index, questions, setQuestions, onUpdate, onDelete
                                                         size="icon-sm"
                                                         variant="ghost"
                                                         onClick={() => handleDeleteOption(idx)}
-                                                        className="bg-gray-50 text-gray-500 hover:bg-rose-50 hover:text-rose-500 hover:border-rose-100 rounded-lg"
+                                                        className="bg-muted/70 text-muted-foreground hover:bg-rose-50 hover:text-rose-500 hover:border-rose-100 rounded-lg"
                                                     >
                                                         <Trash />
                                                     </Button>
@@ -588,12 +588,12 @@ const QuestionCard = ({ item, index, questions, setQuestions, onUpdate, onDelete
                 {type === "essay" && (
                     <div className='flex flex-col gap-3'>
                         <div className='flex gap-3 items-center'>
-                            <span className='text-xs font-medium text-gray-600'>Jawaban Essay</span>
+                            <span className='text-xs font-medium text-muted-foreground'>Jawaban Essay</span>
                             <Separator orientation='vertical' className="!h-2.5" />
-                            <span className='text-xs text-gray-500'>Peserta akan menjawab secara tertulis</span>
+                            <span className='text-xs text-muted-foreground'>Peserta akan menjawab secara tertulis</span>
                         </div>
-                        <div className='border border-dashed rounded-xl bg-gray-50/60 px-5 py-4 flex items-center justify-center'>
-                            <span className='text-xs text-gray-400 italic'>Tidak ada opsi pilihan untuk tipe Essay</span>
+                        <div className='border border-border border-dashed rounded-xl bg-muted/60 px-5 py-4 flex items-center justify-center'>
+                            <span className='text-xs text-muted-foreground italic'>Tidak ada opsi pilihan untuk tipe Essay</span>
                         </div>
                     </div>
                 )}
@@ -852,9 +852,9 @@ export const QuestionTab = () => {
     return (
         <div className='flex flex-col gap-5'>
             <GradientGenerate isGenerating={isGenerating} borderWidth="4px" borderRadius="15px" className='relative'>
-                <div className='flex flex-col bg-white shadow-sm rounded-xl'>
+                <div className='flex flex-col bg-card text-card-foreground shadow-sm rounded-xl'>
                     <div className='flex items-start justify-center w-full flex-col gap-0'>
-                        <div className="px-5 pt-5 text-xs font-semibold text-gray-600 whitespace-nowrap flex items-center gap-2">
+                        <div className="px-5 pt-5 text-xs font-semibold text-muted-foreground whitespace-nowrap flex items-center gap-2">
                             <MessagesSquare className='size-4' />
                             <span>Tools Soal</span>
                         </div>
@@ -862,7 +862,7 @@ export const QuestionTab = () => {
                             <div className='flex items-center gap-2 justify-center sm:justify-between w-full flex-wrap'>
                                 <div className='flex flex-wrap gap-2 items-center justify-center'>
                                     <InputGroup className="shadow-none w-fit rounded-lg group">
-                                        <InputGroupAddon className="bg-gray-100 ms-1 rounded-md !px-1.5">
+                                        <InputGroupAddon className="bg-muted ms-1 rounded-md !px-1.5">
                                             <Search className='group-focus-within:rotate-90 transition-transform' />
                                         </InputGroupAddon>
                                         <InputGroupInput disabled={isGenerating} onChange={e => setSearch(e.target.value)} placeholder="Cari pertanyaan ..." className="ps-0" />
@@ -871,7 +871,7 @@ export const QuestionTab = () => {
                                         <TooltipTrigger>
                                             <div className='flex items-center gap-1.5 border h-9 px-3 rounded-lg'>
                                                 <Scale className='text-muted-foreground size-4' />
-                                                <span className='text-xs font-medium text-gray-500'>Total Bobot</span>
+                                                <span className='text-xs font-medium text-muted-foreground'>Total Bobot</span>
                                                 <span className='font-medium text-sm'>{statsQuestion?.total_bobot}</span>
                                             </div>
                                         </TooltipTrigger>
@@ -1036,7 +1036,7 @@ export const QuestionTab = () => {
                                                     <span>Reset</span>
                                                 </Button>
                                                 <AlertDialogCancel asChild>
-                                                <Button variant="outline" onClick={handleGenerateQuestions} className="bg-white shadow-sm border">
+                                                <Button variant="outline" onClick={handleGenerateQuestions} className="bg-card shadow-sm border border-border">
                                                     <SparkleAi />
                                                     <span className="text-purple-600 font-semibold">Generate</span>
                                                 </Button>
@@ -1093,7 +1093,7 @@ export const QuestionTab = () => {
                                 </div>
                             </div>
                             {search && (
-                                <span className="text-xs text-gray-500 pl-1">Menampilkan pencarian untuk <span className="font-semibold text-gray-700">{search}</span></span>
+                                <span className="text-xs text-muted-foreground pl-1">Menampilkan pencarian untuk <span className="font-semibold text-foreground">{search}</span></span>
                             )}
                         </div>
                         <div className='border-t w-full border-dashed p-3'>
@@ -1101,7 +1101,7 @@ export const QuestionTab = () => {
                                 <div className='flex flex-col gap-1'>
                                     <div className='flex gap-2 items-start justify-between'>
                                         <div className='flex flex-col gap-1'>
-                                            <small className='text-xs text-gray-400'>Tipe</small>
+                                            <small className='text-xs text-muted-foreground'>Tipe</small>
                                             <h4 className='text-xl font-mono font-medium'>
                                                 <SlidingNumber
                                                     number={statsQuestion?.multiple_choice?.count}
@@ -1129,12 +1129,12 @@ export const QuestionTab = () => {
                                             </TooltipContent>
                                         </Tooltip>
                                     </div>
-                                    <span className='text-xs font-medium text-gray-500'>Pilihan Ganda</span>
+                                    <span className='text-xs font-medium text-muted-foreground'>Pilihan Ganda</span>
                                 </div>
                                 <div className='flex flex-col gap-1'>
                                     <div className='flex gap-2 items-start justify-between'>
                                         <div className='flex flex-col gap-1'>
-                                            <small className='text-xs text-gray-400'>Tipe</small>
+                                            <small className='text-xs text-muted-foreground'>Tipe</small>
                                             <h4 className='text-xl font-mono font-medium'>
                                                 <SlidingNumber
                                                     number={statsQuestion?.complex_multiple_choice?.count}
@@ -1162,12 +1162,12 @@ export const QuestionTab = () => {
                                             </TooltipContent>
                                         </Tooltip>
                                     </div>
-                                    <span className='text-xs font-medium text-gray-500'>PG Kompleks</span>
+                                    <span className='text-xs font-medium text-muted-foreground'>PG Kompleks</span>
                                 </div>
                                 <div className='flex flex-col gap-1'>
                                     <div className='flex gap-2 items-start justify-between'>
                                         <div className='flex flex-col gap-1'>
-                                            <small className='text-xs text-gray-400'>Tipe</small>
+                                            <small className='text-xs text-muted-foreground'>Tipe</small>
                                             <h4 className='text-xl font-mono font-medium'>
                                                 <SlidingNumber
                                                     number={statsQuestion?.essay?.count}
@@ -1196,12 +1196,12 @@ export const QuestionTab = () => {
                                         </Tooltip>
                                         {console.log(statsQuestion)}
                                     </div>
-                                    <span className='text-xs font-medium text-gray-500'>Essay</span>
+                                    <span className='text-xs font-medium text-muted-foreground'>Essay</span>
                                 </div>
                                 <div className='flex flex-col gap-1'>
                                     <div className='flex gap-2 items-start justify-between'>
                                         <div className='flex flex-col gap-1'>
-                                            <small className='text-xs text-gray-400'>Tipe</small>
+                                            <small className='text-xs text-muted-foreground'>Tipe</small>
                                             <h4 className='text-xl font-mono font-medium'>
                                                 <SlidingNumber
                                                     number={statsQuestion?.easy?.count}
@@ -1229,12 +1229,12 @@ export const QuestionTab = () => {
                                             </TooltipContent>
                                         </Tooltip>
                                     </div>
-                                    <span className='text-xs font-medium text-gray-500'>Mudah</span>
+                                    <span className='text-xs font-medium text-muted-foreground'>Mudah</span>
                                 </div>
                                 <div className='flex flex-col gap-1'>
                                     <div className='flex gap-2 items-start justify-between'>
                                         <div className='flex flex-col gap-1'>
-                                            <small className='text-xs text-gray-400'>Tipe</small>
+                                            <small className='text-xs text-muted-foreground'>Tipe</small>
                                             <h4 className='text-xl font-mono font-medium'>
                                                 <SlidingNumber
                                                     number={statsQuestion?.medium?.count}
@@ -1262,12 +1262,12 @@ export const QuestionTab = () => {
                                             </TooltipContent>
                                         </Tooltip>
                                     </div>
-                                    <span className='text-xs font-medium text-gray-500'>Sedang</span>
+                                    <span className='text-xs font-medium text-muted-foreground'>Sedang</span>
                                 </div>
                                 <div className='flex flex-col gap-1'>
                                     <div className='flex gap-2 items-start justify-between'>
                                         <div className='flex flex-col gap-1'>
-                                            <small className='text-xs text-gray-400'>Tipe</small>
+                                            <small className='text-xs text-muted-foreground'>Tipe</small>
                                             <h4 className='text-xl font-mono font-medium'>
                                                 <SlidingNumber
                                                     number={statsQuestion?.hard?.count}
@@ -1295,13 +1295,13 @@ export const QuestionTab = () => {
                                             </TooltipContent>
                                         </Tooltip>
                                     </div>
-                                    <span className='text-xs font-medium text-gray-500'>Sulit</span>
+                                    <span className='text-xs font-medium text-muted-foreground'>Sulit</span>
                                 </div>
                             </div>
                         </div>
                         <div className="border-t py-3 px-4 w-full border-dashed flex flex-wrap items-center gap-1.5">
                             <span
-                                className='text-xs font-medium text-gray-700'
+                                className='text-xs font-medium text-foreground'
                             >Total Soal <span className='font-semibold'>{questions?.length}</span></span>
 
                             <Separator orientation='vertical' className="!h-4 mx-2" />
@@ -1355,8 +1355,8 @@ export const QuestionTab = () => {
             </GradientGenerate>
 
             <div className='flex flex-col relative p-5 border border-dashed'>
-                <span className="border-primary/20 bg-white absolute top-0 left-0 z-30 size-2.5 -translate-x-1/2 -translate-y-1/2 rotate-45 rounded-xs border"></span>
-                <span className="border-primary/20 bg-white absolute bottom-0 right-0 z-30 size-2.5 translate-x-1/2 translate-y-1/2 rotate-45 rounded-xs border"></span>
+                <span className="border-primary/20 bg-white dark:bg-zinc-800 absolute top-0 left-0 z-30 size-2.5 -translate-x-1/2 -translate-y-1/2 rotate-45 rounded-xs border"></span>
+                <span className="border-primary/20 bg-background absolute bottom-0 right-0 z-30 size-2.5 translate-x-1/2 translate-y-1/2 rotate-45 rounded-xs border"></span>
 
                 <div className='z-10 flex flex-col gap-10'>
                     {(filteredQuestions?.length > 0) ? filteredQuestions.map((item, index) => (
@@ -1412,12 +1412,12 @@ export const HomeRibbonQuiz = () => {
             <>
                 <div className="items-center flex justify-center h-full gap-2">
 
-                    <div className='bg-gray-100 p-1 gap-1 flex rounded-lg inset-shadow-sm'>
+                    <div className='bg-gray-100 dark:bg-zinc-900 p-1 gap-1 flex rounded-lg inset-shadow-sm'>
                         <Button
                             size="sm"
                             variant={!tabMode ? 'outline' : 'ghost'}
                             onClick={() => setTabMode(false)}
-                            className="hover:bg-white border-0"
+                            className="hover:bg-accent border-0"
                         >
                             <FileCog />
                             <span>Instruksi</span>
@@ -1426,7 +1426,7 @@ export const HomeRibbonQuiz = () => {
                             size="sm"
                             variant={tabMode ? 'outline' : 'ghost'}
                             onClick={() => setTabMode(true)}
-                            className="hover:bg-white border-0"
+                            className="hover:bg-accent border-0"
                         >
                             <MessagesSquareIcon />
                             <span>Soal</span>

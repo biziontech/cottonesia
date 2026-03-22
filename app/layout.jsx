@@ -1,3 +1,4 @@
+import { ThemeProvider } from "next-themes";
 import { Geist, Geist_Mono } from "next/font/google";
 import { AuthProvider } from '@/contexts/AuthContext';
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -25,16 +26,23 @@ export default function RootLayout({
   children,
 }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <AuthProvider>
-          <TooltipProvider>
-            {children}
-          </TooltipProvider>
-        </AuthProvider>
-        <Toaster position="top-center" />
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <AuthProvider>
+            <TooltipProvider>
+              {children}
+            </TooltipProvider>
+          </AuthProvider>
+          <Toaster position="top-center" />
+        </ThemeProvider>
       </body>
     </html>
   );

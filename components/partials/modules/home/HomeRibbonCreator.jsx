@@ -38,7 +38,7 @@ export const HomeRibbonCreator = () => {
                 value={creator}
                 onValueChange={(c) => handleSelectCreator(c)}
             >
-                <SelectTrigger size="sm" variant="outline" className="min-w-40 shadow-none text-xs font-medium cursor-pointer [&>span]:flex [&>span]:gap-2 [&>span]:items-center">
+                <SelectTrigger size="sm" variant="outline" className="min-w-40 shadow-none text-xs font-medium cursor-pointer [&>span]:flex [&>span]:gap-2 [&>span]:items-center dark:bg-accent">
                     <SelectValue placeholder="Select a Creator" />
                 </SelectTrigger>
                 <SelectContent side="bottom" position="popper">

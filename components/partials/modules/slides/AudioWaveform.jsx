@@ -26,12 +26,13 @@ export const AudioWaveform = ({ isRecording, stream }) => {
         const canvasCtx = canvas.getContext('2d');
         const WIDTH = canvas.width;
         const HEIGHT = canvas.height;
+        const isDark = document.documentElement.classList.contains('dark');
 
         const draw = () => {
             animationRef.current = requestAnimationFrame(draw);
             analyser.getByteFrequencyData(dataArray);
 
-            canvasCtx.fillStyle = 'rgb(249, 250, 251)';
+            canvasCtx.fillStyle = isDark ? 'rgb(39, 39, 42)' : 'rgb(249, 250, 251)';
             canvasCtx.fillRect(0, 0, WIDTH, HEIGHT);
 
             const barWidth = (WIDTH / bufferLength) * 2.5;
@@ -42,8 +43,8 @@ export const AudioWaveform = ({ isRecording, stream }) => {
                 barHeight = (dataArray[i] / 255) * HEIGHT;
 
                 const gradient = canvasCtx.createLinearGradient(0, HEIGHT - barHeight, 0, HEIGHT);
-                gradient.addColorStop(0, 'rgb(147, 51, 234)');
-                gradient.addColorStop(1, 'rgb(236, 72, 153)');
+                gradient.addColorStop(0, isDark ? 'rgb(168, 85, 247)' : 'rgb(147, 51, 234)');
+                gradient.addColorStop(1, isDark ? 'rgb(244, 114, 182)' : 'rgb(236, 72, 153)');
 
                 canvasCtx.fillStyle = gradient;
                 canvasCtx.fillRect(x, HEIGHT - barHeight, barWidth, barHeight);
@@ -69,7 +70,7 @@ export const AudioWaveform = ({ isRecording, stream }) => {
             ref={canvasRef}
             width="600"
             height="100"
-            className="w-full h-24 rounded-lg"
+            className="w-full h-24 rounded-lg border border-border/60 bg-card"
         />
     );
 };

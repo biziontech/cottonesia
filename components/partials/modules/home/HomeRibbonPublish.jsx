@@ -16,13 +16,13 @@ const TimeScrollPicker = ({ hour, minute, setHour, setMinute }) => {
 
     return (
         <div className="flex flex-col">
-            <p className="text-xs font-medium text-slate-600 my-2 px-2 flex items-center gap-1">
+            <p className="text-xs font-medium text-muted-foreground my-2 px-2 flex items-center gap-1">
                 <Clock className="size-3" />
                 Time
             </p>
             <div className="flex gap-1">
                 <div className="flex flex-col items-center">
-                    <p className="text-xs text-slate-500 mb-1">Hour</p>
+                    <p className="text-xs text-muted-foreground mb-1">Hour</p>
                     <ScrollArea className="h-[280px] w-[42px] [&_[data-slot='scroll-area-scrollbar']]:w-1.5">
                         <ScrollBar />
                         <div className="flex flex-col gap-1">
@@ -41,7 +41,7 @@ const TimeScrollPicker = ({ hour, minute, setHour, setMinute }) => {
                     </ScrollArea>
                 </div>
                 <div className="flex flex-col items-center">
-                    <p className="text-xs text-slate-500 mb-1">Min</p>
+                    <p className="text-xs text-muted-foreground mb-1">Min</p>
                     <ScrollArea className="h-[280px] w-[42px] [&_[data-slot='scroll-area-scrollbar']]:w-1.5">
                         <div className="flex flex-col gap-1">
                             {generateMinutes().map((m) => (
@@ -152,15 +152,15 @@ export const HomeRibbonPublish = () => {
                 <PopoverTrigger asChild>
                     <Button size="sm" variant="outline" className="justify-start text-left font-normal ps-2.5">
                         <span className="flex gap-2 items-center font-medium">
-                            <CalendarArrowUp className="text-gray-500" />
+                            <CalendarArrowUp className="text-muted-foreground" />
                             {datePublish ? formatShortDate(datePublish) : <span>Tanggal Publish</span>}
                         </span>
                     </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-auto p-2 divide-dotted flex divide-x">
+                <PopoverContent className="w-auto p-2 divide-dotted flex divide-x divide-border bg-popover text-popover-foreground">
                     {/* Quick selects */}
                     <div className="flex flex-col gap-1 pe-2 min-w-30">
-                        <p className="text-xs font-medium text-slate-600 mb-1 px-2">Quick</p>
+                        <p className="text-xs font-medium text-muted-foreground mb-1 px-2">Quick</p>
                         {quickSelects.map((item) => {
                             const IconComponent = item.icon;
                             return (
@@ -201,7 +201,7 @@ export const HomeRibbonPublish = () => {
                 <PopoverTrigger asChild>
                     <Button size="sm" variant="outline" className="justify-start text-left font-normal ps-2.5">
                         <span className="flex gap-2 items-center font-medium">
-                            <CalendarClock className="text-gray-500 size-4" />
+                            <CalendarClock className="text-muted-foreground size-4" />
                             {`${hour}:${minute} WIB`}
                         </span>
                     </Button>

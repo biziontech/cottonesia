@@ -16,10 +16,10 @@ const Editor = dynamic(() => import('@/components/editor/Editor'), {
     ssr: false,
     loading: () => (
         <div className="w-full max-w-[1200px] mx-auto my-0">
-            <div className="min-h-[696px] flex items-center justify-center rounded-xl bg-white shadow-sm">
+            <div className="min-h-[696px] flex items-center justify-center rounded-xl bg-card text-card-foreground shadow-sm">
                 <div className="flex flex-col gap-4 items-center">
-                    <Loader className="animate-spin text-gray-500" size={32} />
-                    <p className="text-sm text-gray-600">Memuat Editor...</p>
+                    <Loader className="animate-spin text-muted-foreground" size={32} />
+                    <p className="text-sm text-muted-foreground">Memuat Editor...</p>
                 </div>
             </div>
         </div>
@@ -34,8 +34,8 @@ const EditorSwitchRender = ({ handleChange, editMode, introduction }) => {
             {editMode ? (
                 <Editor onBlur={(c) => handleChange(c)} initialContent={introduction ? introduction : module?.introduction} />
             ) : (
-                <div className='min-h-[652px] shadow-md bg-white p-8 rounded-3xl'>
-                    <article className='max-w-3xl py-10 mx-auto prose' dangerouslySetInnerHTML={{ __html: introduction ? introduction : module?.introduction }}>
+                <div className='min-h-[652px] shadow-md bg-card text-card-foreground p-8 rounded-3xl'>
+                    <article className='max-w-3xl py-10 mx-auto prose dark:prose-invert' dangerouslySetInnerHTML={{ __html: introduction ? introduction : module?.introduction }}>
                     </article>
                 </div>
             )}
@@ -90,12 +90,12 @@ export const HomeRibbonIntroduction = () => {
             <>
                 <div className="items-center flex justify-center h-full gap-2">
 
-                    <div className='bg-gray-100 p-1 gap-1 flex rounded-lg inset-shadow-sm'>
+                    <div className='bg-gray-100 dark:bg-zinc-900 p-1 gap-1 flex rounded-lg inset-shadow-sm'>
                         <Button
                             size="sm"
                             variant={!editMode ? 'outline' : 'ghost'}
                             onClick={() => setEditMode(false)}
-                            className="hover:bg-white border-0"
+                            className="hover:bg-accent border-0"
                         >
                             <Eye />
                             <span>Pratinjau</span>
@@ -104,7 +104,7 @@ export const HomeRibbonIntroduction = () => {
                             size="sm"
                             variant={editMode ? 'outline' : 'ghost'}
                             onClick={() => setEditMode(true)}
-                            className="hover:bg-white border-0"
+                            className="hover:bg-accent border-0"
                         >
                             <EditIcon />
                             <span>Edit</span>

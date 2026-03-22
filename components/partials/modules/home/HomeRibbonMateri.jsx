@@ -23,7 +23,7 @@ const PdfPreview = dynamic(() => import("@/components/partials/PdfPreview"), {
     ssr: false,
     loading: () => (
         <div className="flex items-center justify-center aspect-video">
-            <div className="w-full h-full bg-white animate-pulse rounded-lg flex items-center justify-center">
+            <div className="w-full h-full bg-card animate-pulse rounded-lg flex items-center justify-center">
                 <div className="flex items-center gap-2">
                     <Spinner />
                     <span className="text-xs">Memuat File Pdf...</span>
@@ -373,8 +373,8 @@ export const HomeRibbonMateri = () => {
 
             <div className="flex flex-col">
                 {module?.temp_file?.exists ? (
-                    <div className="flex p-4 rounded-xl bg-white shadow-sm flex-col border-0 gap-0 aspect-video items-center justify-center">
-                        <div className={`transition-colors bg-linear-to-tr duration-500 ${loadingTempDelete ? 'from-red-50 via-white to-red-50' : (isConverting || conversionStarted) ? ' from-gray-50 via-white to-gray-50' : 'from-gray-50 via-white to-gray-50'} w-full h-full flex items-center justify-center rounded-xl`}>
+                    <div className="flex p-4 rounded-xl bg-card text-card-foreground shadow-sm flex-col border border-border/60 gap-0 aspect-video items-center justify-center">
+                        <div className={`transition-colors bg-linear-to-tr duration-500 ${loadingTempDelete ? 'from-red-50 dark:from-red-500/10 via-background to-red-50 dark:to-red-500/10' : (isConverting || conversionStarted) ? 'from-muted via-background to-muted' : 'from-muted via-background to-muted'} w-full h-full flex items-center justify-center rounded-xl`}>
                             <div className="flex flex-col items-center gap-4 py-5">
                                 <div className="flex gap-5 items-end">
                                     {conversionJob?.status == "completed" ? (
@@ -575,8 +575,8 @@ export const HomeRibbonMateri = () => {
                         </div>
                     </div>
                 ) : module?.original_file?.exists ? (
-                    <div className="flex p-4 rounded-xl bg-white shadow-sm flex-col border-0 gap-0 aspect-video items-center justify-center">
-                        <div className={`transition-colors bg-linear-to-tr duration-500 from-gray-50 via-white to-gray-50 w-full h-full flex items-center justify-center rounded-xl`}>
+                    <div className="flex p-4 rounded-xl bg-card text-card-foreground shadow-sm flex-col border border-border/60 gap-0 aspect-video items-center justify-center">
+                        <div className={`transition-colors bg-linear-to-tr duration-500 from-muted via-card to-muted w-full h-full flex items-center justify-center rounded-xl`}>
                             <div className="flex flex-col items-center gap-4 py-5">
                                 <svg className="size-13 group" viewBox="0 0 77 96" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <g clipPath="url(#clip0_203_38)">
@@ -682,7 +682,7 @@ export const HomeRibbonMateri = () => {
                         accept="application/pdf"
                     >
                         {files.length === 0 && (
-                            <div className="rounded-xl shadow-sm bg-white">
+                            <div className="rounded-xl shadow-sm bg-card text-card-foreground border border-border/60">
                                 <div className="p-4">
                                     <FileUploadDropzone className="aspect-video">
                                         <div className="flex flex-col items-center gap-1 text-center">
@@ -738,8 +738,8 @@ export const HomeRibbonMateri = () => {
                         <FileUploadList>
                             {files.map((file, index) => {
                                 return (
-                                    <FileUploadItem key={index} value={file} className="flex p-4 rounded-xl bg-white shadow-sm flex-col border-0 gap-0 aspect-video items-center justify-center">
-                                        <div className={`transition-colors bg-linear-to-tr duration-500 ${isUploading ? 'from-sky-50 via-white to-sky-50' : 'from-gray-50 via-white to-gray-50'} w-full h-full flex items-center justify-center rounded-xl`}>
+                                    <FileUploadItem key={index} value={file} className="flex p-4 rounded-xl bg-card text-card-foreground shadow-sm flex-col border border-border/60 gap-0 aspect-video items-center justify-center">
+                                        <div className={`transition-colors bg-linear-to-tr duration-500 ${isUploading ? 'from-sky-50 dark:from-sky-500/10 via-background to-sky-50 dark:to-sky-500/10' : 'from-muted via-background to-muted'} w-full h-full flex items-center justify-center rounded-xl`}>
                                             <div className="flex flex-col items-center gap-4 py-5">
                                                 <svg className="w-14" viewBox="0 0 500 615" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                     <path d="M25 0.5H359.889C366.329 0.5 372.511 3.03623 377.096 7.55957L492.207 121.132C496.873 125.736 499.5 132.017 499.5 138.572V590C499.5 603.531 488.531 614.5 475 614.5H25C11.469 614.5 0.5 603.531 0.5 590V25C0.500007 11.6806 11.1287 0.843452 24.3672 0.507812L25 0.5Z" fill="#FF4B42" stroke="#E4E4E4" />

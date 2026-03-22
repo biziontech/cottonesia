@@ -212,18 +212,18 @@ export const ModuleTitle = ({ initialTitle = "", initialSlug = "" }) => {
     };
 
     return (
-        <div className='rounded-xl bg-white shadow-sm'>
+        <div className='rounded-xl bg-card text-card-foreground shadow-sm'>
             <div className='flex items-start justify-center w-full flex-col gap-0'>
-                <span className='px-5 pt-5 text-xs font-medium text-gray-600 whitespace-nowrap'>Training Title</span>
+                <span className='px-5 pt-5 text-xs font-medium text-muted-foreground whitespace-nowrap'>Training Title</span>
                 <Input
-                    className="shadow-none border-none focus-visible:ring-0 md:text-lg font-medium px-5 placeholder:text-gray-200 placeholder:font-normal"
+                    className="shadow-none border-none !bg-transparent focus-visible:ring-0 md:text-lg font-medium px-5 placeholder:text-muted-foreground/40 placeholder:font-normal rounded-none"
                     placeholder="Masukan judul materi training"
                     value={title}
                     onChange={handleTitleChange}
                     onBlur={handleTitleBlur}
                 />
             </div>
-            <div className='border-t border-dashed px-5 py-2 flex items-start justify-between gap-2'>
+            <div className='border-t border-dashed border-border px-5 py-2 flex items-start justify-between gap-2'>
                 <div className='flex gap-2 my-auto flex-1'>
                     <div className='font-medium text-xs items-center flex gap-2'>
                         <Link2 className='w-4 h-4' />
@@ -276,7 +276,7 @@ export const ModuleTitle = ({ initialTitle = "", initialSlug = "" }) => {
 
             {/* Suggested slug jika unavailable */}
             {slugStatus === 'unavailable' && suggestedSlug && (
-                <div className={`px-5 py-2 border-t border-dashed bg-amber-50 ${!permalinkEdit && 'rounded-b-xl'}`}>
+                <div className={`px-5 py-2 border-t border-dashed border-border bg-amber-50 dark:bg-amber-500/10 ${!permalinkEdit && 'rounded-b-xl'}`}>
                     <div className='flex items-center justify-between gap-2'>
                         <span className='text-xs text-amber-700'>
                             Slug sudah digunakan. Saran: <span className='font-medium'>{suggestedSlug}</span>
@@ -295,7 +295,7 @@ export const ModuleTitle = ({ initialTitle = "", initialSlug = "" }) => {
 
             {/* Permalink Edit */}
             {permalinkEdit && (
-                <div className='px-5 py-3 flex items-center justify-start border-t rounded-b-xl'>
+                <div className='px-5 py-3 flex items-center justify-start border-t border-border rounded-b-xl'>
                     <div className='flex divide-x flex-1'>
                         <Tooltip>
                             <TooltipTrigger asChild>
@@ -305,7 +305,7 @@ export const ModuleTitle = ({ initialTitle = "", initialSlug = "" }) => {
                                         checked={permalinkType === 'automatic'}
                                         onClick={handlePermalinkTypeChange}
                                     />
-                                    <Label htmlFor="permalink-automatic" className="text-xs hidden md:block">
+                                    <Label htmlFor="permalink-automatic" className="text-xs hidden md:block text-muted-foreground">
                                         {permalinkType === 'automatic' ? 'Automatic' : 'Manual'}
                                     </Label>
                                 </div>
@@ -320,7 +320,7 @@ export const ModuleTitle = ({ initialTitle = "", initialSlug = "" }) => {
                                 <InputGroupAddon className="text-xs font-normal"><Route /></InputGroupAddon>
                                 <InputGroupInput
                                     placeholder="Masukkan path URL"
-                                    className="text-xs placeholder:text-gray-200 placeholder:font-normal"
+                                    className="text-xs placeholder:text-muted-foreground/40 placeholder:font-normal"
                                     readOnly={permalinkType === 'automatic'}
                                     value={tempSlug}
                                     onChange={handleSlugChange}

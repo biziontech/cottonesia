@@ -18,10 +18,10 @@ export const ModuleTabContent = () => {
 
     return (
         <div className='p-3 flex flex-col gap-2 relative'>
-            <span className="border-primary/20 bg-white absolute top-0 left-0 z-30 size-2.5 -translate-x-1/2 -translate-y-1/2 rotate-45 rounded-xs border"></span>
+            <span className="border-primary/20 bg-white dark:bg-zinc-800 absolute top-0 left-0 z-30 size-2.5 -translate-x-1/2 -translate-y-1/2 rotate-45 rounded-xs border"></span>
             {/* Sliding background indicator */}
             <div
-                className="absolute left-3 right-3 rounded-xl border bg-background shadow-sm transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]"
+                className="absolute left-3 right-3 rounded-xl border border-border bg-card shadow-sm transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]"
                 style={{
                     height: '40px', // icon-lg height
                     transform: `translateY(${activeIndex * (40 + 8)}px)`, // 40px height + 8px gap-2
@@ -34,7 +34,7 @@ export const ModuleTabContent = () => {
                         <Button
                             variant="ghost"
                             size="icon-lg"
-                            className="rounded-xl relative z-10"
+                            className="rounded-xl relative z-10 text-muted-foreground hover:text-foreground"
                             onClick={() => setRightPanel(tab?.id)}
                         >
                             <tab.icon className='size-5' />

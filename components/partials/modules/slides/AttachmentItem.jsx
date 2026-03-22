@@ -19,10 +19,10 @@ const Editor = dynamic(() => import('@/components/editor/Editor'), {
     ssr: false,
     loading: () => (
         <div className="w-full max-w-[1200px] mx-auto my-0">
-            <div className="min-h-[696px] flex items-center justify-center rounded-xl bg-white shadow-sm">
+            <div className="min-h-[696px] flex items-center justify-center rounded-xl bg-card text-card-foreground shadow-sm border border-border/60">
                 <div className="flex flex-col gap-4 items-center">
-                    <Loader className="animate-spin text-gray-500" size={32} />
-                    <p className="text-sm text-gray-600">Memuat Editor...</p>
+                    <Loader className="animate-spin text-muted-foreground" size={32} />
+                    <p className="text-sm text-muted-foreground">Memuat Editor...</p>
                 </div>
             </div>
         </div>
@@ -186,9 +186,9 @@ export const AttachmentItem = ({ attachment, onUpdate, onDelete, onSave }) => {
     };
 
     return (
-        <div className="border border-dashed p-3 flex flex-col gap-3 relative mx-2">
-            <span className="border-primary/20 bg-white absolute top-0 left-0 z-30 size-2.5 -translate-x-1/2 -translate-y-1/2 rotate-45 rounded-xs border"></span>
-            <span className="border-primary/20 bg-white absolute bottom-0 right-0 z-30 size-2.5 translate-x-1/2 translate-y-1/2 rotate-45 rounded-xs border"></span>
+        <div className="border border-border border-dashed p-3 flex flex-col gap-3 relative mx-2">
+            <span className="border-primary/20 bg-background absolute top-0 left-0 z-30 size-2.5 -translate-x-1/2 -translate-y-1/2 rotate-45 rounded-xs border"></span>
+            <span className="border-primary/20 bg-background absolute bottom-0 right-0 z-30 size-2.5 translate-x-1/2 translate-y-1/2 rotate-45 rounded-xs border"></span>
             <div className='flex z-10 mx-4 my-0 gap-4 items-center flex-col xl:flex-row justify-between'>
                 <div className='flex flex-col sm:flex-row gap-2 items-center'>
                     <h3 className="text-sm font-semibold">{attachment.attachment_type === 'text' ? 'Text' : 'Audio'} Attachment</h3>
@@ -205,12 +205,12 @@ export const AttachmentItem = ({ attachment, onUpdate, onDelete, onSave }) => {
 
                     {attachment.attachment_type === 'text' && (
                         <>
-                            <div className='bg-gray-100 p-1 gap-1 flex rounded-lg inset-shadow-sm'>
+                            <div className='bg-gray-100 dark:bg-zinc-900 p-1 gap-1 flex rounded-lg inset-shadow-sm'>
                                 <Button
                                     size="sm"
                                     variant={!attachmentEditMode ? 'outline' : 'ghost'}
                                     onClick={() => setAttachmentEditMode(false)}
-                                    className="hover:bg-white border-0 h-7 text-xs !px-2"
+                                    className="hover:bg-accent border-0 h-7 text-xs !px-2"
                                 >
                                     <Eye className='size-4' />
                                     <span>Pratinjau</span>
@@ -219,7 +219,7 @@ export const AttachmentItem = ({ attachment, onUpdate, onDelete, onSave }) => {
                                     size="sm"
                                     variant={attachmentEditMode ? 'outline' : 'ghost'}
                                     onClick={() => setAttachmentEditMode(true)}
-                                    className="hover:bg-white border-0 h-7 text-xs !px-2"
+                                    className="hover:bg-accent border-0 h-7 text-xs !px-2"
                                 >
                                     <EditIcon className='size-4' />
                                     <span>Edit</span>
@@ -306,16 +306,16 @@ export const AttachmentItem = ({ attachment, onUpdate, onDelete, onSave }) => {
                                 minHeight: contentCollapse ? '120px' : '652px',
                                 transition: 'min-height 0.5s ease-in-out'
                             }}
-                            className="overflow-hidden shadow-sm bg-white p-8 rounded-3xl relative"
+                            className="overflow-hidden shadow-sm bg-card text-card-foreground p-8 rounded-3xl relative border border-border/60"
                         >
                             <div ref={contentRef}>
-                                <article className='max-w-3xl mx-auto prose prose-sm' dangerouslySetInnerHTML={{ __html: !content ? '<center><span><i>Silakan tambahkan attactment content</i></span></center>' : content }} />
+                                <article className='max-w-3xl mx-auto prose dark:prose-invert prose-sm' dangerouslySetInnerHTML={{ __html: !content ? '<center><span><i>Silakan tambahkan attactment content</i></span></center>' : content }} />
                             </div>
 
                             {contentHeight > 120 && (
                                 <div className='group'>
-                                    <div className='absolute bottom-0 left-0 right-0 h-20 bg-linear-to-t from-white from-40% to-transparent transition-colors group-hover:from-gray-100 duration-500'></div>
-                                    <div className='absolute bottom-3 left-0 right-0 w-fit mx-auto text-sm font-medium cursor-pointer text-gray-400 transition-colors duration-500 group-hover:text-primary animate-bounce' onClick={() => setContentCollapse(!contentCollapse)}>
+                                    <div className='absolute bottom-0 left-0 right-0 h-20 bg-linear-to-t from-card from-40% to-transparent transition-colors group-hover:from-muted duration-500'></div>
+                                    <div className='absolute bottom-3 left-0 right-0 w-fit mx-auto text-sm font-medium cursor-pointer text-muted-foreground transition-colors duration-500 group-hover:text-primary animate-bounce' onClick={() => setContentCollapse(!contentCollapse)}>
                                         {contentCollapse ? (
                                             <ChevronDown />
                                         ) : (
@@ -336,12 +336,12 @@ export const AttachmentItem = ({ attachment, onUpdate, onDelete, onSave }) => {
                         /* ── LIVE RECORDING STATE ── */
                         <div className="flex flex-col gap-3">
                             <div className="flex items-center justify-between">
-                                <div className="flex border items-center gap-2 bg-white py-2 px-3 rounded-lg shadow-xs">
+                                <div className="flex border border-border items-center gap-2 bg-card py-2 px-3 rounded-lg shadow-xs">
                                     <span className="relative flex size-2">
                                         <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-rose-400 opacity-75"></span>
                                         <span className="relative inline-flex size-2 rounded-full bg-rose-500"></span>
                                     </span>
-                                    <span className="text-xs font-medium text-gray-500">Merekam...</span>
+                                    <span className="text-xs font-medium text-muted-foreground">Merekam...</span>
                                 </div>
                                 <Button
                                     variant="outline"
@@ -352,7 +352,7 @@ export const AttachmentItem = ({ attachment, onUpdate, onDelete, onSave }) => {
                                     <span>Stop</span>
                                 </Button>
                             </div>
-                            <div className="w-full bg-white shadow-xs border rounded-lg px-4">
+                            <div className="w-full bg-card shadow-xs border border-border rounded-lg px-4">
                                 <LiveWaveform
                                     height={80}
                                     active={true}
@@ -369,7 +369,7 @@ export const AttachmentItem = ({ attachment, onUpdate, onDelete, onSave }) => {
                         </div>
                     ) : audioUrl ? (
                         /* ── PLAYBACK STATE ── */
-                        <div className="flex flex-col gap-3 p-4 shadow rounded-lg bg-white">
+                        <div className="flex flex-col gap-3 p-4 shadow rounded-lg bg-card text-card-foreground border border-border/60">
                             <AudioPlayerProvider>
                                 <div className="flex items-center gap-3">
                                     <AudioPlayerButton
@@ -407,7 +407,7 @@ export const AttachmentItem = ({ attachment, onUpdate, onDelete, onSave }) => {
                         </div>
                     ) : (
                         /* ── IDLE STATE ── */
-                        <div className="flex items-center justify-center py-8 border rounded-lg bg-gray-50">
+                        <div className="flex items-center justify-center py-8 border border-border rounded-lg bg-muted/60">
                             <Button
                                 variant="outline"
                                 size="sm"

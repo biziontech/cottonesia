@@ -34,27 +34,30 @@
 }
 
 .dark {
-  --sidebar: #111827;
-  --sidebar-foreground: #f9fafb;
+  --sidebar: var(--card);
+  --sidebar-foreground: var(--foreground);
 
-  --sidebar-primary: #9ca3af;
-  --sidebar-primary-foreground: #111827;
+  --sidebar-primary: var(--primary);
+  --sidebar-primary-foreground: var(--primary-foreground);
 
-  --sidebar-accent: #1f2933;
-  --sidebar-accent-foreground: #f9fafb;
+  --sidebar-accent: var(--accent);
+  --sidebar-accent-foreground: var(--accent-foreground);
 
-  --sidebar-border: rgba(229, 231, 235, 0.1);
-  --sidebar-ring: #9ca3af;
+  --sidebar-border: var(--border);
+  --sidebar-ring: var(--ring);
 
-  --color-datatable-bg-dark: rgb(17 24 39 / 0.4);
-  --color-datatable-header-bg-dark: #1f2933;
-  --color-datatable-row-hover-dark: #1f2933;
-  --color-datatable-pinned-bg-dark: #111827;
-  --color-datatable-pinned-hover-dark: #1f2933;
-  --color-datatable-text-dark: #f9fafb;
-  --color-datatable-header-text-dark: #f9fafb;
-  --color-datatable-muted-text-dark: #9ca3af;
-  --color-datatable-border-dark: #374151;
+  --color-datatable-bg-dark: color-mix(in oklch, var(--background) 80%, transparent);
+  --color-datatable-header-bg-dark: var(--card);
+  --color-datatable-row-hover-dark: var(--accent);
+  --color-datatable-pinned-bg-dark: var(--background);
+  --color-datatable-pinned-hover-dark: var(--accent);
+
+  --color-datatable-text-dark: var(--foreground);
+  --color-datatable-header-text-dark: var(--foreground);
+  --color-datatable-muted-text-dark: var(--muted-foreground);
+
+  --color-datatable-border-dark: var(--border);
+
 }
 
 @theme {

@@ -16,10 +16,10 @@ const Editor = dynamic(() => import('@/components/editor/Editor'), {
     ssr: false,
     loading: () => (
         <div className="w-full max-w-[1200px] mx-auto my-0">
-            <div className="min-h-[652px] flex items-center justify-center rounded-xl bg-white shadow-sm">
+            <div className="min-h-[652px] flex items-center justify-center rounded-xl bg-card text-card-foreground shadow-sm border border-border/60">
                 <div className="flex flex-col gap-4 items-center">
-                    <Loader className="animate-spin text-gray-500" size={32} />
-                    <p className="text-sm text-gray-600">Memuat Editor...</p>
+                    <Loader className="animate-spin text-muted-foreground" size={32} />
+                    <p className="text-sm text-muted-foreground">Memuat Editor...</p>
                 </div>
             </div>
         </div>
@@ -34,15 +34,15 @@ const EditorSwitchRender = ({ handleChange, editMode, setEditMode, content }) =>
             ) : (
                 <>
                     {content ? (
-                        <div className='min-h-[571.5px] shadow-sm p-8 bg-white rounded-3xl'>
-                            <article className='max-w-3xl py-10 mx-auto prose prose-sm' dangerouslySetInnerHTML={{ __html: content }}>
+                        <div className='min-h-[571.5px] shadow-sm p-8 bg-card text-card-foreground rounded-3xl border border-border/60'>
+                            <article className='max-w-3xl py-10 mx-auto prose dark:prose-invert prose-sm' dangerouslySetInnerHTML={{ __html: content }}>
                             </article>
                         </div>
                     ) : (
-                        <div className='aspect-video relative bg-white p-3 shadow-sm rounded-xl'>
+                        <div className='aspect-video relative bg-card text-card-foreground p-3 shadow-sm rounded-xl border border-border/60'>
                             <div className="h-full flex flex-col items-center justify-center gap-4 border-2 border-dashed rounded-lg hover:bg-accent/30 transition-colors">
                                 <div className="flex flex-col items-center gap-2 text-center">
-                                    <div className="flex items-center justify-center rounded-xl border p-2">
+                                    <div className="flex items-center justify-center rounded-xl border border-border p-2 bg-background">
                                         <svg className='size-5' xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#fff">
                                             <g>
                                                 <path opacity="0.4" d="M20.5 10.19H17.61C15.24 10.19 13.31 8.26 13.31 5.89V3C13.31 2.45 12.86 2 12.31 2H8.07C4.99 2 2.5 4 2.5 7.57V16.43C2.5 20 4.99 22 8.07 22H15.93C19.01 22 21.5 20 21.5 16.43V11.19C21.5 10.64 21.05 10.19 20.5 10.19Z" className='fill-amber-500' />
@@ -220,13 +220,12 @@ export const TextSlideEditor = ({ item, onUpdate }) => {
 
     const PreviewEdit = () => (
         <>
-            <Separator orientation='vertical' className="!h-5" />
-            <div className="flex items-center justify-between">
-                <div className='bg-gray-100 p-1 gap-1 flex rounded-lg inset-shadow-sm'>
+            <div className="flex items-center justify-between ms-auto">
+                <div className='bg-gray-100 dark:bg-zinc-900 p-1 gap-1 flex rounded-lg inset-shadow-sm'>
                     <Button
                         variant={!editMode ? 'outline' : 'ghost'}
                         onClick={() => setEditMode(false)}
-                        className="hover:bg-white border-0 h-7 text-xs !px-2"
+                        className="hover:bg-accent border-0 h-7 text-xs !px-2"
                     >
                         <Eye className='size-4' />
                         <span>Pratinjau</span>
@@ -235,7 +234,7 @@ export const TextSlideEditor = ({ item, onUpdate }) => {
                         size="sm"
                         variant={editMode ? 'outline' : 'ghost'}
                         onClick={() => setEditMode(true)}
-                        className="hover:bg-white border-0 h-7 text-xs !px-2"
+                        className="hover:bg-accent border-0 h-7 text-xs !px-2"
                     >
                         <EditIcon className='size-4' />
                         <span>Edit</span>
@@ -261,7 +260,7 @@ export const TextSlideEditor = ({ item, onUpdate }) => {
             <div className='hidden'>
                 <div
                     ref={thumbnailRef}
-                    className="top-0 w-[1280px] h-[720px] bg-white flex items-start overflow-hidden justify-center p-16"
+                    className="top-0 w-[1280px] h-[720px] bg-white dark:bg-card flex items-start overflow-hidden justify-center p-16"
                     style={{ pointerEvents: 'none' }}
                 >
                     <div

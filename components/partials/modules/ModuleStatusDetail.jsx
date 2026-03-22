@@ -17,14 +17,14 @@ export const ModuleStatusDetail = () => {
 
 
     return (
-        <div className='rounded-xl bg-white shadow-sm'>
+        <div className='rounded-xl bg-card text-card-foreground shadow-sm'>
             <div className='flex flex-col p-4'>
                 <h4 className='font-semibold text-sm'>Information</h4>
             </div>
-            <div className='p-4 border-t border-dashed flex flex-col gap-2.5'>
+            <div className='p-4 border-t border-dashed border-border flex flex-col gap-2.5'>
 
                 <div className='flex gap-2'>
-                    <div className='flex items-center gap-2 text-sm min-w-30 text-gray-600'>
+                    <div className='flex items-center gap-2 text-sm min-w-30 text-muted-foreground'>
                         <CircleDashed className='size-4' />
                         <span className='font-semibold text-xs'>Status</span>
                     </div>
@@ -45,7 +45,7 @@ export const ModuleStatusDetail = () => {
                 </div>
 
                 <div className='flex gap-2'>
-                    <div className='flex items-center gap-2 text-sm min-w-30 text-gray-600'>
+                    <div className='flex items-center gap-2 text-sm min-w-30 text-muted-foreground'>
                         <Star className='size-4' />
                         <span className='font-semibold text-xs'>Rating</span>
                     </div>
@@ -55,13 +55,13 @@ export const ModuleStatusDetail = () => {
                 </div>
 
                 <div className='flex gap-2'>
-                    <div className='flex items-center gap-2 text-sm min-w-30 text-gray-600'>
+                    <div className='flex items-center gap-2 text-sm min-w-30 text-muted-foreground'>
                         <GraduationCap className='size-4' />
                         <span className='font-semibold text-xs'>Total Slides</span>
                     </div>
                     <div className='flex gap-1 items-center'>
                         <span className='font-semibold text-sm'>{module?.slides?.length || 0}</span>
-                        <span className='font-medium text-sm text-gray-500'>slide</span>
+                        <span className='font-medium text-sm text-muted-foreground'>slide</span>
                     </div>
                 </div>
 

@@ -37,12 +37,12 @@ export const ModuleCategories = () => {
 
 
     return (
-        <div className='rounded-xl bg-white shadow-sm'>
+        <div className='rounded-xl bg-card text-card-foreground shadow-sm'>
             <div className='flex flex-col p-4'>
                 <h4 className='font-semibold text-sm'>Categories <Required /></h4>
-                <p className='text-xs text-gray-600'>Tentukan kategori untuk materi</p>
+                <p className='text-xs text-muted-foreground'>Tentukan kategori untuk materi</p>
             </div>
-            <div className='border-t border-dashed px-4 py-3 flex flex-col gap-2'>
+            <div className='border-t border-dashed border-border px-4 py-3 flex flex-col gap-2'>
                 <TagsInput
                     value={categories}
                     onValueChange={setCategories}
@@ -53,10 +53,10 @@ export const ModuleCategories = () => {
                     <TagsInputList className="rounded-xl border-0 p-0 focus-visible:outline-none focus-within:ring-0 gap-2">
                         {(categories?.length === 0 && !edit) ? (
                             <div className="flex items-center justify-center w-full">
-                                <p className="text-gray-600">Belum ada categories</p>
+                                <p className="text-muted-foreground">Belum ada categories</p>
                             </div>
                         ) : categories.map((category) => (
-                            <TagsInputItem key={category} value={category} className="rounded-lg bg-gray-100 text-xs">
+                            <TagsInputItem key={category} value={category} className="rounded-lg bg-muted text-xs">
                                 {category}
                             </TagsInputItem>
                         ))}
@@ -71,7 +71,7 @@ export const ModuleCategories = () => {
                     </TagsInputList>
                 </TagsInput>
             </div>
-            <div className="flex flex-1 items-center justify-end w-full px-4 py-3 border-t border-dashed gap-2">
+            <div className="flex flex-1 items-center justify-end w-full px-4 py-3 border-t border-dashed border-border gap-2">
                 <Tooltip>
                     <TooltipTrigger asChild>
                         <Button variant="outline" size="sm" onClick={() => {

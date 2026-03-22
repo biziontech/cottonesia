@@ -19,12 +19,12 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL;
 const EmptySlideState = () => {
     return (
         <div className="aspect-video relative flex flex-col items-center justify-center gap-4 p-8">
-            <div className="flex items-center justify-center rounded-xl border p-3 bg-white">
-                <Layers className="size-7 text-gray-400" />
+            <div className="flex items-center justify-center rounded-xl border border-border p-3 bg-card">
+                <Layers className="size-7 text-muted-foreground" />
             </div>
             <div className="text-center max-w-sm">
-                <h3 className="text-sm font-semibold text-gray-900 mb-1">Belum Ada Slide Terpilih</h3>
-                <p className="text-xs text-gray-500">Silakan pilih slide terlebih dahulu untuk mulai mengedit atau Klik new slide dibawah ini untuk membuat baru</p>
+                <h3 className="text-sm font-semibold text-foreground mb-1">Belum Ada Slide Terpilih</h3>
+                <p className="text-xs text-muted-foreground">Silakan pilih slide terlebih dahulu untuk mulai mengedit atau Klik new slide dibawah ini untuk membuat baru</p>
             </div>
             <div className="flex items-center justify-center">
                 <ActionNewSlide />
@@ -253,7 +253,7 @@ export const ModuleSlideWorkspace = () => {
             <div className="flex flex-col gap-4 w-full h-[calc(100dvh-209px)] overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
 
                 <div className='p-1 sticky top-0 z-50'>
-                    <div className='w-full max-w-5xl items-center mx-auto bg-white shadow-sm py-1.5 ps-2.5 px-1.5 rounded-xl flex gap-2 h-13'>
+                    <div className='w-full max-w-5xl items-center mx-auto bg-card text-card-foreground shadow-sm py-1.5 ps-2.5 px-1.5 rounded-xl flex gap-2 h-13 border border-border/60'>
                         <Button
                             size="icon-sm"
                             variant="secondary"
@@ -271,9 +271,9 @@ export const ModuleSlideWorkspace = () => {
                             <PanelLeft />
                         </Button>
                         <Separator orientation='vertical' className="!h-5 my-auto" />
-                        <span className='text-xs text-gray-500'>{selectedSlide ? (<>Slide {selectedSlide?.sort} of {module?.slides?.length}</>) : 'No Selected Slide'}</span>
+                        <span className='text-xs text-muted-foreground'>{selectedSlide ? (<>Slide {selectedSlide?.sort} of {module?.slides?.length}</>) : 'No Selected Slide'}</span>
 
-                        <div className='block xl:hidden p-1 bg-gray-100 rounded-lg ms-auto'>
+                        <div className='block xl:hidden p-1 bg-gray-100 dark:bg-zinc-900 rounded-lg ms-auto'>
                             <Select
                                 value={selectedSlide?.slide_type}
                                 onValueChange={(value) => {
@@ -285,7 +285,7 @@ export const ModuleSlideWorkspace = () => {
                                     }
                                 }}
                             >
-                                <SelectTrigger className="w-[140px] h-8 border-0 hover:bg-white">
+                                <SelectTrigger className="w-[140px] h-8 border-0 hover:bg-accent">
                                     <SelectValue placeholder="Slide Type" />
                                 </SelectTrigger>
 
@@ -346,8 +346,8 @@ export const ModuleSlideWorkspace = () => {
                         </div>
 
                         {selectedSlide && (
-                            <div className='hidden xl:flex bg-gray-100 p-1 inset-shadow-sm gap-1 rounded-lg items-center justify-center ms-auto'>
-                                <Button size="sm" variant={slideType == 'image' ? 'outline' : 'ghost'} className="hover:bg-white border-0" onClick={() => {
+                            <div className='hidden xl:flex bg-gray-100 dark:bg-zinc-950 p-1 inset-shadow-sm gap-1 rounded-lg items-center justify-center ms-auto'>
+                                <Button size="sm" variant={slideType == 'image' ? 'outline' : 'ghost'} className="hover:bg-accent border-0" onClick={() => {
                                     if (selectedSlide?.slide_type != 'image') {
                                         setSelectedSlide(prev => ({
                                             ...prev,
@@ -369,7 +369,7 @@ export const ModuleSlideWorkspace = () => {
                                     </svg>
                                     <span>Image</span>
                                 </Button>
-                                <Button size="sm" variant={slideType == 'video' ? 'outline' : 'ghost'} className="hover:bg-white border-0" onClick={() => {
+                                <Button size="sm" variant={slideType == 'video' ? 'outline' : 'ghost'} className="hover:bg-accent border-0" onClick={() => {
                                     if (selectedSlide?.slide_type != 'video') {
                                         setSelectedSlide(prev => ({
                                             ...prev,
@@ -390,7 +390,7 @@ export const ModuleSlideWorkspace = () => {
                                     </svg>
                                     <span>Video</span>
                                 </Button>
-                                <Button size="sm" variant={slideType == 'text' ? 'outline' : 'ghost'} className="hover:bg-white border-0" onClick={() => {
+                                <Button size="sm" variant={slideType == 'text' ? 'outline' : 'ghost'} className="hover:bg-accent border-0" onClick={() => {
                                     if (selectedSlide?.slide_type != 'text') {
                                         setSelectedSlide(prev => ({
                                             ...prev,

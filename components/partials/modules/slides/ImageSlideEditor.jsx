@@ -212,7 +212,7 @@ export const ImageSlideEditor = ({ item, onUpdate }) => {
         <div className="flex flex-col gap-4 p-1">
 
 
-            <div className="aspect-video relative bg-white p-3 shadow-sm rounded-xl">
+            <div className="aspect-video relative bg-card text-card-foreground p-3 shadow-sm rounded-xl border border-border/60">
                 {imageUrl ? (
                     <div className="relative h-full w-full">
                         <ImageZoom src={imageUrl}>
@@ -240,7 +240,7 @@ export const ImageSlideEditor = ({ item, onUpdate }) => {
                         {files.length === 0 ? (
                             <FileUploadDropzone className="h-full">
                                 <div className="flex flex-col items-center gap-2 text-center">
-                                    <div className="flex items-center justify-center rounded-xl border p-2">
+                                    <div className="flex items-center justify-center rounded-xl border border-border p-2 bg-background">
                                         <svg className='size-5 fill-white' xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" >
                                             <g>
                                                 <path className='fill-sky-500' opacity="0.4" d="M22 7.81V13.9L20.37 12.5C19.59 11.83 18.33 11.83 17.55 12.5L13.39 16.07C12.61 16.74 11.35 16.74 10.57 16.07L10.23 15.79C9.52 15.17 8.39 15.11 7.59 15.65L2.67 18.95L2.56 19.03C2.19 18.23 2 17.28 2 16.19V7.81C2 4.17 4.17 2 7.81 2H16.19C19.83 2 22 4.17 22 7.81Z" />

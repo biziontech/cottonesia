@@ -199,7 +199,7 @@ export const HomeRibbonObjective = () => {
                         <div className='flex items-center justify-center animate-pulse absolute w-full h-full bg-linear-to-tr z-1 from-cyan-50/80 to-pink-100/80 rounded-[12px]'></div>
                     </>
                 )}
-                <div className='bg-white shadow-sm rounded-xl p-4 flex flex-col gap-4'>
+                <div className='bg-card text-card-foreground shadow-sm rounded-xl p-4 flex flex-col gap-4'>
                     <div className='flex justify-end'>
                         <Dialog>
                             <DialogTrigger asChild>
@@ -258,7 +258,7 @@ export const HomeRibbonObjective = () => {
                             </DialogContent>
                         </Dialog>
                     </div>
-                    <div className='border rounded-xl'>
+                    <div className='border border-border rounded-xl'>
                         {objective?.length > 0 ? (
                             <Sortable
                                 value={objective}
@@ -270,15 +270,15 @@ export const HomeRibbonObjective = () => {
                                         <SortableItem key={item.id} value={item.id}>
                                             {editingId === item.id ? (
                                                 // Edit Mode
-                                                <div className='pe-4 ps-3 py-4 flex flex-col gap-3 bg-gray-50/50'>
+                                                <div className='pe-4 ps-3 py-4 flex flex-col gap-3 bg-muted/50'>
                                                     <div className='flex gap-3'>
                                                         <div className='flex items-center'>
-                                                            <div className="text-gray-400 block">
-                                                                <GripVertical className="h-5 w-5 text-gray-500 opacity-50" />
+                                                            <div className="text-muted-foreground block">
+                                                                <GripVertical className="h-5 w-5 text-muted-foreground opacity-50" />
                                                             </div>
                                                         </div>
                                                         <div className='font-mono text-base min-w-8 text-primary font-medium text-center mt-2'>{index + 1}.</div>
-                                                        <div className='flex-1 flex flex-col gap-0 bg-white rounded-lg shadow-sm'>
+                                                        <div className='flex-1 flex flex-col gap-0 bg-card rounded-lg shadow-sm border border-border/60'>
                                                             <Input
                                                                 value={editForm.title}
                                                                 onChange={(e) => setEditForm(prev => ({ ...prev, title: e.target.value }))}
@@ -329,16 +329,16 @@ export const HomeRibbonObjective = () => {
                                                 </div>
                                             ) : (
                                                 // View Mode
-                                                <div className='pe-4 ps-3 py-4 flex hover:bg-gray-50/50 transition-colors duration-400 gap-3'>
+                                                <div className='pe-4 ps-3 py-4 flex hover:bg-muted/50 transition-colors duration-400 gap-3'>
                                                     <div className='flex items-center'>
-                                                        <SortableItemHandle className="cursor-grab text-gray-400 block">
-                                                            <GripVertical className="h-5 w-5 text-gray-500" />
+                                                        <SortableItemHandle className="cursor-grab text-muted-foreground block">
+                                                            <GripVertical className="h-5 w-5 text-muted-foreground" />
                                                         </SortableItemHandle>
                                                     </div>
                                                     <div className='font-mono text-base min-w-8 text-primary font-medium text-center mt-0.5'>{index + 1}.</div>
                                                     <div className='flex flex-col gap-1 flex-1'>
-                                                        <div className='text-base font-semibold text-gray-700'>{item?.title}</div>
-                                                        <p className='text-sm text-gray-500 line-clamp-2'>{item?.subtitle}</p>
+                                                        <div className='text-base font-semibold text-foreground'>{item?.title}</div>
+                                                        <p className='text-sm text-muted-foreground line-clamp-2'>{item?.subtitle}</p>
                                                     </div>
                                                     <div className='flex items-center justify-center gap-2'>
                                                         <Button
@@ -383,16 +383,16 @@ export const HomeRibbonObjective = () => {
                                         const item = objective.find(i => i.id === value);
                                         const itemIndex = objective.findIndex(i => i.id === value);
                                         return (
-                                            <div className='pe-4 ps-3 py-4 flex bg-white shadow-lg border rounded-lg gap-3'>
+                                            <div className='pe-4 ps-3 py-4 flex bg-card shadow-lg border border-border rounded-lg gap-3'>
                                                 <div className='flex items-center'>
-                                                    <div className="cursor-grab text-gray-400 block">
-                                                        <GripVertical className="h-5 w-5 text-gray-500" />
+                                                    <div className="cursor-grab text-muted-foreground block">
+                                                        <GripVertical className="h-5 w-5 text-muted-foreground" />
                                                     </div>
                                                 </div>
                                                 <div className='font-mono text-base min-w-8 text-primary font-medium text-center mt-0.5'>{itemIndex + 1}.</div>
                                                 <div className='flex flex-col gap-1'>
                                                     <div className='text-base font-semibold'>{item?.title}</div>
-                                                    <p className='text-sm text-gray-500 line-clamp-2'>{item?.subtitle}</p>
+                                                    <p className='text-sm text-muted-foreground line-clamp-2'>{item?.subtitle}</p>
                                                 </div>
                                             </div>
                                         );

@@ -36,8 +36,8 @@ const EditorSwitchRender = ({ handleChange, editMode, description }) => {
             {editMode ? (
                 <Editor onBlur={(c) => handleChange(c)} initialContent={description ? description : module?.description} />
             ) : (
-                <div className='min-h-[652px] shadow-md bg-white p-8 rounded-3xl'>
-                    <article className='max-w-3xl py-10 mx-auto prose' dangerouslySetInnerHTML={{ __html: description ? description : module?.description }}>
+                <div className='min-h-[652px] shadow-md bg-white dark:bg-zinc-900 p-8 rounded-3xl'>
+                    <article className='max-w-3xl py-10 mx-auto prose dark:prose-invert' dangerouslySetInnerHTML={{ __html: description ? description : module?.description }}>
                     </article>
                 </div>
             )}
@@ -99,7 +99,7 @@ export const ModuleDescription = () => {
         return (
             <>
                 <div className="items-center flex justify-between md:justify-center h-full gap-2">
-                    <div className='bg-gray-100 p-1 gap-1 flex rounded-lg inset-shadow-sm'>
+                    <div className='bg-gray-100 dark:bg-zinc-900 p-1 gap-1 flex rounded-lg inset-shadow-sm'>
                         <Button
                             size="sm"
                             variant={!editMode ? 'outline' : 'ghost'}

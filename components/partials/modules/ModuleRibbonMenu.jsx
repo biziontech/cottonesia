@@ -67,9 +67,9 @@ export const ModuleRibbonMenu = () => {
 
     return (
         <>
-            <div className='p-3 border w-full flex relative border-dashed justify-center'>
-                <span className="border-primary/20 bg-white absolute top-0 left-0 z-30 size-2.5 -translate-x-1/2 -translate-y-1/2 rotate-45 rounded-xs border"></span>
-                <span className="border-primary/20 bg-white absolute bottom-0 right-0 z-30 size-2.5 translate-x-1/2 translate-y-1/2 rotate-45 rounded-xs border"></span>
+            <div className='p-3 border border-border w-full flex relative border-dashed justify-center'>
+                <span className="border-primary/20 bg-white dark:bg-zinc-800 absolute top-0 left-0 z-30 size-2.5 -translate-x-1/2 -translate-y-1/2 rotate-45 rounded-xs border"></span>
+                <span className="border-primary/20 bg-background absolute bottom-0 right-0 z-30 size-2.5 translate-x-1/2 translate-y-1/2 rotate-45 rounded-xs border"></span>
                 <div className='z-1 flex flex-col xl:flex-row gap-2 items-center justify-center'>
 
                     <div className="gap-1 flex items-center justify-center flex-wrap">
@@ -81,7 +81,7 @@ export const ModuleRibbonMenu = () => {
                                     variant={active?.key === undefined ? "outline" : "ghost"}
                                     data-active={active?.key === undefined}
                                     onClick={() => handleDescriptionSetup()}
-                                    className={`data-[active=true]:text-primary data-[active=true]:bg-white data-[active=true]:hover:bg-gray-100 items-center group gap-2 ${active?.key !== undefined && 'border border-transparent'}`}
+                                    className={`data-[active=true]:text-primary dark:data-[active=true]:bg-accent dark:data-[active=true]:text-primary-foreground data-[active=true]:bg-card data-[active=true]:hover:bg-accent items-center group gap-2 ${active?.key !== undefined && 'border border-transparent'}`}
                                 >
                                     <BookOpenText />
                                     <span>Latar Belakang</span>
@@ -100,7 +100,7 @@ export const ModuleRibbonMenu = () => {
                                     variant={active?.key === "pendahuluan" ? "outline" : "ghost"}
                                     data-active={active?.key === "pendahuluan"}
                                     onClick={() => handleIntroductionSetup()}
-                                    className={`data-[active=true]:text-primary data-[active=true]:bg-white data-[active=true]:hover:bg-gray-100 items-center group gap-2 ${active?.key !== "pendahuluan" && 'border border-transparent'}`}
+                                    className={`data-[active=true]:text-primary dark:data-[active=true]:bg-accent dark:data-[active=true]:text-primary-foreground data-[active=true]:bg-card data-[active=true]:hover:bg-accent items-center group gap-2 ${active?.key !== "pendahuluan" && 'border border-transparent'}`}
                                 >
                                     <PencilRuler />
                                     <span>Pendahuluan</span>
@@ -118,7 +118,7 @@ export const ModuleRibbonMenu = () => {
                                     size="sm"
                                     variant={active?.key === "tujuan" ? "outline" : "ghost"}
                                     data-active={active?.key === "tujuan"}
-                                    className={`data-[active=true]:text-primary data-[active=true]:bg-white data-[active=true]:hover:bg-gray-100 items-center group gap-2 ${active?.key !== "tujuan" && 'border border-transparent'}`}
+                                    className={`data-[active=true]:text-primary dark:data-[active=true]:bg-accent dark:data-[active=true]:text-primary-foreground data-[active=true]:bg-card data-[active=true]:hover:bg-accent items-center group gap-2 ${active?.key !== "tujuan" && 'border border-transparent'}`}
                                     onClick={() => handleTujuanSetup()}
                                 >
                                     <Milestone />
@@ -138,7 +138,7 @@ export const ModuleRibbonMenu = () => {
                                     variant={active?.key === "import" ? "outline" : "ghost"}
                                     data-active={active?.key === "import"}
                                     onClick={() => handleImportMateri()}
-                                    className={`data-[active=true]:text-primary data-[active=true]:bg-white data-[active=true]:hover:bg-gray-100 items-center group gap-2 ${active?.key !== "import" && 'border border-transparent'}`}
+                                    className={`data-[active=true]:text-primary dark:data-[active=true]:bg-accent dark:data-[active=true]:text-primary-foreground data-[active=true]:bg-card data-[active=true]:hover:bg-accent items-center group gap-2 ${active?.key !== "import" && 'border border-transparent'}`}
                                 >
                                     <FileInput />
                                     <span>Materi</span>
@@ -157,7 +157,7 @@ export const ModuleRibbonMenu = () => {
                                     variant={active?.key === "quiz" ? "outline" : "ghost"}
                                     data-active={active?.key === "quiz"}
                                     onClick={() => handleQuizSetup()}
-                                    className={`data-[active=true]:text-primary data-[active=true]:bg-white data-[active=true]:hover:bg-gray-100 items-center group gap-2 ${active?.key !== "quiz" && 'border border-transparent'}`}
+                                    className={`data-[active=true]:text-primary dark:data-[active=true]:bg-accent dark:data-[active=true]:text-primary-foreground data-[active=true]:bg-card data-[active=true]:hover:bg-accent items-center group gap-2 ${active?.key !== "quiz" && 'border border-transparent'}`}
                                 >
                                     <Brain />
                                     <span>Quiz</span>

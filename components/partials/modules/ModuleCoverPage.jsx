@@ -366,12 +366,12 @@ export const ModuleCoverPage = ({ initialCoverUrl = null, module = null }) => {
 
     return (
         <GradientGenerate isGenerating={isGenerating} borderRadius="15px">
-            <div className='rounded-xl bg-white shadow-sm'>
+            <div className='rounded-xl bg-card text-card-foreground shadow-sm'>
                 <div className='flex flex-col p-4'>
                     <h4 className='font-semibold text-sm'>Cover Page</h4>
-                    <p className='text-xs text-gray-600'>Gunakan untuk thumbnail dan cover page</p>
+                    <p className='text-xs text-muted-foreground'>Gunakan untuk thumbnail dan cover page</p>
                 </div>
-                <div className='border-t border-dashed'>
+                <div className='border-t border-dashed border-border'>
                     {coverUrl ? (
                         <div className="flex flex-col">
                             <div className="p-4 relative">
@@ -390,7 +390,7 @@ export const ModuleCoverPage = ({ initialCoverUrl = null, module = null }) => {
                                     </ImageZoom>
                                 </div>
                             </div>
-                            <div className="flex flex-1 items-center justify-end w-full px-4 py-3 border-t border-dashed">
+                            <div className="flex flex-1 items-center justify-end w-full px-4 py-3 border-t border-dashed border-border">
                                 <Tooltip>
                                     <TooltipTrigger asChild>
                                         <Button variant="outline" size="sm" onClick={handleDeleteCover}>
@@ -425,7 +425,7 @@ export const ModuleCoverPage = ({ initialCoverUrl = null, module = null }) => {
                                         ) : (
                                             <FileUploadDropzone className="aspect-256/211">
                                                 <div className="flex flex-col items-center gap-1 text-center">
-                                                    <div className="flex items-center justify-center rounded-xl border p-2.5">
+                                                <div className="flex items-center justify-center rounded-xl border border-border p-2.5 bg-background">
                                                         <Upload className="size-5 text-muted-foreground" />
                                                     </div>
                                                     <p className="font-medium text-sm">Seret & lepas file di sini</p>
@@ -475,7 +475,7 @@ export const ModuleCoverPage = ({ initialCoverUrl = null, module = null }) => {
                                                     }}
                                                 />
                                             </div>
-                                            <div className="flex flex-1 items-center justify-between w-full ps-3 pe-4 py-3 gap-2 border-t border-dashed">
+                                            <div className="flex flex-1 items-center justify-between w-full ps-3 pe-4 py-3 gap-2 border-t border-dashed border-border">
                                                 <div className="size-10 flex items-center justify-center bg-amber-50 rounded-xl">
                                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" className="fill-amber-500">
                                                         <g clipPath="url(#clip0_4418_4381)">

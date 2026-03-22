@@ -2,11 +2,11 @@
 
 import * as React from 'react';
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
 import { usePathname } from 'next/navigation';
 import * as LucideIcons from 'lucide-react';
-import { Calendar } from 'lucide-react';
-import { Loader } from 'lucide-react';
+import { Loader, Calendar } from 'lucide-react';
 import DateNow from '@/components/ui/date-now';
 import { SidebarProvider, SidebarInset, SidebarMenuSkeleton, SidebarTrigger, Sidebar, SidebarHeader, SidebarContent, SidebarFooter, SidebarRail, SidebarGroup, SidebarGroupLabel, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarMenuSub, SidebarMenuSubItem, SidebarMenuSubButton } from '@/components/animate-ui/components/radix/sidebar';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/animate-ui/primitives/radix/collapsible';
@@ -19,12 +19,19 @@ import { Skeleton } from '@/components/ui/skeleton';
 import NotificationListener from '@/components/partials/NotificationListener';
 
 
+
 function LayoutContent({ children }) {
     const router = useRouter();
     const isMobile = useIsMobile();
     const pathname = usePathname();
     const { user, logout, loading: loading_auth } = useAuth();
     const { menus, loading } = useMenu();
+    const ThemeToggle = dynamic(() => import('@/components/partials/ThemeToggle'), {
+        ssr: false,
+        loading: () => (
+            <div className="h-7 w-7" />
+        ),
+    });
     // set background for training modules
     const pageName = pathname.split('/')[3] || 'home';
 
@@ -229,7 +236,7 @@ function LayoutContent({ children }) {
                 <SidebarRail />
             </Sidebar>
 
-            <SidebarInset data-page={pageName} className="data-[page=training-modules]:bg-sidebar">
+            <SidebarInset data-page={pageName} className="data-[page=training-modules]:bg-sidebar dark:data-[page=training-modules]:bg-background">
                 <header className="flex border-b h-14 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
                     <div className="flex items-center gap-2 px-4">
                         <SidebarTrigger className="rounded-lg" />
@@ -239,12 +246,15 @@ function LayoutContent({ children }) {
                             <Calendar className='w-4 h-5 text-stone-500' />
                             {loading_auth ? (<Skeleton className="h-5 w-52" />) : (<DateNow />)}
                         </div>
-                        {user?.uuid && (<NotificationListener userUuid={user.uuid} modelType='admin' />)}
+                        <div className='flex gap-2'>
+                            {user?.uuid && (<NotificationListener userUuid={user.uuid} modelType='admin' />)}
+                            <ThemeToggle />
+                        </div>
                     </div>
                 </header>
 
                 {children}
-                
+
                 <footer className='border-t'>
                     <div className='w-full max-w-6xl mx-auto'>
                         <div className='p-4 flex justify-between items-center flex-col md:flex-row'>

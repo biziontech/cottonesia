@@ -236,7 +236,7 @@ export const VideoSlideEditor = ({ item, onUpdate }) => {
 
     return (
         <div className="flex flex-col gap-4 p-1">
-            <div className="aspect-video relative bg-white p-3 shadow-sm rounded-xl">
+            <div className="aspect-video relative bg-card text-card-foreground p-3 shadow-sm rounded-xl border border-border/60">
                 {isRecording ? (
                     <div className="relative h-full w-full rounded-lg overflow-hidden bg-black">
                         <video
@@ -247,7 +247,7 @@ export const VideoSlideEditor = ({ item, onUpdate }) => {
                             className="w-full h-full object-cover"
                         />
                         <div className="absolute top-4 left-4 flex items-center gap-2 bg-red-600 text-white px-3 py-1.5 rounded-full z-10">
-                            <div className="size-2 bg-white rounded-full animate-pulse" />
+                            <div className="size-2 bg-background rounded-full animate-pulse" />
                             <span className="text-xs font-medium">Recording</span>
                         </div>
                     </div>
@@ -277,7 +277,7 @@ export const VideoSlideEditor = ({ item, onUpdate }) => {
                 ) : (
                     <div className="h-full flex flex-col items-center justify-center gap-4 border-2 border-dashed rounded-lg hover:bg-accent/30 transition-colors">
                         <div className="flex flex-col items-center gap-2 text-center">
-                            <div className="flex items-center justify-center rounded-xl border p-2">
+                            <div className="flex items-center justify-center rounded-xl border border-border p-2 bg-background">
                                 <svg className='size-5' xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                                     <g>
                                         <path d="M18.7 8.97989L4.14 17.7099C4.05 17.3799 4 17.0299 4 16.6699V7.32989C4 4.24989 7.33 2.32989 10 3.86989L14.04 6.19989L18.09 8.53989C18.31 8.66989 18.52 8.80989 18.7 8.97989Z" className='fill-rose-500' />

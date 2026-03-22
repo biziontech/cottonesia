@@ -115,7 +115,7 @@ export default function AdminLoginPage() {
                 />
             )}
 
-            <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 p-4">
+            <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 dark:from-zinc-950 dark:to-zinc-800 p-4">
                 <Card className="w-full max-w-sm shadow-lg relative overflow-hidden rounded-3xl">
                     <div className="bg-card-login absolute inset-0 z-0 -top-px -left-px pointer-events-none"></div>
                     <CardHeader className="space-y-1 z-1">
