@@ -36,8 +36,8 @@ const renderEditableField = (label, description, content) => {
     return (
         <div className="grid md:grid-cols-6 lg:grid-cols-3 py-5 md:grid-rows-1 gap-5 md:gap-10">
             <div className='flex flex-col gap-0.5 md:col-span-2 lg:col-span-1'>
-                <h4 className='text-lg font-semibold text-gray-700 dark:text-slate-300'>{label}</h4>
-                <p className='text-sm text-gray-600 dark:text-slate-500'>{description}</p>
+                <h4 className='text-lg font-semibold text-foreground'>{label}</h4>
+                <p className='text-sm text-muted-foreground'>{description}</p>
             </div>
             <div className="md:col-span-4 lg:col-span-2 flex flex-row justify-between items-center rounded-xl px-4 py-0 pe-2">
                 {content}
@@ -169,7 +169,7 @@ const AccountContent = () => {
     };
 
     return (
-        <div className='flex flex-col divide-y-2 divide-stone-200/70 divide-dotted dark:divide-slate-800'>
+        <div className='flex flex-col divide-y-2 divide-border/70 divide-dotted'>
             <div className="flex justify-between py-5 gap-2 items-center">
                 <h3 className="text-lg font-semibold text-primary">Personal Information</h3>
             </div>
@@ -224,7 +224,7 @@ const AccountContent = () => {
                             ) : !accountData.name ? (
                                 '-'
                             ) : (
-                                <p className="text-gray-700 dark:text-slate-300 text-sm">{accountData.name}</p>
+                                <p className="text-foreground text-sm">{accountData.name}</p>
                             )}
                             <Tooltip>
                                 <TooltipTrigger asChild>
@@ -289,7 +289,7 @@ const AccountContent = () => {
                             ) : !accountData.full_name ? (
                                 '-'
                             ) : (
-                                <p className="text-gray-700 dark:text-slate-300 text-sm">{accountData.full_name}</p>
+                                <p className="text-foreground text-sm">{accountData.full_name}</p>
                             )}
                             <Tooltip>
                                 <TooltipTrigger asChild>
@@ -355,7 +355,7 @@ const AccountContent = () => {
                             ) : !accountData.whatsapp_no ? (
                                 '-'
                             ) : (
-                                <p className="text-gray-700 dark:text-slate-300 text-sm">{accountData.whatsapp_no}</p>
+                                <p className="text-foreground text-sm">{accountData.whatsapp_no}</p>
                             )}
                             <Tooltip>
                                 <TooltipTrigger asChild>
@@ -415,7 +415,7 @@ const AccountContent = () => {
                             {loading_auth ? (
                                 <Skeleton className="h-6 w-26" />
                             ) : (
-                                <p className="text-gray-700 dark:text-slate-300 text-sm">
+                                <p className="text-foreground text-sm">
                                     {!accountData.gender ? '-' : accountData.gender === "male" ? "Laki-laki" : "Perempuan"}
                                 </p>
                             )}
@@ -495,7 +495,7 @@ const AccountContent = () => {
                             {loading_auth ? (
                                 <Skeleton className="h-6 w-20" />
                             ) : (
-                                <p className="text-gray-700 dark:text-slate-300 text-sm">
+                                <p className="text-foreground text-sm">
                                     {accountData.date_of_birth ? format(new Date(accountData.date_of_birth), "PPP", { locale: id }) : '-'}
                                 </p>
                             )}
@@ -556,7 +556,7 @@ const AccountContent = () => {
                             ) : !accountData.address ? (
                                 '-'
                             ) : (
-                                <p className="text-gray-700 dark:text-slate-300 text-sm">{accountData.address}</p>
+                                <p className="text-foreground text-sm">{accountData.address}</p>
                             )}
                             <Tooltip>
                                 <TooltipTrigger asChild>
@@ -625,7 +625,7 @@ const AccountContent = () => {
                             ) : !accountData.pin ? (
                                 '-'
                             ) : (
-                                <p className="text-gray-700 dark:text-slate-300 text-sm">
+                                <p className="text-foreground text-sm">
                                     {accountData.pin}
                                 </p>
                             )}
@@ -684,7 +684,7 @@ const AccountContent = () => {
                             {loading_auth ? (
                                 <Skeleton className="h-6 w-20" />
                             ) : (
-                                <p className="text-gray-700 dark:text-slate-300 text-sm">
+                                <p className="text-foreground text-sm">
                                     {accountData.has_presence ? "Aktif" : "Nonaktif"}
                                 </p>
                             )}
@@ -798,20 +798,20 @@ const SecurityContent = () => {
     };
 
     return (
-        <div className='flex flex-col divide-y-2 divide-gray-200/70 divide-dotted dark:divide-slate-800'>
+        <div className='flex flex-col divide-y-2 divide-border/70 divide-dotted'>
             {renderEditableField(
                 "Password",
                 "Ubah password akun",
                 <div className={`${isEditing ? 'items-start' : 'items-center'} w-full flex justify-between gap-2`}>
                     {!isEditing ? (
                         <>
-                            <p className="text-gray-700 dark:text-slate-300 text-sm">••••••••</p>
+                            <p className="text-foreground text-sm">••••••••</p>
                             <Button size="icon" variant="outline" onClick={() => setIsEditing(true)}>
                                 <SquarePen className="h-4 w-4" />
                             </Button>
                         </>
                     ) : (
-                        <div className="w-full flex flex-col divide-y-2 divide-stone-200/70 divide-dotted dark:divide-slate-800">
+                        <div className="w-full flex flex-col divide-y-2 divide-border/70 divide-dotted">
                             <div className='py-2'>
                                 <div className='space-y-1.5'>
                                     <Label htmlFor="password-current">Password saat ini</Label>
@@ -828,7 +828,7 @@ const SecurityContent = () => {
                                         <button
                                             type="button"
                                             onClick={() => togglePasswordVisibility('current')}
-                                            className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-500 cursor-pointer"
+                                            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground cursor-pointer"
                                         >
                                             {showPasswords.current ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
                                         </button>
@@ -857,7 +857,7 @@ const SecurityContent = () => {
                                         <button
                                             type="button"
                                             onClick={() => togglePasswordVisibility('new')}
-                                            className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-500 cursor-pointer"
+                                            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground cursor-pointer"
                                         >
                                             {showPasswords.new ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
                                         </button>
@@ -886,7 +886,7 @@ const SecurityContent = () => {
                                         <button
                                             type="button"
                                             onClick={() => togglePasswordVisibility('confirm')}
-                                            className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-500 cursor-pointer"
+                                            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground cursor-pointer"
                                         >
                                             {showPasswords.confirm ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
                                         </button>
@@ -960,11 +960,11 @@ export default function Profile() {
     // return
     return (
         <LayoutContainer>
-            <div className='max-w-6xl mx-auto w-full'>
+            <div className='max-w-6xl mx-auto w-full mb-10'>
                 <PageTitle title="Profile" subtitle="Manage your profile settings" />
 
                 <div className='flex flex-col gap-5'>
-                    <div className='p-5 border rounded-2xl flex gap-5 justify-between divide-y lg:divide-y-0 lg:divide-x flex-col lg:flex-row'>
+                    <div className='p-5 border border-border bg-card text-card-foreground rounded-2xl flex gap-5 justify-between divide-y divide-border lg:divide-y-0 lg:divide-x flex-col lg:flex-row'>
                         <div className='flex gap-5 flex-1 pb-5 lg:pb-0'>
                             <Avatar className="size-16">
                                 <AvatarImage src="https://github.com/shadcn.png" alt={user?.full_name} />
@@ -972,8 +972,7 @@ export default function Profile() {
                             </Avatar>
                             <div className='flex items-start justify-center flex-col flex-1'>
                                 {loading ? (<Skeleton className="h-6 w-36" />) : (<h4 className='font-bold'>{user?.full_name}</h4>)}
-                                {loading ? (<Skeleton className="h-4 w-20 mt-1" />) : (<p className='text-sm'>Web Developer</p>)}
-                                {loading ? (<Skeleton className="h-4 w-40 mt-2" />) : (<small className='text-stone-500 mt-1'>✨ Jangan Pernah menyerah</small>)}
+                                {loading ? (<Skeleton className="h-4 w-20 mt-1" />) : (<p className='text-sm text-muted-foreground'>✨ Web Developer</p>)}
                             </div>
                         </div>
                         <div className='flex-1 flex flex-col gap-1'>
@@ -985,7 +984,7 @@ export default function Profile() {
                                         <Skeleton className="h-5 w-16" />
                                     </div>
                                 ) : user?.roles.map((role, index) => {
-                                    return (<Badge key={index} variant="outline" className='rounded-md'>{role}</Badge>)
+                                    return (<Badge key={index} variant="outline" className='rounded-md me-1 mb-1'>{role}</Badge>)
                                 })}
                             </div>
                         </div>

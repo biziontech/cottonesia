@@ -8,7 +8,8 @@ import { usePathname } from 'next/navigation';
 import * as LucideIcons from 'lucide-react';
 import { Loader, Calendar } from 'lucide-react';
 import DateNow from '@/components/ui/date-now';
-import { SidebarProvider, SidebarInset, SidebarMenuSkeleton, SidebarTrigger, Sidebar, SidebarHeader, SidebarContent, SidebarFooter, SidebarRail, SidebarGroup, SidebarGroupLabel, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarMenuSub, SidebarMenuSubItem, SidebarMenuSubButton } from '@/components/animate-ui/components/radix/sidebar';
+import { useSettings } from '@/contexts/SettingsContext';
+import { SidebarProvider, SidebarSeparator, SidebarInset, SidebarMenuSkeleton, SidebarTrigger, Sidebar, SidebarHeader, SidebarContent, SidebarFooter, SidebarRail, SidebarGroup, SidebarGroupLabel, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarMenuSub, SidebarMenuSubItem, SidebarMenuSubButton } from '@/components/animate-ui/components/radix/sidebar';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/animate-ui/primitives/radix/collapsible';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/animate-ui/components/radix/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -18,27 +19,32 @@ import { useMenu } from '@/hooks/use-menu';
 import { Skeleton } from '@/components/ui/skeleton';
 import NotificationListener from '@/components/partials/NotificationListener';
 
-
+const ThemeToggle = dynamic(() => import('@/components/partials/ThemeToggle'), {
+    ssr: false,
+    loading: () => (
+        <div className="h-7 w-7" />
+    ),
+});
 
 function LayoutContent({ children }) {
     const router = useRouter();
     const isMobile = useIsMobile();
     const pathname = usePathname();
+    const { settings } = useSettings();
     const { user, logout, loading: loading_auth } = useAuth();
     const { menus, loading } = useMenu();
-    const ThemeToggle = dynamic(() => import('@/components/partials/ThemeToggle'), {
-        ssr: false,
-        loading: () => (
-            <div className="h-7 w-7" />
-        ),
-    });
     // set background for training modules
     const pageName = pathname.split('/')[3] || 'home';
 
     const data = {
         app: {
-            title: 'Alex AC Mobil',
-            subtitle: 'Spesialis AC Mobil Semarang'
+            name: settings?.site_name || '',
+            logo_type: settings?.logo_type || '',
+            logo_url: settings?.logo_url || '',
+            logo_icon: settings?.logo_icon ? LucideIcons[settings?.logo_icon] : LucideIcons.Box,
+            logo_rectangle_url: settings?.logo_rectangle_url || '',
+            description: settings?.site_description || '',
+            tagline: settings?.site_tagline || '',
         },
         user: {
             name: user?.full_name || user?.name,
@@ -52,6 +58,8 @@ function LayoutContent({ children }) {
         return submenu?.some(sub => pathname === sub.path);
     };
 
+    const isImageLogo = (data?.app?.logo_type == 'image' && data?.app?.logo_url)
+
     return (
         <SidebarProvider>
             <Sidebar collapsible="icon" animateOnHover={true}>
@@ -62,16 +70,31 @@ function LayoutContent({ children }) {
                                 size="lg"
                                 className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
                             >
-                                <div className="flex aspect-square size-8 items-center justify-center rounded-lg">
-                                    <LucideIcons.Fan className="size-6" />
+                                <div className={`flex aspect-square size-8 items-center justify-center rounded-lg ${isImageLogo ? '' : 'overflow-hidden'}`}>
+                                    {isImageLogo ? (
+                                        <img
+                                            src={data?.app?.logo_url}
+                                            className='object-cover scale-90'
+                                        />
+                                    ) : (
+                                        <data.app.logo_icon className="size-6" />
+                                    )}
                                 </div>
                                 <div className="grid flex-1 text-left text-sm leading-tight">
-                                    <span className="truncate font-semibold">
-                                        {data.app.title}
-                                    </span>
-                                    <span className="truncate text-xs">
-                                        {data.app.subtitle}
-                                    </span>
+                                    {data.app.name ? (
+                                        <span className="truncate font-semibold">
+                                            {data.app.name}
+                                        </span>
+                                    ) : (
+                                        <Skeleton className="h-[16px] w-6/12 mb-1.5" />
+                                    )}
+                                    {data.app.tagline ? (
+                                        <span className="truncate text-xs">
+                                            {data.app.tagline}
+                                        </span>
+                                    ) : (
+                                        <Skeleton className="h-[12px] w-11/12" />
+                                    )}
                                 </div>
                             </SidebarMenuButton>
                         </SidebarMenuItem>
@@ -163,6 +186,34 @@ function LayoutContent({ children }) {
                         </SidebarMenu>
                     </SidebarGroup>
                 </SidebarContent>
+
+                <SidebarFooter>
+                    <SidebarMenu className="gap-0 mb-2">
+                        <SidebarGroupLabel key="preferences" className="mt-2">Preferences</SidebarGroupLabel>
+                        <SidebarMenuButton
+                            tooltip="Documentation"
+                            className="cursor-pointer"
+                        >
+                            <LucideIcons.BookOpenCheck className="size-4" />
+                            <span>Documentation</span>
+                        </SidebarMenuButton>
+
+                        <SidebarMenuItem>
+                            <SidebarMenuButton
+                                tooltip="General Settings"
+                                className="cursor-pointer"
+                                asChild
+                            >
+                                <Link href='/app/panel/general-settings'>
+                                    <LucideIcons.MonitorCog className="size-4" />
+                                    <span>General Settings</span>
+                                </Link>
+                            </SidebarMenuButton>
+                        </SidebarMenuItem>
+                    </SidebarMenu>
+                </SidebarFooter>
+
+                <SidebarSeparator className="mx-auto" />
 
                 <SidebarFooter>
                     <SidebarMenu>
