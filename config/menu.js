@@ -8,6 +8,20 @@ export const MENU_CONFIG = [
         submenu: null
     },
     {
+        id: "operational",
+        is_label: true,
+        name: "Operational",
+        roles: ['super_admin']
+    },
+    {
+        id: 'agenda',
+        name: 'Agenda',
+        path: '/app/panel/agenda',
+        icon: 'Calendar',
+        roles: ['super_admin'],
+        submenu: null
+    },
+    {
         id: "learning_management",
         is_label: true,
         name: "Learning Management",

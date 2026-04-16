@@ -14,11 +14,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Cropper, CropperArea, CropperImage } from "@/components/ui/cropper";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { ImageZoom } from "@/components/partials/ImageZoom";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import {
-    FileUpload, FileUploadDropzone, FileUploadItem, FileUploadItemDelete,
-    FileUploadItemMetadata, FileUploadItemPreview, FileUploadList, FileUploadTrigger
-} from "@/components/ui/file-upload";
 import { toast } from 'sonner';
 import {
     Upload, X, Crop, RotateCcw, Save, Trash, Search,
@@ -188,11 +185,13 @@ function BrowseImageField({ label, description, currentUrl, previewShape = 'squa
                     ${previewShape === 'landscape' ? 'w-full' : ''}
                 `}>
                     {displayUrl ? (
-                        <img
-                            src={displayUrl}
-                            alt={label}
-                            className="w-full h-full object-contain p-1"
-                        />
+                        <ImageZoom src={displayUrl}>
+                            <img
+                                src={displayUrl}
+                                alt={label}
+                                className="w-full h-full object-contain p-1"
+                            />
+                        </ImageZoom>
                     ) : (
                         <ImageIcon className="size-6 text-muted-foreground" />
                     )}
@@ -402,7 +401,9 @@ function LogoUploadField({ label, description, hint, shape = 'square', currentUr
                 style={shape === 'rectangle' ? { aspectRatio: '3 / 1' } : {}}
             >
                 {displayUrl
-                    ? <img src={displayUrl} alt={label} className="w-full h-full object-contain p-1.5" />
+                    ? <ImageZoom src={displayUrl}>
+                        <img src={displayUrl} alt={label} className="w-full h-full object-contain p-1.5" />
+                    </ImageZoom>
                     : <ImageIcon className="size-6 text-muted-foreground/30" />
                 }
             </div>

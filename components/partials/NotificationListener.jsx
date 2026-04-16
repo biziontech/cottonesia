@@ -112,7 +112,7 @@ export default function NotificationListener({ userUuid, modelType = 'user' }) {
                 </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-sm rounded-xl p-2 overflow-hidden">
-                <div className='flex border-b border-dotted border-stone-300 pb-1 mb-2'>
+                <div className='flex border-b border-dotted border-border pb-1 mb-2'>
                     <DropdownMenuLabel className="text-sm font-bold flex-1">Notification</DropdownMenuLabel>
                     <Button size="icon" variant="ghost" className="w-4 h-4 p-3.5 me-1"><Settings /></Button>
                 </div>

@@ -68,6 +68,7 @@ function LayoutContent({ children }) {
                         <SidebarMenuItem>
                             <SidebarMenuButton
                                 size="lg"
+                                highlightValue="app-brand"
                                 className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
                             >
                                 <div className={`flex aspect-square size-8 items-center justify-center rounded-lg ${isImageLogo ? '' : 'overflow-hidden'}`}>
@@ -135,6 +136,7 @@ function LayoutContent({ children }) {
                                                 <CollapsibleTrigger asChild>
                                                     <SidebarMenuButton
                                                         tooltip={menu.name}
+                                                        highlightValue={`menu-${menu.id}`}
                                                         isActive={isActive}
                                                         className="cursor-pointer"
                                                     >
@@ -173,6 +175,7 @@ function LayoutContent({ children }) {
                                         <SidebarMenuButton
                                             asChild
                                             tooltip={menu.name}
+                                            highlightValue={`menu-${menu.id}`}
                                             isActive={isActive}
                                         >
                                             <Link href={menu.path}>
@@ -192,6 +195,7 @@ function LayoutContent({ children }) {
                         <SidebarGroupLabel key="preferences" className="mt-2">Preferences</SidebarGroupLabel>
                         <SidebarMenuButton
                             tooltip="Documentation"
+                            highlightValue="preferences-documentation"
                             className="cursor-pointer"
                         >
                             <LucideIcons.BookOpenCheck className="size-4" />
@@ -201,6 +205,7 @@ function LayoutContent({ children }) {
                         <SidebarMenuItem>
                             <SidebarMenuButton
                                 tooltip="General Settings"
+                                highlightValue="preferences-general-settings"
                                 className="cursor-pointer"
                                 asChild
                             >
@@ -222,6 +227,7 @@ function LayoutContent({ children }) {
                                 <DropdownMenuTrigger asChild>
                                     <SidebarMenuButton
                                         size="lg"
+                                        highlightValue="profile-menu-trigger"
                                         className="data-[state=open]:bg-sidebar-accent cursor-pointer data-[state=open]:text-sidebar-accent-foreground"
                                     >
                                         <Avatar className="h-8 w-8 rounded-lg">
@@ -287,7 +293,7 @@ function LayoutContent({ children }) {
                 <SidebarRail />
             </Sidebar>
 
-            <SidebarInset data-page={pageName} className="data-[page=training-modules]:bg-sidebar dark:data-[page=training-modules]:bg-background">
+            <SidebarInset data-page={pageName} className="data-[page=training-modules]:bg-sidebar dark:data-[page=training-modules]:bg-background data-[page=agenda]:bg-sidebar dark:data-[page=agenda]:bg-background">
                 <header className="flex border-b h-14 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
                     <div className="flex items-center gap-2 px-4">
                         <SidebarTrigger className="rounded-lg" />

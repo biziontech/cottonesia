@@ -62,6 +62,12 @@
 }
 
 @theme {
+  --font-poppins: Poppins, sans-serif;
+  --font-publicsans: PublicSans, sans-serif;
+  --font-geist: Geist, sans-serif;
+}
+
+@theme {
   --color-success: var(--success);
   --color-success-foreground: var(--success-foreground);
   --color-warning: var(--warning);

@@ -378,7 +378,6 @@ export default function TrainingModules() {
                                             </InputGroupAddon>
                                         )}
                                     </InputGroup>
-
                                 </div>
                                 {/* Right */}
                                 <div className="flex gap-3 items-center">

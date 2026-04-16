@@ -532,6 +532,7 @@ function SidebarMenuButton({
   isActive = false,
   variant = 'default',
   size = 'default',
+  highlightValue,
   tooltip,
   className,
   ...props
@@ -540,7 +541,9 @@ function SidebarMenuButton({
   const { isMobile, state } = useSidebar();
 
   const button = (
-    <HighlightItem activeClassName={sidebarMenuButtonActiveVariants({ variant })}>
+    <HighlightItem
+      value={highlightValue}
+      activeClassName={sidebarMenuButtonActiveVariants({ variant })}>
       <Comp
         data-slot="sidebar-menu-button"
         data-sidebar="menu-button"
