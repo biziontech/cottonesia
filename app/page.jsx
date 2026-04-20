@@ -8,13 +8,31 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Skeleton } from '@/components/ui/skeleton';
+import { useSettings } from '@/contexts/SettingsContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Loader2, Eye, EyeOff } from 'lucide-react';
+import * as LucideIcons from 'lucide-react';
 
 export default function AdminLoginPage() {
     const router = useRouter();
     const { loginAdmin } = useAuth();
     const recaptchaRef = useRef(null);
+    const { settings } = useSettings();
+
+    const data = {
+        app: {
+            name: settings?.site_name || '',
+            logo_type: settings?.logo_type || '',
+            logo_url: settings?.logo_url || '',
+            logo_icon: settings?.logo_icon ? LucideIcons[settings?.logo_icon] : LucideIcons.Box,
+            logo_rectangle_url: settings?.logo_rectangle_url || '',
+            description: settings?.site_description || '',
+            tagline: settings?.site_tagline || '',
+        }
+    };
+
+    console.log(data);
 
     // Cek apakah reCAPTCHA diaktifkan dari environment variable
     const isRecaptchaEnabled = process.env.NEXT_PUBLIC_RECAPTCHA_ENABLED === 'true';
@@ -105,6 +123,8 @@ export default function AdminLoginPage() {
         });
     };
 
+    const isImageLogo = (data?.app?.logo_type == 'image' && data?.app?.logo_url);
+
     return (
         <>
             {/* Load Script reCAPTCHA hanya jika diaktifkan */}
@@ -119,8 +139,26 @@ export default function AdminLoginPage() {
                 <Card className="w-full max-w-sm shadow-lg relative overflow-hidden rounded-3xl">
                     <div className="bg-card-login absolute inset-0 z-0 -top-px -left-px pointer-events-none"></div>
                     <CardHeader className="space-y-1 z-1">
-                        <div className='px-3 py-2 rounded bg-gray-100 text-white w-fit mx-auto mt-7'>
-                            <span className="font-serif font-bold text-[#2b2b2b] text-lg">BHI</span>
+                        <div className='px-3 py-2 rounded w-fit mx-auto mt-7 flex items-center gap-2'>
+                            <div className={`flex aspect-square size-8 items-center justify-center rounded-lg ${isImageLogo ? '' : 'overflow-hidden'}`}>
+                                {isImageLogo ? (
+                                    <img
+                                        src={data?.app?.logo_url}
+                                        className='object-cover scale-90'
+                                    />
+                                ) : (
+                                    <data.app.logo_icon className="size-6" />
+                                )}
+                            </div>
+                            <div className="flex flex-1 text-left text-sm leading-tight items-center">
+                                {data.app.name ? (
+                                    <span className="truncate font-semibold font-poppins text-lg text-zinc-700 dark:text-zinc-100">
+                                        {data.app.name}
+                                    </span>
+                                ) : (
+                                    <Skeleton className="h-[18px] mt-2 w-30 mb-1.5" />
+                                )}
+                            </div>
                         </div>
                         <CardTitle className="text-2xl font-bold text-center mt-4">Login Staff</CardTitle>
                         <CardDescription className="text-center">

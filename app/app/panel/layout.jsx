@@ -18,6 +18,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useMenu } from '@/hooks/use-menu';
 import { Skeleton } from '@/components/ui/skeleton';
 import NotificationListener from '@/components/partials/NotificationListener';
+import { cn } from '@/lib/utils';
 
 const ThemeToggle = dynamic(() => import('@/components/partials/ThemeToggle'), {
     ssr: false,
@@ -293,7 +294,10 @@ function LayoutContent({ children }) {
                 <SidebarRail />
             </Sidebar>
 
-            <SidebarInset data-page={pageName} className="data-[page=training-modules]:bg-sidebar dark:data-[page=training-modules]:bg-background data-[page=agenda]:bg-sidebar dark:data-[page=agenda]:bg-background">
+            <SidebarInset data-page={pageName} className={cn(
+                "data-[page=training-modules]:bg-sidebar dark:data-[page=training-modules]:bg-background",
+                "data-[page=agenda]:bg-sidebar dark:data-[page=agenda]:bg-background" 
+            )}>
                 <header className="flex border-b h-14 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
                     <div className="flex items-center gap-2 px-4">
                         <SidebarTrigger className="rounded-lg" />

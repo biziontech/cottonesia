@@ -19,15 +19,16 @@ export default function AgendaTaskColumn({
     onRemoveColumn,
     onEditItem,
     onRemoveItem,
-    onCardClick,        // ← baru: buka detail modal
+    onToggleCardLock,
+    onToggleCardArchive,
+    onCardClick,
     showActions = true,
     ...props
 }) {
     return (
         <KanbanColumn value={value} className="w-full overflow-hidden relative min-w-[18rem] min-h-52 max-w-xs rounded-2xl shrink-0 bg-gradient-to-br dark:border-zinc-900 from-slate-50 to-slate-100 dark:from-zinc-950 dark:to-zinc-800 " {...props}>
-            <div className="absolute inset-0 z-0 pointer-events-none [background-image:repeating-linear-gradient(45deg,transparent,transparent_32px,var(--grid-line)_32px,var(--grid-line)_33px),repeating-linear-gradient(135deg,transparent,transparent_32px,var(--grid-line)_32px,var(--grid-line)_33px)] [mask-image:radial-gradient(80%_80%_at_100%_0%,rgb(0,0,0)_50%,transparent_90%)]">
-            </div>
-            
+            <div className="absolute inset-0 z-0 pointer-events-none [background-image:repeating-linear-gradient(45deg,transparent,transparent_32px,var(--grid-line)_32px,var(--grid-line)_33px),repeating-linear-gradient(135deg,transparent,transparent_32px,var(--grid-line)_32px,var(--grid-line)_33px)] [mask-image:radial-gradient(80%_80%_at_100%_0%,rgb(0,0,0)_50%,transparent_90%)]" />
+
             <div className="mb-1 flex items-center justify-between z-10">
                 <div className="flex items-center gap-0.5">
                     <KanbanColumnHandle asChild>
@@ -88,6 +89,8 @@ export default function AgendaTaskColumn({
                         onCardClick={onCardClick}
                         onEdit={() => onEditItem?.(value, task)}
                         onRemove={() => onRemoveItem?.(value, task.id)}
+                        onToggleLock={() => onToggleCardLock?.(value, task.id)}
+                        onToggleArchive={() => onToggleCardArchive?.(value, task.id)}
                     />
                 ))}
             </div>

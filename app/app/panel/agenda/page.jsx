@@ -14,11 +14,13 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import LayoutContainer from '@/components/partials/LayoutContainer';
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 import PageTitle from "@/components/partials/PageTitle";
 import api from "@/lib/api";
 import { Spinner } from "@/components/ui/spinner";
+
 
 // ─── Mock Data ───────────────────────────────────────────────────────────────
 
@@ -944,179 +946,181 @@ export default function BrowseWorkspace() {
     const showRecent = !search && activeFilter === "all";
 
     return (
-        <div className="max-w-7xl mx-auto w-full px-4 py-6 min-h-[calc(100dvh-108px)]">
+        <LayoutContainer>
+            <div className='max-w-6xl mx-auto w-full mb-10'>
 
-            {/* Header */}
-            <PageTitle title="Agenda" subtitle="Kelola dan akses semua agenda Anda" />
+                {/* Header */}
+                <PageTitle title="Agenda" subtitle="Kelola dan akses semua agenda Anda" />
 
-            <div className="space-y-7">
-                {/* Toolbar */}
-                <div className="flex items-center gap-2 flex-wrap">
-                    <div className="flex-1 min-w-[180px] max-w-64">
-                        <InputGroup className="bg-background border-border">
-                            <InputGroupAddon><Search className="size-3.5" /></InputGroupAddon>
-                            <InputGroupInput
-                                value={search}
-                                onChange={(e) => setSearch(e.target.value)}
-                                placeholder="Cari project..."
-                            />
-                            {search && (
-                                <InputGroupAddon
-                                    align="inline-end"
-                                    className="cursor-pointer"
-                                    onClick={() => setSearch("")}
-                                >
-                                    <X className="size-3.5" />
-                                </InputGroupAddon>
-                            )}
-                        </InputGroup>
-                    </div>
-
-                    <div className="flex-1" />
-
-                    {/* Filter pills */}
-                    <div className="bg-muted/60 p-0.5 gap-0.5 flex rounded-lg border border-border/50">
-                        {filters.map((f) => (
-                            <Button
-                                key={f.key}
-                                size="xs"
-                                variant={activeFilter === f.key ? "outline" : "ghost"}
-                                onClick={() => setActiveFilter(f.key)}
-                                className={cn(
-                                    "h-7 px-2.5 text-xs border-0 rounded-md",
-                                    activeFilter === f.key && "bg-background shadow-xs border border-border",
-                                    activeFilter !== f.key && "border-transparent"
+                <div className="space-y-7">
+                    {/* Toolbar */}
+                    <div className="flex items-center gap-2 flex-wrap">
+                        <div className="flex-1 min-w-[180px] max-w-64">
+                            <InputGroup className="bg-background border-border">
+                                <InputGroupAddon><Search className="size-3.5" /></InputGroupAddon>
+                                <InputGroupInput
+                                    value={search}
+                                    onChange={(e) => setSearch(e.target.value)}
+                                    placeholder="Cari project..."
+                                />
+                                {search && (
+                                    <InputGroupAddon
+                                        align="inline-end"
+                                        className="cursor-pointer"
+                                        onClick={() => setSearch("")}
+                                    >
+                                        <X className="size-3.5" />
+                                    </InputGroupAddon>
                                 )}
-                            >
-                                {f.label}
-                            </Button>
-                        ))}
-                    </div>
+                            </InputGroup>
+                        </div>
 
-                    {/* View toggle */}
-                    <div className="bg-muted/60 p-0.5 gap-0.5 flex rounded-lg border border-border/50">
-                        <Tooltip>
-                            <TooltipTrigger asChild>
+                        <div className="flex-1" />
+
+                        {/* Filter pills */}
+                        <div className="bg-muted/60 p-0.5 gap-0.5 flex rounded-lg border border-border/50">
+                            {filters.map((f) => (
                                 <Button
-                                    size="icon"
-                                    onClick={() => setViewMode("grid")}
-                                    variant="ghost"
+                                    key={f.key}
+                                    size="xs"
+                                    variant={activeFilter === f.key ? "outline" : "ghost"}
+                                    onClick={() => setActiveFilter(f.key)}
                                     className={cn(
-                                        "size-7 rounded-md",
-                                        viewMode === "grid" && "bg-background shadow-xs border border-border"
+                                        "h-7 px-2.5 text-xs border-0 rounded-md",
+                                        activeFilter === f.key && "bg-background shadow-xs border border-border",
+                                        activeFilter !== f.key && "border-transparent"
                                     )}
                                 >
-                                    <Grid2x2 className="size-3.5" />
+                                    {f.label}
                                 </Button>
-                            </TooltipTrigger>
-                            <TooltipContent>Grid</TooltipContent>
-                        </Tooltip>
-                        <Tooltip>
-                            <TooltipTrigger asChild>
-                                <Button
-                                    size="icon"
-                                    onClick={() => setViewMode("list")}
-                                    variant="ghost"
-                                    className={cn(
-                                        "size-7 rounded-md",
-                                        viewMode === "list" && "bg-background shadow-xs border border-border"
-                                    )}
-                                >
-                                    <LayoutList className="size-3.5" />
-                                </Button>
-                            </TooltipTrigger>
-                            <TooltipContent>List</TooltipContent>
-                        </Tooltip>
+                            ))}
+                        </div>
+
+                        {/* View toggle */}
+                        <div className="bg-muted/60 p-0.5 gap-0.5 flex rounded-lg border border-border/50">
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <Button
+                                        size="icon"
+                                        onClick={() => setViewMode("grid")}
+                                        variant="ghost"
+                                        className={cn(
+                                            "size-7 rounded-md",
+                                            viewMode === "grid" && "bg-background shadow-xs border border-border"
+                                        )}
+                                    >
+                                        <Grid2x2 className="size-3.5" />
+                                    </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>Grid</TooltipContent>
+                            </Tooltip>
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <Button
+                                        size="icon"
+                                        onClick={() => setViewMode("list")}
+                                        variant="ghost"
+                                        className={cn(
+                                            "size-7 rounded-md",
+                                            viewMode === "list" && "bg-background shadow-xs border border-border"
+                                        )}
+                                    >
+                                        <LayoutList className="size-3.5" />
+                                    </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>List</TooltipContent>
+                            </Tooltip>
+                        </div>
+
+                        <Button size="sm" className="shrink-0" onClick={() => handleCreateWorkspace()} disabled={creating}>
+                            {creating ? <Spinner /> : <Plus className="size-3.5" />}
+                            {creating ? "Membuat..." : "New Project"}
+                        </Button>
                     </div>
 
-                    <Button size="sm" className="shrink-0" onClick={() => handleCreateWorkspace()} disabled={creating}>
-                        {creating ? <Spinner /> : <Plus className="size-3.5" />}
-                        {creating ? "Membuat..." : "New Project"}
-                    </Button>
-                </div>
+                    <div className="space-y-8">
 
-                <div className="space-y-8">
-
-                    {/* Quick Start — hanya muncul saat tidak ada search/filter */}
-                    {showRecent && (
-                        <>
-                            {!loading ? (
-                                <QuickStart onSelect={handleCreateWorkspace} templates={templates} />
-                            ) : (
-                                <QuickStartSkeleton />
-                            )}
-                        </>
-                    )}
-
-                    {/* Recently Opened */}
-                    {showRecent && (
-                        <>
-                            {!loading ? (
-                                <RecentStrip projects={projects} />
-                            ) : (
-                                <RecentStripSkeleton projects={projects} />
-                            )}
-                        </>
-                    )}
-
-                    {/* All Projects */}
-                    <div className="flex flex-col gap-3">
-                        <SectionHeader
-                            icon={FolderOpen}
-                            title={
-                                activeFilter === "starred" ? "Project Berbintang"
-                                    : activeFilter === "active" ? "Project Aktif"
-                                        : "Semua Project"
-                            }
-                            subtitle={
-                                activeFilter === "starred" ? "Project yang Anda tandai bintang"
-                                    : activeFilter === "active" ? "Project yang sedang berjalan"
-                                        : "Semua project dalam workspace Anda"
-                            }
-                            badge={useServerPagination ? (serverPagination.total ?? filtered.length) : filtered.length}
-                        />
-
-                        {loading ? (
+                        {/* Quick Start — hanya muncul saat tidak ada search/filter */}
+                        {showRecent && (
                             <>
-                                {(viewMode == "grid") ? (
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3">
-                                        {Array.from({ length: (paginated.length >= 5 ? 10 : 5) }).map((_, i) => (
-                                            <GridCardSkeleton key={i} />
-                                        ))}
-                                    </div>
-                                ) : (viewMode == "list") ? (
-                                    <div className="flex flex-col gap-2 w-full">
-                                        {Array.from({ length: (paginated.length >= 5 ? 10 : 5) }).map((_, i) => (
-                                            <ListCardSkeleton key={i} />
-                                        ))}
-                                    </div>
-                                ) : ('-')}
+                                {!loading ? (
+                                    <QuickStart onSelect={handleCreateWorkspace} templates={templates} />
+                                ) : (
+                                    <QuickStartSkeleton />
+                                )}
                             </>
-                        ) : (paginated.length === 0) ? (
-                            <EmptyState />
-                        ) : (viewMode === "grid") ? (
-                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3">
-                                {paginated.map((w) => (
-                                    <GridCard key={w.id} project={w} onToggleStar={toggleStar} onClick={() => openWorkspace(w.id)} />
-                                ))}
-                            </div>
-                        ) : (
-                            <div className="flex flex-col gap-2">
-                                {paginated.map((w) => (
-                                    <ListCard key={w.id} project={w} onToggleStar={toggleStar} onClick={() => openWorkspace(w.id)} />
-                                ))}
-                            </div>
                         )}
 
-                        <Pagination
-                            currentPage={currentPage}
-                            totalPages={totalPages}
-                            onPageChange={handlePageChange}
-                        />
-                    </div>
+                        {/* Recently Opened */}
+                        {showRecent && (
+                            <>
+                                {!loading ? (
+                                    <RecentStrip projects={projects} />
+                                ) : (
+                                    <RecentStripSkeleton projects={projects} />
+                                )}
+                            </>
+                        )}
 
+                        {/* All Projects */}
+                        <div className="flex flex-col gap-3">
+                            <SectionHeader
+                                icon={FolderOpen}
+                                title={
+                                    activeFilter === "starred" ? "Project Berbintang"
+                                        : activeFilter === "active" ? "Project Aktif"
+                                            : "Semua Project"
+                                }
+                                subtitle={
+                                    activeFilter === "starred" ? "Project yang Anda tandai bintang"
+                                        : activeFilter === "active" ? "Project yang sedang berjalan"
+                                            : "Semua project dalam workspace Anda"
+                                }
+                                badge={useServerPagination ? (serverPagination.total ?? filtered.length) : filtered.length}
+                            />
+
+                            {loading ? (
+                                <>
+                                    {(viewMode == "grid") ? (
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3">
+                                            {Array.from({ length: (paginated.length >= 5 ? 10 : 5) }).map((_, i) => (
+                                                <GridCardSkeleton key={i} />
+                                            ))}
+                                        </div>
+                                    ) : (viewMode == "list") ? (
+                                        <div className="flex flex-col gap-2 w-full">
+                                            {Array.from({ length: (paginated.length >= 5 ? 10 : 5) }).map((_, i) => (
+                                                <ListCardSkeleton key={i} />
+                                            ))}
+                                        </div>
+                                    ) : ('-')}
+                                </>
+                            ) : (paginated.length === 0) ? (
+                                <EmptyState />
+                            ) : (viewMode === "grid") ? (
+                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3">
+                                    {paginated.map((w) => (
+                                        <GridCard key={w.id} project={w} onToggleStar={toggleStar} onClick={() => openWorkspace(w.id)} />
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className="flex flex-col gap-2">
+                                    {paginated.map((w) => (
+                                        <ListCard key={w.id} project={w} onToggleStar={toggleStar} onClick={() => openWorkspace(w.id)} />
+                                    ))}
+                                </div>
+                            )}
+
+                            <Pagination
+                                currentPage={currentPage}
+                                totalPages={totalPages}
+                                onPageChange={handlePageChange}
+                            />
+                        </div>
+
+                    </div>
                 </div>
             </div>
-        </div>
+        </LayoutContainer>
     );
 }

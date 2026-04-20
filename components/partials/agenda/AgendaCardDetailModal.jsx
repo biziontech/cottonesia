@@ -50,6 +50,10 @@ import {
 import {
     CalendarIcon,
     Check,
+    File,
+    FileImage,
+    FileText,
+    Link2,
     Loader2,
     MessageSquare,
     Plus,
@@ -63,17 +67,22 @@ import {
     UserPlus2,
     SmilePlus,
     ArrowUp,
+    ExternalLink,
     GripVertical,
     ListPlus,
+    Upload,
     Save,
+    TrashIcon,
+    Download,
 } from "lucide-react";
 
 
 import { cn } from "@/lib/utils";
 import { Spinner } from "@/components/ui/spinner";
 import { ICON_MAP, ICON_OPTIONS, ICON_VARIANTS } from "@/hooks/use-agenda-iconsax";
-import { Like1, Message, Messages, Messages2, Messages3 } from "iconsax-reactjs";
+import { Like1, Message, Messages, Messages2, Messages3, Trash } from "iconsax-reactjs";
 import { CircularProgress, CircularProgressIndicator, CircularProgressRange, CircularProgressTrack } from "@/components/ui/circular-progress";
+import { Separator } from "@/components/ui/separator";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -92,6 +101,8 @@ const ENDPOINTS = {
     checklistItems: (cId, clId) => `${API}/office/agenda/cards/${cId}/checklists/${clId}/items`,
     checklistItem: (cId, clId, iId) => `${API}/office/agenda/cards/${cId}/checklists/${clId}/items/${iId}`,
     checklistItemReorder: (cId, clId) => `${API}/office/ agenda/cards/${cId}/checklists/${clId}/items/reorder`,
+    attachments: (cId) => `${API}/office/agenda/cards/${cId}/attachments`,
+    attachment: (cId, mediaId) => `${API}/office/agenda/cards/${cId}/attachments/${mediaId}`,
     allAdmins: `${API}/office/agenda/admins`,
 };
 
@@ -165,6 +176,35 @@ function serializeLabelForPayload(label = {}) {
         icon_variant: normalized.iconVariant,
         icon_type: normalized.iconVariant,
     };
+}
+
+function normalizeLink(link = {}) {
+    return {
+        label: (link.label ?? "").toString(),
+        url: (link.url ?? "").toString(),
+    };
+}
+
+function toExternalHref(url = "") {
+    const raw = String(url ?? "").trim();
+    if (!raw) return "";
+    return /^https?:\/\//i.test(raw) ? raw : `https://${raw}`;
+}
+
+function formatFileSize(size = 0) {
+    const bytes = Number(size ?? 0);
+    if (!bytes) return "0 B";
+    const units = ["B", "KB", "MB", "GB"];
+    const i = Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), units.length - 1);
+    const value = bytes / Math.pow(1024, i);
+    return `${value.toFixed(i === 0 ? 0 : 1)} ${units[i]}`;
+}
+
+function getAttachmentIcon(mime = "") {
+    const m = String(mime).toLowerCase();
+    if (m.startsWith("image/")) return FileImage;
+    if (m.includes("pdf") || m.includes("word") || m.includes("text") || m.includes("sheet") || m.includes("excel")) return FileText;
+    return File;
 }
 
 function patchCommentReactions(list = [], targetRef, reactions) {
@@ -1267,13 +1307,22 @@ function CommentItem({ cm, onDelete, onVote, votingRef = null, onReply, replying
 
 // ─── Main Modal ───────────────────────────────────────────────────────────────
 
+// ─── Role helpers ─────────────────────────────────────────────────────────────
+// role: "viewer" | "commenter" | "editor"
+// viewer    → read-only: cannot comment, cannot edit anything
+// commenter → can comment only, cannot edit card fields
+// editor    → full access (default)
+
 export default function AgendaCardDetailModal({
     open, onOpenChange,
     card, columnId, boardRef, workspaceId,
     onCardUpdated,
     api,
     wsMembers: wsMembersProp = [],
+    role = "editor", // "viewer" | "commenter" | "editor"
 }) {
+    const canComment = role === "commenter" || role === "editor";
+    const canEdit = role === "editor";
     // ── State ────────────────────────────────────────────────────────────────────
     const [title, setTitle] = React.useState("");
     const [editingTitle, setEditingTitle] = React.useState(false);
@@ -1282,6 +1331,10 @@ export default function AgendaCardDetailModal({
     const [startDate, setStartDate] = React.useState("");
     const [dueDate, setDueDate] = React.useState("");
     const [labels, setLabels] = React.useState([]);
+    const [links, setLinks] = React.useState([]);
+    const [newLinkLabel, setNewLinkLabel] = React.useState("");
+    const [newLinkUrl, setNewLinkUrl] = React.useState("");
+    const [attachments, setAttachments] = React.useState([]);
     const [assignees, setAssignees] = React.useState([]);
     const [checklists, setChecklists] = React.useState([]);
     const [comments, setComments] = React.useState([]);
@@ -1299,6 +1352,9 @@ export default function AgendaCardDetailModal({
     const [myReactions, setMyReactions] = React.useState({});
     const [addingChecklist, setAddingChecklist] = React.useState(false);
     const [savingMeta, setSavingMeta] = React.useState(false);
+    const [uploadingAttachment, setUploadingAttachment] = React.useState(false);
+    const [deletingAttachmentId, setDeletingAttachmentId] = React.useState(null);
+    const [downloadingAttachmentId, setDownloadingAttachmentId] = React.useState(null);
 
     const [newChecklistTitle, setNewChecklistTitle] = React.useState("");
     const [showChecklistInput, setShowChecklistInput] = React.useState(false);
@@ -1308,8 +1364,11 @@ export default function AgendaCardDetailModal({
     const [assignView, setAssignView] = React.useState("detail"); // ringkas | detail
     const [commentSort, setCommentSort] = React.useState("all"); // "all" | "newest" | "oldest"
     const [emojiPopOpen, setEmojiPopOpen] = React.useState(false);
+    const [showLinkInput, setShowLinkInput] = React.useState(false);
+    const [showLinkDelete, setShowLinkDelete] = React.useState(false);
 
     const commentScrollRef = React.useRef(null);
+    const lastLoadedCardRef = React.useRef(null);
 
     const cardRef = card?._beRef ?? card?.id;
     const priorityCfg = PRIORITY_CFG[priority] ?? PRIORITY_CFG.medium;
@@ -1328,31 +1387,45 @@ export default function AgendaCardDetailModal({
         setStartDate(card.startDate ?? "");
         setDueDate(card.dueDate ?? "");
         setLabels((card.labels ?? []).map(normalizeLabel));
+        setLinks((card.links ?? []).map(normalizeLink));
         setAssignees(card.assignees ?? []);
-        setChecklists([]);
-        setComments([]);
 
         // Guard cardRef existence sebelum load extras
         const ref = card?._beRef ?? card?.id;
-        if (ref) {
+        if (ref && lastLoadedCardRef.current !== ref) {
+            lastLoadedCardRef.current = ref;
+            setAttachments([]);
+            setChecklists([]);
+            setComments([]);
             loadExtras();
+            loadMembers();
         }
-        loadMembers();
     }, [open, card]);
 
-    // ── Scroll ke bawah ketika komentar berubah ──────────────────────────────── 
-    //  scroll area scroll panjang .querySelector(':scope > div > div')
+    React.useEffect(() => {
+        if (!open) {
+            lastLoadedCardRef.current = null;
+        }
+    }, [open]);
+
+    const scrollCommentsToBottom = React.useCallback(() => {
+        const root = commentScrollRef.current;
+        if (!root) return;
+        const el = root.querySelector(":scope > div");
+        const el_height = root.querySelector(":scope > div > div");
+        console.log("el_height.scrollHeight", el_height.scrollHeight)
+        el.scrollTop = el_height.scrollHeight;
+    }, []);
+
+    // ── Scroll ke bawah ketika komentar berubah (komentar terbaru di atas) ──────── 
     React.useLayoutEffect(() => {
-        if (comments.length > 0 && commentScrollRef.current) {
-            const element = commentScrollRef?.current?.querySelector(':scope > div > div');
-            // Scroll ke bawah menggunakan scrollTop
+        if (comments.length > 0) {
             setTimeout(() => {
-                if (element?.parentElement) {
-                    element.parentElement.scrollTop = element.parentElement.scrollHeight;
-                }
+                console.log("sdcrollll")
+                scrollCommentsToBottom();
             }, 0);
         }
-    }, [comments.length]);
+    }, [comments.length, scrollCommentsToBottom]);
 
     const loadMembers = async () => {
         setLoadingMembers(true);
@@ -1366,12 +1439,14 @@ export default function AgendaCardDetailModal({
         if (!cardRef) return;
         setLoadingDetail(true);
         try {
-            const [clRes, cmRes] = await Promise.all([
+            const [clRes, cmRes, atRes] = await Promise.all([
                 api.fetch(ENDPOINTS.checklists(cardRef)).catch(() => ({ data: [] })),
                 api.fetch(ENDPOINTS.comments(cardRef)).catch(() => ({ data: [] })),
+                api.fetch(ENDPOINTS.attachments(cardRef)).catch(() => ({ data: [] })),
             ]);
             setChecklists(Array.isArray(clRes) ? clRes : (clRes.data ?? []));
             setComments(Array.isArray(cmRes) ? cmRes : (cmRes.data ?? []));
+            setAttachments(Array.isArray(atRes) ? atRes : (atRes.data ?? []));
             setMyReactions({});
         } finally { setLoadingDetail(false); }
     };
@@ -1412,15 +1487,23 @@ export default function AgendaCardDetailModal({
         setSavingMeta(true);
         try {
             const nextLabels = (patch.labels ?? labels ?? []).map(normalizeLabel);
+            const nextLinks = (patch.links ?? links ?? [])
+                .map(normalizeLink)
+                .map((item) => ({ ...item, url: toExternalHref(item.url) }))
+                .filter((item) => item.label.trim() && item.url.trim());
             const payload = {
                 priority,
                 start_date: startDate || null,
                 due_date: dueDate || null,
                 labels: nextLabels.map(serializeLabelForPayload),
+                links: nextLinks,
                 ...patch,
             };
             if (patch.labels !== undefined) {
                 payload.labels = nextLabels.map(serializeLabelForPayload);
+            }
+            if (patch.links !== undefined) {
+                payload.links = nextLinks;
             }
             const res = await api.fetch(ENDPOINTS.card(boardRef, cardRef), {
                 method: "PATCH",
@@ -1436,12 +1519,17 @@ export default function AgendaCardDetailModal({
             const updatedLabels = Array.isArray(u.labels)
                 ? u.labels.map(normalizeLabel)
                 : nextLabels;
+            const updatedLinks = Array.isArray(u.links)
+                ? u.links.map(normalizeLink)
+                : nextLinks;
+            setLinks(updatedLinks);
             onCardUpdated?.({
                 ...card,
                 priority: u.priority ?? priority,
                 startDate: nextStartDate,
                 dueDate: nextDueDate,
                 labels: updatedLabels,
+                links: updatedLinks,
             });
         } catch { toast.error("Gagal menyimpan"); }
         finally { setSavingMeta(false); }
@@ -1469,6 +1557,97 @@ export default function AgendaCardDetailModal({
     // ── Labels ────────────────────────────────────────────────────────────────────
     const handleAddLabel = label => { const n = [...labels, label]; setLabels(n); handleSaveMeta({ labels: n }); };
     const handleRemoveLabel = id => { const n = labels.filter(l => l.id !== id); setLabels(n); handleSaveMeta({ labels: n }); };
+
+    const handleRemoveLink = (index) => {
+        const next = links.filter((_, i) => i !== index);
+        setLinks(next);
+        handleSaveMeta({ links: next });
+    };
+
+    const handleCreateLink = () => {
+        const label = newLinkLabel.trim();
+        const url = toExternalHref(newLinkUrl);
+        if (!label || !url) {
+            toast.error("Label dan URL wajib diisi");
+            return;
+        }
+        const next = [...links, { label, url }];
+        setLinks(next);
+        setNewLinkLabel("");
+        setNewLinkUrl("");
+        setShowLinkInput(false);
+        handleSaveMeta({ links: next });
+    };
+
+    const handleUploadAttachments = async (files = []) => {
+        if (!cardRef || !files.length) return;
+        setUploadingAttachment(true);
+        try {
+            const token = api?.getCookie?.("token");
+
+            for (const file of files) {
+                const formData = new FormData();
+                formData.append("file", file);
+
+                const response = await fetch(ENDPOINTS.attachments(cardRef), {
+                    method: "POST",
+                    headers: {
+                        Accept: "application/json",
+                        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+                    },
+                    body: formData,
+                });
+
+                const json = await response.json();
+                if (!response.ok || json?.success === false) {
+                    throw new Error(json?.message || "Gagal upload attachment");
+                }
+            }
+
+            const atRes = await api.fetch(ENDPOINTS.attachments(cardRef)).catch(() => ({ data: [] }));
+            setAttachments(Array.isArray(atRes) ? atRes : (atRes.data ?? []));
+            toast.success("Attachment berhasil diunggah");
+        } catch (err) {
+            toast.error(err?.message || "Gagal upload attachment");
+        } finally {
+            setUploadingAttachment(false);
+        }
+    };
+
+    const handleDeleteAttachment = async (attachmentId) => {
+        if (!cardRef || !attachmentId) return;
+        setDeletingAttachmentId(attachmentId);
+        try {
+            const res = await api.fetch(ENDPOINTS.attachment(cardRef, attachmentId), { method: "DELETE" });
+            if (res?.success === false) {
+                throw new Error(res?.message || "Gagal menghapus attachment");
+            }
+            setAttachments((prev) => prev.filter((item) => Number(item.id) !== Number(attachmentId)));
+            toast.success("Attachment dihapus");
+        } catch (err) {
+            toast.error(err?.message || "Gagal menghapus attachment");
+        } finally {
+            setDeletingAttachmentId(null);
+        }
+    };
+
+    const resolveAttachmentUrl = React.useCallback((attachment = {}) => {
+        const raw = String(
+            attachment?.download_url ??
+            attachment?.url ??
+            attachment?.file_url ??
+            attachment?.path ??
+            ""
+        ).trim();
+
+        if (!raw) return "";
+        if (/^(https?:)?\/\//i.test(raw) || raw.startsWith("blob:") || raw.startsWith("data:")) return raw;
+        if (raw.startsWith("/")) {
+            const base = String(API ?? "").replace(/\/+$/, "");
+            return base ? `${base}${raw}` : raw;
+        }
+        return raw;
+    }, []);
 
     // ── Checklist ─────────────────────────────────────────────────────────────────
     const handleAddChecklist = async () => {
@@ -1518,7 +1697,7 @@ export default function AgendaCardDetailModal({
     };
 
     const handlePostComment = async () => {
-        if (!newComment.trim() || !cardRef) return;
+        if (!newComment.trim() || !cardRef || !canComment) return;
         setPostingComment(true);
         try {
             const res = await api.fetch(ENDPOINTS.comments(cardRef), {
@@ -1526,15 +1705,14 @@ export default function AgendaCardDetailModal({
                 body: JSON.stringify({ body: newComment.trim() }),
             });
             const cm = res.data ?? res;
+            // Prepend so newest comment appears at the top
             setComments(p => [...p, cm]);
             setNewComment("");
 
-            // Scroll ke bawah setelah komentar ditambahkan
+            // Scroll ke atas karena komentar baru ada di atas
             setTimeout(() => {
-                const element = commentScrollRef?.current?.querySelector(':scope > div > div');
-                if (element?.parentElement) {
-                    element.parentElement.scrollTop = element.parentElement.scrollHeight;
-                }
+                const el = commentScrollRef.current;
+                if (el) el.scrollTop = 0;
             }, 0);
         } catch { toast.error("Gagal mengirim komentar"); }
         finally { setPostingComment(false); }
@@ -1676,7 +1854,7 @@ export default function AgendaCardDetailModal({
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-7xl w-full p-0 gap-0 overflow-hidden max-h-[92dvh] rounded-2xl dark:bg-muted">
+            <DialogContent className="sm:max-w-7xl w-full p-0 gap-0 overflow-hidden max-h-[87.2dvh] flex flex-col rounded-2xl dark:bg-muted">
                 <DialogTitle className="sr-only">{title}</DialogTitle>
                 <div className="px-5 py-3.5 border-b border-dashed relative flex items-center gap-3">
                     <SignalTaskCard className="size-4.5" />
@@ -1759,7 +1937,7 @@ export default function AgendaCardDetailModal({
                                 <div className="grid md:grid-cols-6 lg:grid-cols-3 py-3.5 md:grid-rows-1 gap-5 md:gap-10">
                                     {/* Label */}
                                     <div className="flex flex-col gap-1 md:col-span-2 lg:col-span-1">
-                                        <Label>Labels</Label>
+                                        <Label>Label</Label>
                                         <p className="text-xs text-muted-foreground">Kategori untuk item ini</p>
                                     </div>
 
@@ -1941,39 +2119,234 @@ export default function AgendaCardDetailModal({
                                 </div>
                             </div>
 
+                            <div className="flex flex-col gap-3 border-t border-dashed">
+                                {/* Links */}
+                                <div className="space-y-2 pt-3.5">
+                                    <div className="flex gap-2 justify-between">
+                                        <div className="flex flex-col gap-1 md:col-span-2 lg:col-span-1">
+                                            <Label>Tautan Link</Label>
+                                            <p className="text-xs text-muted-foreground">Tambahkan Link dan label</p>
+                                        </div>
+                                        <div className="flex gap-2">
 
-                            {/* ── Description ─────────────────────────────────────────── */}
-                            <div className="space-y-2 pt-3.5">
-                                <Label htmlFor="description">
-                                    Deskripsi
-                                </Label>
-                                <div className="border rounded-xl bg-card">
-                                    <TextareaAutosize
-                                        id="description"
-                                        value={description}
-                                        onChange={e => setDescription(e.target.value)}
-                                        placeholder="Tambah deskripsi lengkap tentang tugas ini..."
-                                        className="text-sm w-full resize-none focus-visible:outline-none px-4 pt-4 pb-2"
-                                        minRows={3}
-                                        maxRows={6}
-                                    />
 
-                                    <div className="flex items-center h-8 justify-between px-3 pb-2">
-                                        <small className="text-muted-foreground">{description?.length} char</small>
-                                        {(description != card?.description) && (
-                                            <Button
-                                                type="button"
-                                                size="sm"
-                                                variant="ghost"
-                                                onClick={handleSaveDescription}
-                                                disabled={savingDesc}
-                                            >
-                                                {savingDesc
-                                                    ? <Spinner />
-                                                    : <SaveIcon />
-                                                }
-                                                Simpan
-                                            </Button>
+                                            <Tooltip>
+                                                <TooltipTrigger asChild>
+                                                    <Button
+                                                        size="icon-xs"
+                                                        variant="ghost"
+                                                        onClick={() => setShowLinkInput(!showLinkInput)}
+                                                    >
+                                                        {showLinkInput ? (<X />) : (<Plus />)}
+                                                    </Button>
+                                                </TooltipTrigger>
+                                                <TooltipContent>
+                                                    <p>Tambahkan Link</p>
+                                                </TooltipContent>
+                                            </Tooltip>
+
+                                            <Tooltip>
+                                                <TooltipTrigger asChild>
+                                                    <Button
+                                                        size="icon-xs"
+                                                        variant="ghost"
+                                                        disabled={links.length == 0}
+                                                        onClick={() => setShowLinkDelete(!showLinkDelete)}
+                                                    >
+                                                        {showLinkInput ? (<X />) : (<TrashIcon />)}
+                                                    </Button>
+                                                </TooltipTrigger>
+                                                <TooltipContent>
+                                                    <p>Hapus Item</p>
+                                                </TooltipContent>
+                                            </Tooltip>
+
+                                        </div>
+                                    </div>
+
+
+                                    <div className="p-3 space-y-3 rounded-xl">
+                                        {links.length > 0 ? (
+                                            <div className="flex flex-wrap gap-1.5">
+                                                {links.map((link, idx) => (
+                                                    <div key={`link-tag-${idx}`} className={cn("inline-flex items-center gap-1 rounded-md border border-border/60 bg-muted/30 ps-2 py-1", showLinkDelete ? 'pe-1' : 'pe-2.5')}>
+                                                        <a
+                                                            href={toExternalHref(link.url)}
+                                                            target="_blank"
+                                                            rel="noreferrer"
+                                                            className="inline-flex items-center gap-2 text-xs font-medium hover:text-primary"
+                                                        >
+                                                            <Link2 className="size-3.5" />
+                                                            <span>{link.label}</span>
+                                                        </a>
+                                                        {showLinkDelete && (
+                                                            <Button
+                                                                type="button"
+                                                                size="icon-sm"
+                                                                variant="ghost"
+                                                                className="h-5 w-5"
+                                                                onClick={() => handleRemoveLink(idx)}
+                                                            >
+                                                                <X className="size-3.5" />
+                                                            </Button>
+                                                        )}
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        ) : (
+                                            <p className="text-xs text-muted-foreground/70 italic">Belum ada link</p>
+                                        )}
+
+                                        {showLinkInput && (
+                                            <div className="grid grid-cols-1 sm:grid-cols-[1fr_1.4fr_auto] gap-1.5 items-center">
+                                                <Input
+                                                    value={newLinkLabel}
+                                                    onChange={(e) => setNewLinkLabel(e.target.value)}
+                                                    placeholder="Label"
+                                                    className="text-xs"
+                                                />
+                                                <Input
+                                                    value={newLinkUrl}
+                                                    onChange={(e) => setNewLinkUrl(e.target.value)}
+                                                    placeholder="https://..."
+                                                    className="text-xs"
+                                                />
+                                                <Button variant="outline" type="button" size="sm" onClick={handleCreateLink} disabled={savingMeta}>
+                                                    {savingMeta ? <Loader2 className="size-3.5 animate-spin" /> : <Plus className="size-3.5" />}
+                                                    Tambah
+                                                </Button>
+                                            </div>
+                                        )}
+
+                                    </div>
+                                </div>
+
+                                {/* ── Description ─────────────────────────────────────────── */}
+                                <div className="space-y-2 pt-3.5">
+                                    <div className="flex flex-col gap-1 md:col-span-2 lg:col-span-1">
+                                        <Label htmlFor="description">
+                                            Deskripsi
+                                        </Label>
+                                        <p className="text-xs text-muted-foreground">Tambahkan deskripsi untuk item ini</p>
+                                    </div>
+                                    <div className="border rounded-xl bg-card">
+                                        <TextareaAutosize
+                                            id="description"
+                                            value={description}
+                                            onChange={e => setDescription(e.target.value)}
+                                            placeholder="Tambah deskripsi lengkap tentang tugas ini..."
+                                            className="text-sm w-full resize-none focus-visible:outline-none px-4 pt-4 pb-2"
+                                            minRows={3}
+                                            maxRows={6}
+                                        />
+
+                                        <div className="flex items-center h-8 justify-between px-3 pb-2">
+                                            <small className="text-muted-foreground">{description?.length} char</small>
+                                            {(description != card?.description) && (
+                                                <Button
+                                                    type="button"
+                                                    size="sm"
+                                                    variant="ghost"
+                                                    onClick={handleSaveDescription}
+                                                    disabled={savingDesc}
+                                                >
+                                                    {savingDesc
+                                                        ? <Spinner />
+                                                        : <SaveIcon />
+                                                    }
+                                                    Simpan
+                                                </Button>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Attachments */}
+                                <div className="space-y-2 pt-3.5">
+                                    <div className="flex flex-col gap-1 md:col-span-2 lg:col-span-1">
+                                        <Label htmlFor="attachment">
+                                            Attachments
+                                        </Label>
+                                        <p className="text-xs text-muted-foreground" id="attachment">Tambahkan file untuk item ini</p>
+                                    </div>
+                                    <div className="p-3 rounded-xl space-y-3">
+                                        <div className="flex justify-between items-center">
+                                            <small className="text-xs text-muted-foreground">{attachments.length} file</small>
+                                            <label className="inline-flex">
+                                                <input
+                                                    type="file"
+                                                    multiple
+                                                    className="hidden"
+                                                    onChange={(e) => {
+                                                        const files = Array.from(e.target.files ?? []);
+                                                        if (files.length) handleUploadAttachments(files);
+                                                        e.target.value = "";
+                                                    }}
+                                                />
+                                                <Button type="button" size="xs" variant="outline" asChild disabled={uploadingAttachment}>
+                                                    <span>
+                                                        {uploadingAttachment ? <Loader2 className="size-3.5 animate-spin" /> : <Upload className="size-3.5" />}
+                                                        Upload
+                                                    </span>
+                                                </Button>
+                                            </label>
+                                        </div>
+
+                                        {attachments.length === 0 ? (
+                                            <div className="rounded-xl border border-dashed border-border/60 px-4 py-3 text-center text-xs text-muted-foreground/70">
+                                                Belum ada attachment.
+                                            </div>
+                                        ) : (
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-2">
+                                                {attachments.map((item) => {
+                                                    const IconComp = getAttachmentIcon(item?.mime_type);
+                                                    return (
+                                                        <div
+                                                            key={item.id ?? item.uuid}
+                                                            className="rounded-xl border border-border/60 p-3 flex flex-col gap-2 bg-card"
+                                                        >
+                                                            <div className="flex items-start justify-between gap-2">
+                                                                <div className="inline-flex items-center justify-center size-8 rounded-lg bg-muted/70 border border-border/50">
+                                                                    <IconComp className="size-4 text-muted-foreground" />
+                                                                </div>
+                                                                <Button
+                                                                    type="button"
+                                                                    size="icon-sm"
+                                                                    variant="ghost"
+                                                                    disabled={deletingAttachmentId === item.id}
+                                                                    onClick={() => handleDeleteAttachment(item.id)}
+                                                                >
+                                                                    {deletingAttachmentId === item.id
+                                                                        ? <Loader2 className="size-3.5 animate-spin" />
+                                                                        : <Trash2 className="size-3.5" />
+                                                                    }
+                                                                </Button>
+                                                            </div>
+
+                                                            <div className="flex-1 min-h-0">
+                                                                <p className="text-xs font-medium line-clamp-2 break-all">{item.file_name ?? item.name}</p>
+                                                                <p className="text-[11px] text-muted-foreground mt-0.5">
+                                                                    {formatFileSize(item.size)}{item.mime_type ? ` • ${item.mime_type}` : ""}
+                                                                </p>
+                                                            </div>
+
+                                                            <div className="flex gap-2 items-center justify-between">
+                                                                <a
+                                                                    href={item.url}
+                                                                    target="_blank"
+                                                                    rel="noreferrer"
+                                                                    className="inline-flex flex-1"
+                                                                >
+                                                                    <Button type="button" size="xs" variant="outline" className="w-full">
+                                                                        <ExternalLink className="size-3.5" />
+                                                                        Buka File
+                                                                    </Button>
+                                                                </a>
+                                                            </div>
+                                                        </div>
+                                                    );
+                                                })}
+                                            </div>
                                         )}
                                     </div>
                                 </div>
@@ -1982,261 +2355,270 @@ export default function AgendaCardDetailModal({
                     </ScrollArea>
 
                     {/* Right */}
-                    <div className="flex-1 flex flex-col bg-card">
+                    <div className="flex-1 flex flex-col bg-card min-h-0">
+                        <div className="px-3 py-2 h-full min-h-0">
+                            <Tabs defaultValue="comment" className="gap-5 h-full min-h-0 flex flex-col">
+                                <TabsList variant="line" className="[&>button]:px-3">
+                                    <TabsTrigger value="comment" className="cursor-pointer">
+                                        <span>Comments</span>
+                                        <Badge size="icon-sm">{card?.comments_count ?? 0}</Badge>
+                                    </TabsTrigger>
+                                    <TabsTrigger value="checklist" className="cursor-pointer">
+                                        <span>Checklist</span>
+                                    </TabsTrigger>
+                                </TabsList>
+                                <TabsContent value="comment" className="mt-0 flex-1 min-h-0 flex flex-col overflow-hidden">
 
-                        <ScrollArea className="flex-1">
-                            <div className="px-3 py-2">
-                                <Tabs defaultValue="comment" className="gap-5">
-                                    <TabsList variant="line" className="[&>button]:px-3">
-                                        <TabsTrigger value="comment" className="cursor-pointer">
-                                            <span>Comments</span>
-                                            <Badge size="icon-sm">{card?.comments_count ?? 0}</Badge>
-                                        </TabsTrigger>
-                                        <TabsTrigger value="checklist" className="cursor-pointer">
-                                            <span>Checklist</span>
-                                        </TabsTrigger>
-                                    </TabsList>
-                                    <TabsContent value="comment">
-                                        {/* Comment filter badges */}
-                                        {comments.length > 0 && (
-                                            <div className="flex gap-2 items-center mb-3 flex-wrap">
-                                                <Badge
-                                                    variant={commentSort === "all" ? "default" : "ghost"}
-                                                    className="cursor-pointer rounded-md"
-                                                    onClick={() => setCommentSort("all")}
-                                                >
-                                                    Semua
-                                                </Badge>
-                                                <Badge
-                                                    variant={commentSort === "newest" ? "default" : "ghost"}
-                                                    className="cursor-pointer rounded-md"
-                                                    onClick={() => setCommentSort("newest")}
-                                                >
-                                                    Terbaru
-                                                </Badge>
-                                                <Badge
-                                                    variant={commentSort === "oldest" ? "default" : "ghost"}
-                                                    className="cursor-pointer rounded-md"
-                                                    onClick={() => setCommentSort("oldest")}
-                                                >
-                                                    Terlama
-                                                </Badge>
-                                            </div>
-                                        )}
+                                    {/* Comment filter badges — only when there are comments & not loading */}
+                                    {!loadingDetail && comments.length > 0 && (
+                                        <div className="flex gap-2 items-center mb-3 flex-wrap">
+                                            <Badge
+                                                variant={commentSort === "all" ? "default" : "ghost"}
+                                                className="cursor-pointer rounded-md"
+                                                onClick={() => setCommentSort("all")}
+                                            >
+                                                Semua
+                                            </Badge>
+                                            <Badge
+                                                variant={commentSort === "newest" ? "default" : "ghost"}
+                                                className="cursor-pointer rounded-md"
+                                                onClick={() => setCommentSort("newest")}
+                                            >
+                                                Terbaru
+                                            </Badge>
+                                            <Badge
+                                                variant={commentSort === "oldest" ? "default" : "ghost"}
+                                                className="cursor-pointer rounded-md"
+                                                onClick={() => setCommentSort("oldest")}
+                                            >
+                                                Terlama
+                                            </Badge>
+                                        </div>
+                                    )}
 
-                                        {/* Comment list */}
+                                    {/* ── Comment list (ScrollArea, grows to fill space) ── */}
+                                    <ScrollArea className="flex-1 min-h-0 pe-1" ref={commentScrollRef}>
                                         {loadingDetail ? (
-                                            <div className="flex items-center min-h-96 gap-2 text-xs justify-center text-muted-foreground py-3">
+                                            <div className="flex items-center min-h-40 gap-2 text-xs justify-center mt-60 text-muted-foreground py-3">
                                                 <Spinner />
                                                 Memuat komentar...
                                             </div>
                                         ) : comments.length > 0 ? (
-                                            <ScrollArea className="overflow-hidden h-[60dvh]" ref={commentScrollRef}>
-                                                {getSortedComments().map((cm, i) => (
-                                                    <CommentItem
-                                                        key={cm.uuid ?? cm.id}
-                                                        cm={cm}
-                                                        onDelete={handleDeleteComment}
-                                                        onVote={handleVoteComment}
-                                                        votingRef={votingCommentRef}
-                                                        onReply={handleReplyComment}
-                                                        replyingRef={replyingCommentRef}
-                                                        onReact={handleReactComment}
-                                                        myReactions={myReactions}
-                                                        isLastComment={getSortedComments()?.length === i + 1}
-                                                    />
-                                                ))}
-                                            </ScrollArea>
+                                            getSortedComments().map((cm, i) => (
+                                                <CommentItem
+                                                    key={cm.uuid ?? cm.id}
+                                                    cm={cm}
+                                                    onDelete={canEdit ? handleDeleteComment : undefined}
+                                                    onVote={canComment ? handleVoteComment : undefined}
+                                                    votingRef={votingCommentRef}
+                                                    onReply={canComment ? handleReplyComment : undefined}
+                                                    replyingRef={replyingCommentRef}
+                                                    onReact={canComment ? handleReactComment : undefined}
+                                                    myReactions={myReactions}
+                                                    isLastComment={getSortedComments()?.length === i + 1}
+                                                />
+                                            ))
                                         ) : (
-                                            <div className="text-center py-6 min-h-96 flex items-center justify-center flex-col gap-2">
+                                            <div className="text-center py-6 flex items-center justify-center flex-col gap-2 mt-72">
                                                 <Messages3 variant="TwoTone" className="h-10 w-10 text-muted-foreground/50 mx-auto" />
                                                 <p className="text-xs text-muted-foreground/80">Belum ada komentar</p>
                                             </div>
                                         )}
+                                    </ScrollArea>
 
-                                        {/* Input */}
-
-                                        <div className="bg-muted/30 mt-2 mb-2 mx-2 flex gap-2 flex-col justify-end border-border/50 focus-visible:ring-1 focus-visible:ring-primary/50 border p-3.5 rounded-2xl">
-                                            <TextareaAutosize
-                                                value={newComment}
-                                                minRows={2}
-                                                maxRows={6}
-                                                onChange={e => setNewComment(e.target.value)}
-                                                placeholder="Tulis komentar..."
-                                                className="text-sm w-full resize-none focus-visible:outline-none"
-                                                onKeyDown={e => {
-                                                    if (e.key === "Enter" && e.ctrlKey) handlePostComment();
-                                                }}
-                                            />
-                                            <div className="flex justify-between">
-
-
-                                                <Popover open={emojiPopOpen} onOpenChange={setEmojiPopOpen}>
-                                                    <PopoverTrigger asChild>
-                                                        <Button
-                                                            type="button"
-                                                            size="icon-sm"
-                                                            className="rounded-xl"
-                                                            variant="outline"
-                                                        >
-                                                            <SmilePlus className="stroke-[1.5]" />
-                                                        </Button>
-                                                    </PopoverTrigger>
-
-                                                    <PopoverContent
-                                                        className="w-auto p-0 border shadow-md"
-                                                        side="top"
-                                                        align="start"
-                                                        sideOffset={6}
-                                                    >
-                                                        <EmojiPicker
-                                                            onEmojiClick={(emojiData) => {
-                                                                handleEmojiClick(emojiData);
-                                                                setEmojiPopOpen(false);
-                                                            }}
-                                                            theme={resolvedTheme === "dark" ? Theme.DARK : Theme.LIGHT}
-                                                            lazyLoadEmojis
-                                                            searchPlaceholder="Cari emoji..."
-                                                            width={300}
-                                                            height={380}
-                                                        />
-                                                    </PopoverContent>
-                                                </Popover>
-
-                                                <Button
-                                                    type="button"
-                                                    size="icon-sm"
-                                                    className="rounded-xl"
-                                                    onClick={handlePostComment}
-                                                    disabled={postingComment || !newComment.trim()}
-                                                >
-                                                    {postingComment
-                                                        ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                                                        : <ArrowUp className="h-3.5 w-3.5" />
-                                                    }
-                                                </Button>
-                                            </div>
-                                        </div>
-                                    </TabsContent>
-                                    <TabsContent value="checklist">
-
-                                        <div className="flex flex-col gap-3">
-
-                                            <div className="flex justify-between items-end">
-                                                <small className="text-muted-foreground">{checklists?.length} Checklist</small>
-                                                <Button
-                                                    type="button"
-                                                    size="xs"
-                                                    onClick={() => setShowChecklistInput(true)}
-                                                >
-                                                    <Plus className="h-3 w-3" />
-                                                    Tambah
-                                                </Button>
-                                            </div>
-
-                                            {/* Add checklist input */}
-                                            {showChecklistInput && (
-                                                <div className="flex items-center gap-1.5 pt-1">
-                                                    <Input
-                                                        autoFocus
-                                                        value={newChecklistTitle}
-                                                        onChange={(e) => setNewChecklistTitle(e.target.value)}
-                                                        placeholder="Nama checklist baru..."
-                                                        onKeyDown={(e) => {
-                                                            if (e.key === "Enter") handleAddChecklist();
-                                                            if (e.key === "Escape") {
-                                                                setShowChecklistInput(false);
-                                                                setNewChecklistTitle("");
-                                                            }
-                                                        }}
-                                                    />
+                                    {/* ── Comment input — always at bottom ── */}
+                                    <div className={cn(
+                                        "bg-muted/30 mt-2 mb-2 mx-2 flex gap-2 flex-col justify-end border-border/50 border p-3.5 rounded-2xl",
+                                        "focus-within:ring-1 focus-within:ring-primary/50",
+                                        !canComment && "opacity-60"
+                                    )}>
+                                        <TextareaAutosize
+                                            value={newComment}
+                                            minRows={2}
+                                            maxRows={6}
+                                            onChange={e => canComment && setNewComment(e.target.value)}
+                                            placeholder={
+                                                role === "viewer"
+                                                    ? "Anda hanya dapat melihat komentar..."
+                                                    : "Tulis komentar... (Ctrl+Enter untuk kirim)"
+                                            }
+                                            readOnly={!canComment}
+                                            disabled={loadingDetail}
+                                            className={cn(
+                                                "text-sm w-full resize-none focus-visible:outline-none bg-transparent",
+                                                (!canComment || loadingDetail) && "cursor-not-allowed text-muted-foreground"
+                                            )}
+                                            onKeyDown={e => {
+                                                if (e.key === "Enter" && e.ctrlKey && canComment) handlePostComment();
+                                            }}
+                                        />
+                                        <div className="flex justify-between">
+                                            <Popover open={emojiPopOpen} onOpenChange={canComment ? setEmojiPopOpen : undefined}>
+                                                <PopoverTrigger asChild>
                                                     <Button
-                                                        size="sm"
-                                                        onClick={handleAddChecklist}
-                                                        disabled={addingChecklist || !newChecklistTitle.trim()}
+                                                        type="button"
+                                                        size="icon-sm"
+                                                        className="rounded-xl"
+                                                        variant="outline"
+                                                        disabled={!canComment || loadingDetail}
                                                     >
-                                                        {addingChecklist ? (
-                                                            <Loader2 className="h-3 w-3 animate-spin" />
-                                                        ) : (
-                                                            <>
-                                                                <Save />
-                                                                <span>Tambah</span>
-                                                            </>
-                                                        )}
+                                                        <SmilePlus className="stroke-[1.5]" />
                                                     </Button>
-                                                    <Button
-                                                        size="icon"
-                                                        variant="ghost"
-                                                        className="h-7 w-7"
-                                                        onClick={() => {
+                                                </PopoverTrigger>
+
+                                                <PopoverContent
+                                                    className="w-auto p-0 border shadow-md"
+                                                    side="top"
+                                                    align="start"
+                                                    sideOffset={6}
+                                                >
+                                                    <EmojiPicker
+                                                        onEmojiClick={(emojiData) => {
+                                                            handleEmojiClick(emojiData);
+                                                            setEmojiPopOpen(false);
+                                                        }}
+                                                        theme={resolvedTheme === "dark" ? Theme.DARK : Theme.LIGHT}
+                                                        lazyLoadEmojis
+                                                        searchPlaceholder="Cari emoji..."
+                                                        width={300}
+                                                        height={380}
+                                                    />
+                                                </PopoverContent>
+                                            </Popover>
+
+                                            <Button
+                                                type="button"
+                                                size="icon-sm"
+                                                className="rounded-xl"
+                                                onClick={handlePostComment}
+                                                disabled={!canComment || postingComment || loadingDetail || !newComment.trim()}
+                                            >
+                                                {postingComment
+                                                    ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                                                    : <ArrowUp className="h-3.5 w-3.5" />
+                                                }
+                                            </Button>
+                                        </div>
+                                    </div>
+                                </TabsContent>
+                                <TabsContent value="checklist">
+
+                                    <div className="flex flex-col gap-3">
+
+                                        <div className="flex justify-between items-end">
+                                            <small className="text-muted-foreground">{checklists?.length} Checklist</small>
+                                            <Button
+                                                type="button"
+                                                size="xs"
+                                                onClick={() => setShowChecklistInput(true)}
+                                            >
+                                                <Plus className="h-3 w-3" />
+                                                Tambah
+                                            </Button>
+                                        </div>
+
+                                        {/* Add checklist input */}
+                                        {showChecklistInput && (
+                                            <div className="flex items-center gap-1.5 pt-1">
+                                                <Input
+                                                    autoFocus
+                                                    value={newChecklistTitle}
+                                                    onChange={(e) => setNewChecklistTitle(e.target.value)}
+                                                    placeholder="Nama checklist baru..."
+                                                    onKeyDown={(e) => {
+                                                        if (e.key === "Enter") handleAddChecklist();
+                                                        if (e.key === "Escape") {
                                                             setShowChecklistInput(false);
                                                             setNewChecklistTitle("");
-                                                        }}
-                                                    >
-                                                        <X className="h-3 w-3" />
-                                                    </Button>
+                                                        }
+                                                    }}
+                                                />
+                                                <Button
+                                                    size="sm"
+                                                    onClick={handleAddChecklist}
+                                                    disabled={addingChecklist || !newChecklistTitle.trim()}
+                                                >
+                                                    {addingChecklist ? (
+                                                        <Loader2 className="h-3 w-3 animate-spin" />
+                                                    ) : (
+                                                        <>
+                                                            <Save />
+                                                            <span>Tambah</span>
+                                                        </>
+                                                    )}
+                                                </Button>
+                                                <Button
+                                                    size="icon"
+                                                    variant="ghost"
+                                                    className="h-7 w-7"
+                                                    onClick={() => {
+                                                        setShowChecklistInput(false);
+                                                        setNewChecklistTitle("");
+                                                    }}
+                                                >
+                                                    <X className="h-3 w-3" />
+                                                </Button>
+                                            </div>
+                                        )}
+
+                                        {/* ── Checklists ──────────────────────────────────────────── */}
+                                        <div className="space-y-1">
+
+                                            {loadingDetail && (
+                                                <div className="flex items-center gap-2 text-xs text-muted-foreground py-2">
+                                                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                                                    Memuat...
                                                 </div>
                                             )}
 
-                                            {/* ── Checklists ──────────────────────────────────────────── */}
-                                            <div className="space-y-1">
+                                            {/* Sortable checklists */}
+                                            <Sortable
+                                                value={checklists}
+                                                getItemValue={(item) => item.id}
+                                                onMove={({ activeIndex, overIndex }) => {
+                                                    const reordered = [...checklists];
+                                                    const [moved] = reordered.splice(activeIndex, 1);
+                                                    reordered.splice(overIndex, 0, moved);
+                                                    setChecklists(reordered);
+                                                    // Persist order 
+                                                    api.fetch(ENDPOINTS.checklistReorder(cardRef), {
+                                                        method: "PATCH",
+                                                        body: JSON.stringify({ ids: reordered.map((cl) => cl.id) }),
+                                                    });
+                                                }}
+                                            >
+                                                <SortableContent className="space-y-4">
+                                                    {checklists.map((cl) => (
+                                                        <SortableItem
+                                                            key={cl.id}
+                                                            value={cl.id}
+                                                            className="group/sortable-cl relative"
+                                                        >
 
-                                                {loadingDetail && (
-                                                    <div className="flex items-center gap-2 text-xs text-muted-foreground py-2">
-                                                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                                                        Memuat...
-                                                    </div>
-                                                )}
-
-                                                {/* Sortable checklists */}
-                                                <Sortable
-                                                    value={checklists}
-                                                    getItemValue={(item) => item.id}
-                                                    onMove={({ activeIndex, overIndex }) => {
-                                                        const reordered = [...checklists];
-                                                        const [moved] = reordered.splice(activeIndex, 1);
-                                                        reordered.splice(overIndex, 0, moved);
-                                                        setChecklists(reordered);
-                                                        // Persist order 
-                                                        api.fetch(ENDPOINTS.checklistReorder(cardRef), {
-                                                            method: "PATCH",
-                                                            body: JSON.stringify({ ids: reordered.map((cl) => cl.id) }),
-                                                        });
-                                                    }}
-                                                >
-                                                    <SortableContent className="space-y-4">
-                                                        {checklists.map((cl) => (
-                                                            <SortableItem
-                                                                key={cl.id}
-                                                                value={cl.id}
-                                                                className="group/sortable-cl relative"
-                                                            >
-
-                                                                <ChecklistSection
-                                                                    checklist={cl}
-                                                                    cardRef={cardRef}
-                                                                    SortableItemHandle={SortableItemHandle}
-                                                                    api={api}
-                                                                    onUpdated={(u) =>
-                                                                        setChecklists((prev) =>
-                                                                            prev.map((c) => (c.id === u.id ? u : c))
-                                                                        )
-                                                                    }
-                                                                    onDeleted={handleDeleteChecklist}
-                                                                />
-                                                            </SortableItem>
-                                                        ))}
-                                                    </SortableContent>
-                                                    <SortableOverlay />
-                                                </Sortable>
-
-                                            </div>
+                                                            <ChecklistSection
+                                                                checklist={cl}
+                                                                cardRef={cardRef}
+                                                                SortableItemHandle={SortableItemHandle}
+                                                                api={api}
+                                                                onUpdated={(u) =>
+                                                                    setChecklists((prev) =>
+                                                                        prev.map((c) => (c.id === u.id ? u : c))
+                                                                    )
+                                                                }
+                                                                onDeleted={handleDeleteChecklist}
+                                                            />
+                                                        </SortableItem>
+                                                    ))}
+                                                </SortableContent>
+                                                <SortableOverlay />
+                                            </Sortable>
 
                                         </div>
-                                    </TabsContent>
-                                </Tabs>
-                            </div>
-                        </ScrollArea>
+
+                                    </div>
+                                </TabsContent>
+                            </Tabs>
+                        </div>
                     </div>
 
                 </div>

@@ -2,7 +2,7 @@
 
 import {
     Plus, Loader2, Grid2x2Plus, LayersPlus,
-    Lock, LockOpen, Bookmark,
+    Lock, LockOpen, Bookmark, Users, Shield, UserMinus,
 } from "lucide-react";
 import * as React from "react";
 import { toast } from "sonner";
@@ -26,10 +26,12 @@ import {
 import { Toggle } from "@/components/ui/toggle";
 import { cn } from "@/lib/utils";
 import { CalendarIcon, LayoutDashboard, LayoutList } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 import AgendaTaskCard from "@/components/partials/agenda/AgendaTaskCard";
 import AgendaTaskColumn from "@/components/partials/agenda/AgendaTaskColumn";
 import AgendaWorkspaceHeader from "@/components/partials/agenda/AgendaWorkspaceHeader";
 import AgendaCardDetailModal from "@/components/partials/agenda/AgendaCardDetailModal";
+import AgendaTaskTimeline from "@/components/partials/agenda/AgendaTaskTimeline";
 
 // ─── API Endpoints ────────────────────────────────────────────────────────────
 
@@ -37,7 +39,7 @@ const API = process.env.NEXT_PUBLIC_API_URL;
 
 const tabs = [
     { key: "board", label: "Board", icon: LayoutDashboard, isDisabled: false },
-    { key: "list", label: "List", icon: LayoutList, isDisabled: true },
+    { key: "timeline", label: "Timeline", icon: LayoutList, isDisabled: true },
     { key: "calendar", label: "Calendar", icon: CalendarIcon, isDisabled: true },
 ];
 
@@ -49,8 +51,12 @@ const ENDPOINTS = {
     reorderBoards: (wsId) => `${API}/office/agenda/workspaces/${wsId}/boards/reorder`,
     cards: (bId) => `${API}/office/agenda/boards/${bId}/cards`,
     card: (bId, cId) => `${API}/office/agenda/boards/${bId}/cards/${cId}`,
+    lockCard: (bId, cId) => `${API}/office/agenda/boards/${bId}/cards/${cId}/lock`,
+    archiveCard: (bId, cId) => `${API}/office/agenda/boards/${bId}/cards/${cId}/archive`,
     moveCard: (bId, cId) => `${API}/office/agenda/boards/${bId}/cards/${cId}/move`,
     wsMembers: (wsId) => `${API}/office/agenda/workspaces/${wsId}/members`,
+    wsMember: (wsId, memberId) => `${API}/office/agenda/workspaces/${wsId}/members/${memberId}`,
+    allAdmins: `${API}/office/agenda/admins`,
 };
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -61,6 +67,26 @@ function createLocalId() {
 
 function getEntityRef(entity) {
     return entity?.uuid ?? entity?.id;
+}
+
+function normalizeWorkspaceMember(member = {}) {
+    return {
+        id: member.id ?? member.uuid ?? null,
+        admin_id: member.admin_id ?? member.admin?.id ?? null,
+        name: member.name ?? member.admin?.name ?? "",
+        email: member.email ?? member.admin?.email ?? "",
+        role: member.role ?? "viewer",
+        role_label: member.role_label ?? (member.role ? member.role[0].toUpperCase() + member.role.slice(1) : "Viewer"),
+        joined_at: member.joined_at ?? null,
+    };
+}
+
+function normalizeAdmin(admin = {}) {
+    return {
+        id: admin.id ?? null,
+        name: admin.name ?? "",
+        email: admin.email ?? "",
+    };
 }
 
 /**
@@ -75,6 +101,8 @@ function mapCard(card) {
         description: card.description ?? "",
         priority: card.priority ?? "medium",
         comments_count: card.comments_count,
+        media_count: card.media_count,
+        checklist_progress: card.checklist_progress,
         // Assignees array (untuk AvatarGroup)
         assignees: card.assignees?.map(a => ({
             id: a.id ?? a.admin_id,
@@ -86,6 +114,9 @@ function mapCard(card) {
         dueDate: card.due_date ?? card.dueDate ?? "",
         // Labels (array of {id, name, color})
         labels: card.labels ?? [],
+        links: card.links ?? [],
+        isLocked: Boolean(card.is_locked ?? card.isLocked ?? false),
+        isArchive: Boolean(card.is_archive ?? card.isArchive ?? false),
         _beRef: cardRef ?? null,
     };
 }
@@ -97,6 +128,7 @@ function mapBoard(board) {
     const boardRef = getEntityRef(board);
     return {
         id: String(boardRef ?? createLocalId()),
+        _beId: board?.id ?? null,
         title: board.title ?? board.name ?? "Column",
         position: board.position ?? 0,
         tasks: (board.cards ?? []).map(mapCard),
@@ -108,6 +140,7 @@ function mapBoard(board) {
 
 export default function Agenda(props) {
     const params = useParams();
+    const { user } = useAuth();
     const workspaceId = props?.workspaceId ?? params?.uuid;
 
     const [columnMap, setColumnMap] = React.useState({});
@@ -115,10 +148,19 @@ export default function Agenda(props) {
     const [loading, setLoading] = React.useState(true);
     const [wsInfo, setWsInfo] = React.useState(null);
     const [wsMembers, setWsMembers] = React.useState([]);
+    const [allAdmins, setAllAdmins] = React.useState([]);
     const [activeTab, setActiveTab] = React.useState("board");
     const [isLocked, setIsLocked] = React.useState(false);
     const [isBookmarked, setIsBookmarked] = React.useState(false);
     const [togglingLock, setTogglingLock] = React.useState(false);
+    const [memberDialogOpen, setMemberDialogOpen] = React.useState(false);
+    const [loadingMembers, setLoadingMembers] = React.useState(false);
+    const [loadingAllAdmins, setLoadingAllAdmins] = React.useState(false);
+    const [invitingMember, setInvitingMember] = React.useState(false);
+    const [updatingMemberId, setUpdatingMemberId] = React.useState(null);
+    const [removingMemberId, setRemovingMemberId] = React.useState(null);
+    const [inviteAdminId, setInviteAdminId] = React.useState("");
+    const [inviteRole, setInviteRole] = React.useState("viewer");
 
     const scrollHostRef = React.useRef(null);
     const scrollDragRef = React.useRef({ active: false, startX: 0, scrollLeft: 0 });
@@ -141,6 +183,29 @@ export default function Agenda(props) {
     const [detailModalOpen, setDetailModalOpen] = React.useState(false);
     const [detailCard, setDetailCard] = React.useState(null);
     const [detailColumnId, setDetailColumnId] = React.useState(null);
+
+    const loadWorkspaceMembers = React.useCallback(async () => {
+        if (!workspaceId) return;
+        setLoadingMembers(true);
+        try {
+            const mRes = await api.fetch(ENDPOINTS.wsMembers(workspaceId)).catch(() => ({ data: [] }));
+            const rows = Array.isArray(mRes) ? mRes : (mRes.data ?? []);
+            setWsMembers(rows.map(normalizeWorkspaceMember));
+        } finally {
+            setLoadingMembers(false);
+        }
+    }, [workspaceId]);
+
+    const loadAllAdmins = React.useCallback(async () => {
+        setLoadingAllAdmins(true);
+        try {
+            const res = await api.fetch(ENDPOINTS.allAdmins).catch(() => ({ data: [] }));
+            const rows = Array.isArray(res) ? res : (res.data ?? []);
+            setAllAdmins(rows.map(normalizeAdmin));
+        } finally {
+            setLoadingAllAdmins(false);
+        }
+    }, []);
 
     // ── Load workspace ────────────────────────────────────────────────────────
     const loadWorkspace = React.useCallback(async () => {
@@ -182,18 +247,98 @@ export default function Agenda(props) {
             setColumnMap(map);
             setColumnOrder(order);
 
-            // Load workspace members for detail modal
-            const mRes = await api.fetch(ENDPOINTS.wsMembers(workspaceId)).catch(() => ({ data: [] }));
-            setWsMembers(Array.isArray(mRes) ? mRes : (mRes.data ?? []));
+            await loadWorkspaceMembers();
         } catch (err) {
             console.error("Failed to load workspace:", err);
             toast.error("Gagal memuat workspace");
         } finally {
             setLoading(false);
         }
-    }, [workspaceId]);
+    }, [workspaceId, loadWorkspaceMembers]);
 
     React.useEffect(() => { loadWorkspace(); }, [loadWorkspace]);
+
+    React.useEffect(() => {
+        if (!memberDialogOpen) return;
+        loadWorkspaceMembers();
+        if (allAdmins.length === 0) {
+            loadAllAdmins();
+        }
+    }, [memberDialogOpen, loadWorkspaceMembers, loadAllAdmins, allAdmins.length]);
+
+    const isWorkspaceOwner = wsInfo?.is_creator;
+    const myMemberRole = wsMembers.find((m) => Number(m.admin_id) === Number(user?.id ?? -1))?.role ?? null;
+    const canManageMembers = Boolean(isWorkspaceOwner || myMemberRole === "admin");
+
+    const existingMemberIds = React.useMemo(() => {
+        const set = new Set(wsMembers.map((m) => Number(m.admin_id)));
+        if (wsInfo?.created_by) set.add(Number(wsInfo.created_by));
+        return set;
+    }, [wsMembers, wsInfo?.created_by]);
+
+    const inviteCandidates = React.useMemo(
+        () => allAdmins.filter((admin) => !existingMemberIds.has(Number(admin.id))),
+        [allAdmins, existingMemberIds]
+    );
+
+    const handleInviteMember = React.useCallback(async () => {
+        if (!workspaceId || !inviteAdminId || !inviteRole) return;
+        setInvitingMember(true);
+        try {
+            const res = await api.fetch(ENDPOINTS.wsMembers(workspaceId), {
+                method: "POST",
+                body: JSON.stringify({ admin_id: Number(inviteAdminId), role: inviteRole }),
+            });
+            if (res?.success === false) {
+                throw new Error(res?.message || "Gagal mengundang member");
+            }
+            toast.success(res?.message || "Member berhasil ditambahkan");
+            setInviteAdminId("");
+            setInviteRole("viewer");
+            await loadWorkspaceMembers();
+        } catch (err) {
+            toast.error(err?.message || "Gagal mengundang member");
+        } finally {
+            setInvitingMember(false);
+        }
+    }, [workspaceId, inviteAdminId, inviteRole, loadWorkspaceMembers]);
+
+    const handleUpdateMemberRole = React.useCallback(async (member, role) => {
+        if (!workspaceId || !member?.id || !role) return;
+        setUpdatingMemberId(member.id);
+        try {
+            const res = await api.fetch(ENDPOINTS.wsMember(workspaceId, member.id), {
+                method: "PATCH",
+                body: JSON.stringify({ role }),
+            });
+            if (res?.success === false) {
+                throw new Error(res?.message || "Gagal memperbarui role");
+            }
+            toast.success(res?.message || "Role member diperbarui");
+            await loadWorkspaceMembers();
+        } catch (err) {
+            toast.error(err?.message || "Gagal memperbarui role");
+        } finally {
+            setUpdatingMemberId(null);
+        }
+    }, [workspaceId, loadWorkspaceMembers]);
+
+    const handleRemoveMember = React.useCallback(async (member) => {
+        if (!workspaceId || !member?.id) return;
+        setRemovingMemberId(member.id);
+        try {
+            const res = await api.fetch(ENDPOINTS.wsMember(workspaceId, member.id), { method: "DELETE" });
+            if (res?.success === false) {
+                throw new Error(res?.message || "Gagal menghapus member");
+            }
+            toast.success(res?.message || "Member berhasil dihapus");
+            await loadWorkspaceMembers();
+        } catch (err) {
+            toast.error(err?.message || "Gagal menghapus member");
+        } finally {
+            setRemovingMemberId(null);
+        }
+    }, [workspaceId, loadWorkspaceMembers]);
 
     // ── Lock / Unlock workspace ───────────────────────────────────────────────
     const handleToggleLock = React.useCallback(async () => {
@@ -266,6 +411,10 @@ export default function Agenda(props) {
     }, []);
 
     const openEditItemDialog = React.useCallback((columnId, task) => {
+        if (task?.isLocked) {
+            toast.info("Card sedang dikunci");
+            return;
+        }
         setEditingItemId(task.id);
         setItemForm({
             columnId,
@@ -360,6 +509,10 @@ export default function Agenda(props) {
         if (!col?._beRef) return;
         const task = col.tasks.find(t => t.id === itemId);
         if (!task?._beRef) return;
+        if (task?.isLocked) {
+            toast.info("Card sedang dikunci");
+            return;
+        }
 
         setColumnMap(prev => ({
             ...prev,
@@ -392,14 +545,94 @@ export default function Agenda(props) {
         setDetailCard(prev => prev ? { ...prev, ...updatedCard } : prev);
     }, [detailColumnId]);
 
+    const patchCardInState = React.useCallback((columnId, itemId, patch = {}) => {
+        setColumnMap((prev) => {
+            const col = prev[columnId];
+            if (!col) return prev;
+            return {
+                ...prev,
+                [columnId]: {
+                    ...col,
+                    tasks: col.tasks.map((t) => (t.id === itemId ? { ...t, ...patch } : t)),
+                },
+            };
+        });
+        setDetailCard((prev) => (prev?.id === itemId ? { ...prev, ...patch } : prev));
+    }, []);
+
+    const handleToggleCardLock = React.useCallback(async (columnId, itemId) => {
+        const col = columnMap[columnId];
+        const task = col?.tasks?.find((t) => t.id === itemId);
+        if (!col?._beRef || !task?._beRef) return;
+
+        const previous = Boolean(task.isLocked);
+        patchCardInState(columnId, itemId, { isLocked: !previous });
+
+        try {
+            const res = await api.fetch(ENDPOINTS.lockCard(col._beRef, task._beRef), { method: "PATCH" });
+            const data = res.data ?? res;
+            const nextValue = Boolean(data?.is_locked ?? !previous);
+            patchCardInState(columnId, itemId, { isLocked: nextValue });
+            toast.success(nextValue ? "Card dikunci" : "Card dibuka");
+        } catch (err) {
+            patchCardInState(columnId, itemId, { isLocked: previous });
+            toast.error("Gagal mengubah status lock card");
+        }
+    }, [columnMap, patchCardInState]);
+
+    const handleToggleCardArchive = React.useCallback(async (columnId, itemId) => {
+        const col = columnMap[columnId];
+        const task = col?.tasks?.find((t) => t.id === itemId);
+        if (!col?._beRef || !task?._beRef) return;
+
+        const previous = Boolean(task.isArchive);
+        patchCardInState(columnId, itemId, { isArchive: !previous });
+
+        try {
+            const res = await api.fetch(ENDPOINTS.archiveCard(col._beRef, task._beRef), { method: "PATCH" });
+            const data = res.data ?? res;
+            const nextValue = Boolean(data?.is_archive ?? !previous);
+            patchCardInState(columnId, itemId, { isArchive: nextValue });
+            toast.success(nextValue ? "Card diarsipkan" : "Card dipulihkan");
+        } catch (err) {
+            patchCardInState(columnId, itemId, { isArchive: previous });
+            toast.error("Gagal mengubah status arsip card");
+        }
+    }, [columnMap, patchCardInState]);
+
     // ── Kanban: card moved between columns ────────────────────────────────────
     const handleColumnsChange = React.useCallback(async (nextValue) => {
+        const nextOrder = Object.keys(nextValue);
+        const orderChanged =
+            nextOrder.length === columnOrder.length &&
+            nextOrder.some((colId, idx) => colId !== columnOrder[idx]);
+
+        if (orderChanged) {
+            setColumnOrder(nextOrder);
+            try {
+                await api.fetch(ENDPOINTS.reorderBoards(workspaceId), {
+                    method: "PATCH",
+                    body: JSON.stringify({
+                        boards: nextOrder
+                            .map((colId, idx) => ({
+                                id: columnMap[colId]?._beId ?? columnMap[colId]?._beRef,
+                                uuid: columnMap[colId]?._beRef,
+                                position: idx,
+                            }))
+                            .filter(b => b.id),
+                    }),
+                });
+            } catch (err) {
+                console.error("Failed to reorder columns:", err);
+            }
+        }
+
         const prevFlat = Object.entries(columnMap).flatMap(([cId, col]) =>
             col.tasks.map(t => ({ colId: cId, taskId: t.id }))
         );
 
         const newMap = {};
-        for (const colId of columnOrder) {
+        for (const colId of nextOrder) {
             const existingCol = columnMap[colId];
             if (!existingCol) continue;
             const newTasks = (nextValue[colId] ?? []).map(item => {
@@ -435,7 +668,7 @@ export default function Agenda(props) {
                 }
             }
         }
-    }, [columnMap, columnOrder]);
+    }, [columnMap, columnOrder, workspaceId]);
 
     // ── Column reorder ────────────────────────────────────────────────────────
     const handleColumnOrderChange = React.useCallback(async (newOrder) => {
@@ -446,7 +679,7 @@ export default function Agenda(props) {
                 body: JSON.stringify({
                     boards: newOrder
                         .map((colId, idx) => ({
-                            id: columnMap[colId]?._beRef,
+                            id: columnMap[colId]?._beId ?? columnMap[colId]?._beRef,
                             uuid: columnMap[colId]?._beRef,
                             position: idx,
                         }))
@@ -503,6 +736,12 @@ export default function Agenda(props) {
         return val;
     }, [columnMap, columnOrder]);
 
+    const TimelineValue = React.useMemo(() => {
+        return columnOrder.flatMap(colId => {
+            return columnMap[colId]?.tasks ?? [];
+        });
+    }, [columnMap, columnOrder]);
+
     const handleEditWorkspaceTitle = React.useCallback(() => {
         toast.info("Fitur edit judul workspace segera hadir");
     }, []);
@@ -540,7 +779,18 @@ export default function Agenda(props) {
                             </div>
                         </div>
 
+
                         <div className="flex gap-2">
+                            <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                className="shrink-0"
+                                onClick={() => setMemberDialogOpen(true)}
+                            >
+                                <Users className="size-3.5" />
+                                Members
+                            </Button>
                             {/* Lock / Unlock (connected to BE) */}
                             <div className="bg-muted/60 p-0.5 gap-0.5 flex rounded-lg border border-border/50">
                                 <Toggle
@@ -575,86 +825,101 @@ export default function Agenda(props) {
                                 </Toggle>
                             </div>
 
-                            <Button
-                                type="button" size="sm" className="shrink-0"
-                                disabled={loading || isLocked}
-                                onClick={() => setColumnDialogOpen(true)}>
-                                <LayersPlus className="size-3.5" />
-                                Tambah Board
-                            </Button>
+                            {activeTab == "board" && (
+                                <Button
+                                    type="button" size="sm" className="shrink-0"
+                                    disabled={loading || isLocked}
+                                    onClick={() => setColumnDialogOpen(true)}>
+                                    <LayersPlus className="size-3.5" />
+                                    Tambah Board
+                                </Button>
+                            )}
                         </div>
+
                     </div>
 
-                    {/* Locked notice */}
-                    {isLocked && (
-                        <div className="flex items-center gap-2 text-xs text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-lg px-3 py-2">
-                            <Lock className="h-3.5 w-3.5 shrink-0" />
-                            Workspace ini sedang dikunci. Hanya pemilik yang dapat melakukan perubahan.
-                        </div>
-                    )}
+                    {activeTab == "board" ? (
+                        <>
+                            {/* Locked notice */}
+                            {isLocked && (
+                                <div className="flex items-center gap-2 text-xs text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-lg px-3 py-2">
+                                    <Lock className="h-3.5 w-3.5 shrink-0" />
+                                    Workspace ini sedang dikunci. Hanya pemilik yang dapat melakukan perubahan.
+                                </div>
+                            )}
 
-                    {/* ── Board ── */}
-                    {loading ? (
-                        <div className="flex items-center justify-center min-h-[420px] gap-2 text-sm text-muted-foreground">
-                            <Loader2 className="size-4 animate-spin" />
-                            Memuat board…
-                        </div>
-                    ) : (
-                        <Kanban
-                            value={kanbanValue}
-                            onValueChange={handleColumnsChange}
-                            columns={columnOrder}                        // ← fix column drag
-                            onColumnsChange={handleColumnOrderChange}    // ← fix column drag
-                            getItemValue={(item) => item.id}
-                        >
-                            <div ref={scrollHostRef}>
-                                <ScrollArea
-                                    className="min-h-[70dvh] w-full"
-                                    onPointerDown={handleBoardPointerDown}>
-                                    <KanbanBoard className="flex min-w-max items-start gap-3">
-                                        {columnOrder.map((colId) => {
-                                            const col = columnMap[colId];
-                                            if (!col) return null;
-                                            return (
-                                                <AgendaTaskColumn
-                                                    key={colId}
-                                                    value={colId}
-                                                    title={col.title}
-                                                    tasks={col.tasks}
-                                                    onAddItem={openAddItemDialog}
-                                                    onRemoveColumn={handleRemoveColumn}
-                                                    onEditItem={openEditItemDialog}
-                                                    onRemoveItem={handleRemoveItem}
-                                                    onCardClick={openCardDetail}   // ← detail modal
-                                                    showActions={!isLocked}
-                                                />
-                                            );
-                                        })}
-                                    </KanbanBoard>
-                                </ScrollArea>
-                            </div>
+                            {/* ── Board ── */}
+                            {loading ? (
+                                <div className="flex items-center justify-center min-h-[420px] gap-2 text-sm text-muted-foreground">
+                                    <Loader2 className="size-4 animate-spin" />
+                                    Memuat board…
+                                </div>
+                            ) : (
+                                <Kanban
+                                    value={kanbanValue}
+                                    onValueChange={handleColumnsChange}
+                                    columns={columnOrder}                        // ← fix column drag
+                                    onColumnsChange={handleColumnOrderChange}    // ← fix column drag
+                                    getItemValue={(item) => item.id}
+                                >
+                                    <div ref={scrollHostRef}>
+                                        <ScrollArea
+                                            className="min-h-[70dvh] w-full"
+                                            onPointerDown={handleBoardPointerDown}>
+                                            <KanbanBoard className="flex min-w-max items-start gap-3">
+                                                {columnOrder.map((colId) => {
+                                                    const col = columnMap[colId];
+                                                    if (!col) return null;
+                                                    return (
+                                                        <AgendaTaskColumn
+                                                            key={colId}
+                                                            value={colId}
+                                                            title={col.title}
+                                                            tasks={col.tasks}
+                                                            onAddItem={openAddItemDialog}
+                                                            onRemoveColumn={handleRemoveColumn}
+                                                            onEditItem={openEditItemDialog}
+                                                            onRemoveItem={handleRemoveItem}
+                                                            onToggleCardLock={handleToggleCardLock}
+                                                            onToggleCardArchive={handleToggleCardArchive}
+                                                            onCardClick={openCardDetail}
+                                                            showActions={!isLocked}
+                                                        />
+                                                    );
+                                                })}
+                                            </KanbanBoard>
+                                        </ScrollArea>
+                                    </div>
 
-                            <KanbanOverlay>
-                                {({ value, variant }) => {
-                                    if (variant === "column") {
-                                        const col = columnMap[value];
-                                        if (!col) return null;
-                                        return (
-                                            <AgendaTaskColumn
-                                                value={value}
-                                                title={col.title}
-                                                tasks={col.tasks}
-                                                showActions={false}
-                                            />
-                                        );
-                                    }
-                                    const task = Object.values(columnMap).flatMap(c => c.tasks).find(t => t.id === value);
-                                    if (!task) return null;
-                                    return <AgendaTaskCard task={task} showActions={false} />;
-                                }}
-                            </KanbanOverlay>
-                        </Kanban>
-                    )}
+                                    <KanbanOverlay>
+                                        {({ value, variant }) => {
+                                            if (variant === "column") {
+                                                const col = columnMap[value];
+                                                if (!col) return null;
+                                                return (
+                                                    <AgendaTaskColumn
+                                                        value={value}
+                                                        title={col.title}
+                                                        tasks={col.tasks}
+                                                        showActions={false}
+                                                    />
+                                                );
+                                            }
+                                            const task = Object.values(columnMap).flatMap(c => c.tasks).find(t => t.id === value);
+                                            if (!task) return null;
+                                            return <AgendaTaskCard task={task} showActions={false} />;
+                                        }}
+                                    </KanbanOverlay>
+                                </Kanban>
+                            )}
+
+                        </>
+                    ) : activeTab == "timeline" ? (
+                        <div>
+                            {console.log("TimelineValue", TimelineValue)}
+                            <AgendaTaskTimeline tasks={TimelineValue} />
+                        </div>
+                    ) : ''}
                 </div>
             </div>
 
@@ -684,6 +949,141 @@ export default function Agenda(props) {
                 </DialogContent>
             </Dialog>
 
+            <Dialog open={memberDialogOpen} onOpenChange={setMemberDialogOpen}>
+                <DialogContent className="sm:max-w-2xl">
+                    <DialogHeader>
+                        <DialogTitle>Workspace Members</DialogTitle>
+                        <DialogDescription>
+                            Undang staff ke workspace dan atur role viewer, editor, atau admin.
+                        </DialogDescription>
+                    </DialogHeader>
+
+                    <div className="space-y-4">
+                        <div className="rounded-xl border border-border/60 p-3 space-y-3">
+                            <div className="flex items-center justify-between">
+                                <Label className="text-sm">Invite Member</Label>
+                                {!canManageMembers && (
+                                    <small className="text-xs text-muted-foreground">
+                                        Hanya owner atau role admin yang bisa mengelola member
+                                    </small>
+                                )}
+                            </div>
+
+                            <div className="flex justify-between items-center gap-2">
+                                <div className="flex flex-1 gap-2">
+                                    <Select
+                                        value={inviteAdminId}
+                                        onValueChange={setInviteAdminId}
+                                        disabled={!canManageMembers || loadingAllAdmins}
+                                    >
+                                        <SelectTrigger className="sm:col-span-2 flex-1">
+                                            <SelectValue placeholder={loadingAllAdmins ? "Memuat staff..." : "Pilih staff"} />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {inviteCandidates.length === 0 ? (
+                                                <SelectItem value="__empty__" disabled>
+                                                    Tidak ada staff yang bisa diundang
+                                                </SelectItem>
+                                            ) : (
+                                                inviteCandidates.map((admin) => (
+                                                    <SelectItem key={admin.id} value={String(admin.id)}>
+                                                        {admin.name} ({admin.email})
+                                                    </SelectItem>
+                                                ))
+                                            )}
+                                        </SelectContent>
+                                    </Select>
+
+                                    <Select value={inviteRole} onValueChange={setInviteRole} disabled={!canManageMembers}>
+                                        <SelectTrigger>
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="viewer">viewer</SelectItem>
+                                            <SelectItem value="editor">editor</SelectItem>
+                                            <SelectItem value="admin">admin</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                                <Button
+                                    type="button"
+                                    size="sm"
+                                    onClick={handleInviteMember}
+                                    disabled={!canManageMembers || !inviteAdminId || invitingMember}
+                                >
+                                    {invitingMember ? <Loader2 className="size-3.5 animate-spin" /> : <Plus className="size-3.5" />}
+                                    Invite
+                                </Button>
+                            </div>
+                        </div>
+
+                        <div className="rounded-xl border border-border/60 overflow-hidden">
+                            <div className="px-3 py-2 border-b border-border/60 bg-muted/40">
+                                <small className="text-xs text-muted-foreground">
+                                    {loadingMembers ? "Memuat member..." : `${wsMembers.length + (wsInfo?.creator ? 1 : 0)} anggota`}
+                                </small>
+                            </div>
+                            <div className="max-h-[50vh] overflow-auto">
+                                {wsInfo?.creator && (
+                                    <div className="px-3 py-2 border-b border-border/50 flex items-center gap-2">
+                                        <Shield className="size-4 text-emerald-600" />
+                                        <div className="min-w-0 flex-1">
+                                            <p className="text-sm font-medium truncate">{wsInfo.creator.name}</p>
+                                            <p className="text-xs text-muted-foreground truncate">{wsInfo.creator.email}</p>
+                                        </div>
+                                        <span className="text-[11px] px-2 py-1 rounded-md border border-emerald-200 text-emerald-700 bg-emerald-50">
+                                            Owner
+                                        </span>
+                                    </div>
+                                )}
+
+                                {wsMembers.map((member) => (
+                                    <div key={member.id} className="px-3 py-2 border-b border-border/50 last:border-b-0 flex items-center gap-2">
+                                        <div className="min-w-0 flex-1">
+                                            <p className="text-sm font-medium truncate">{member.name}</p>
+                                            <p className="text-xs text-muted-foreground truncate">{member.email}</p>
+                                        </div>
+
+                                        <Select
+                                            value={member.role}
+                                            onValueChange={(value) => handleUpdateMemberRole(member, value)}
+                                            disabled={!canManageMembers || updatingMemberId === member.id}
+                                        >
+                                            <SelectTrigger className="w-28 h-8">
+                                                <SelectValue />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="viewer">viewer</SelectItem>
+                                                <SelectItem value="editor">editor</SelectItem>
+                                                <SelectItem value="admin">admin</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+
+                                        <Button
+                                            type="button"
+                                            size="icon-sm"
+                                            variant="ghost"
+                                            onClick={() => handleRemoveMember(member)}
+                                            disabled={(!canManageMembers && Number(member.admin_id) !== Number(user?.id ?? -1)) || removingMemberId === member.id}
+                                        >
+                                            {removingMemberId === member.id
+                                                ? <Loader2 className="size-3.5 animate-spin" />
+                                                : <UserMinus className="size-3.5 text-muted-foreground" />
+                                            }
+                                        </Button>
+                                    </div>
+                                ))}
+
+                                {!loadingMembers && wsMembers.length === 0 && (
+                                    <div className="px-3 py-6 text-center text-xs text-muted-foreground">
+                                        Belum ada member tambahan.
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                </DialogContent>
+            </Dialog>
             {/* ── Quick Add / Edit Item Dialog ─────────────────────────────────── */}
             <Dialog open={itemDialogOpen} onOpenChange={setItemDialogOpen}>
                 <DialogContent>
@@ -769,3 +1169,4 @@ export default function Agenda(props) {
         </div>
     );
 }
+

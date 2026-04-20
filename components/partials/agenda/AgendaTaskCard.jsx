@@ -1,6 +1,6 @@
 "use client";
 
-import { EllipsisVertical, GripVertical, CalendarDays, Flag, Paperclip, MessageCircleMore } from "lucide-react";
+import { EllipsisVertical, GripVertical, CalendarDays, Lock, Archive, MessageCircleMore, Paperclip } from "lucide-react";
 import { EmojiHappy, FolderOpen, Messages } from 'iconsax-reactjs';
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -15,6 +15,7 @@ import { AvatarGroup } from "@/components/ui/avatar-group";
 import { cn } from "@/lib/utils";
 import SignalTaskCard from "@/components/partials/agenda/SignalTaskCard";
 import { ICON_MAP } from "@/hooks/use-agenda-iconsax";
+import { CircularProgress, CircularProgressIndicator, CircularProgressRange, CircularProgressTrack } from "@/components/ui/circular-progress";
 
 
 
@@ -86,7 +87,16 @@ function hexToRgba(hex, opacity) {
 
 // ─── Main Card Component ────────────────────────────────────────────────────── 
 
-export default function AgendaTaskCard({ task, onEdit, onRemove, onCardClick, showActions = true, ...props }) {
+export default function AgendaTaskCard({
+    task,
+    onEdit,
+    onRemove,
+    onCardClick,
+    onToggleLock,
+    onToggleArchive,
+    showActions = true,
+    ...props
+}) {
     const overdue = isOverdue(task.dueDate);
     const hasRange = task.startDate && task.dueDate;
     const dateLabel = hasRange
@@ -106,6 +116,7 @@ export default function AgendaTaskCard({ task, onEdit, onRemove, onCardClick, sh
                                 <div className="!size-6 !min-w-6 flex items-center relative">
                                     <KanbanItemHandle asChild>
                                         <Button type="button" variant="ghost" size="icon"
+                                            disabled={task?.isLocked}
                                             className="h-6 w-6 top-0 bottom-0 my-auto shrink-0 group-hover:opacity-100 opacity-0 text-muted-foreground transition-opacity duration-300 hover:bg-transparent">
                                             <GripVertical className="h-3.5 w-3.5" />
                                         </Button>
@@ -135,6 +146,30 @@ export default function AgendaTaskCard({ task, onEdit, onRemove, onCardClick, sh
 
 
                             <div className="flex items-center gap-1 shrink-0">
+                                {task?.isLocked && (
+                                    <Tooltip>
+                                        <TooltipTrigger asChild>
+                                            <span className="inline-flex items-center justify-center size-5 rounded-md border border-border bg-muted/60 text-muted-foreground">
+                                                <Lock className="size-3" />
+                                            </span>
+                                        </TooltipTrigger>
+                                        <TooltipContent>
+                                            <p>Card terkunci</p>
+                                        </TooltipContent>
+                                    </Tooltip>
+                                )}
+                                {task?.isArchive && (
+                                    <Tooltip>
+                                        <TooltipTrigger asChild>
+                                            <span className="inline-flex items-center justify-center size-5 rounded-md border border-border bg-muted/60 text-muted-foreground">
+                                                <Archive className="size-3" />
+                                            </span>
+                                        </TooltipTrigger>
+                                        <TooltipContent>
+                                            <p>Card diarsipkan</p>
+                                        </TooltipContent>
+                                    </Tooltip>
+                                )}
                                 <Badge
                                     variant={getPriorityBadgeVariant(task.priority)}
                                     className="pointer-events-none h-5 rounded-md px-1.5 text-[11px] capitalize"
@@ -156,8 +191,14 @@ export default function AgendaTaskCard({ task, onEdit, onRemove, onCardClick, sh
                                             <DropdownMenuSeparator />
                                             <DropdownMenuGroup>
                                                 <DropdownMenuItem onSelect={() => onCardClick?.(task)}>Buka Detail</DropdownMenuItem>
-                                                <DropdownMenuItem onSelect={() => onEdit?.()}>Edit Cepat</DropdownMenuItem>
-                                                <DropdownMenuItem variant="destructive" onSelect={() => onRemove?.()}>Hapus</DropdownMenuItem>
+                                                <DropdownMenuItem disabled={task?.isLocked} onSelect={() => onEdit?.()}>Edit Cepat</DropdownMenuItem>
+                                                <DropdownMenuItem onSelect={() => onToggleLock?.(task)}>
+                                                    {task?.isLocked ? "Buka Kunci Card" : "Kunci Card"}
+                                                </DropdownMenuItem>
+                                                <DropdownMenuItem onSelect={() => onToggleArchive?.(task)}>
+                                                    {task?.isArchive ? "Pulihkan Card" : "Arsipkan Card"}
+                                                </DropdownMenuItem>
+                                                <DropdownMenuItem disabled={task?.isLocked} variant="destructive" onSelect={() => onRemove?.()}>Hapus</DropdownMenuItem>
                                             </DropdownMenuGroup>
                                         </DropdownMenuContent>
                                     </DropdownMenu>
@@ -225,69 +266,98 @@ export default function AgendaTaskCard({ task, onEdit, onRemove, onCardClick, sh
                         </div>
                     )}
 
-                    {/* Footer: assignees + date */}
-                    <div className="px-3 pt-3 border-t border-dashed">
-                        <div className="flex items-center justify-between gap-2">
-                            <div className="flex gap-2.5">
-                                {/* Attactment */}
-                                {/* <Tooltip>
-                                    <TooltipTrigger asChild>
-                                        <div className="text-muted-foreground flex items-center gap-1 font-geist cursor-default">
-                                            <Paperclip className="size-3.5" />
-                                            <span className="text-xs font-medium">{task?.comments_count ?? 0}</span>
-                                        </div>
-                                    </TooltipTrigger>
-                                    <TooltipContent>
-                                        <p>Jumlah Attactment</p>
-                                    </TooltipContent>
-                                </Tooltip> */}
-
-
-                                <Tooltip>
-                                    <TooltipTrigger asChild>
-                                        <div className="flex items-center gap-1 font-geist text-muted-foreground cursor-default">
-                                            <MessageCircleMore variant="Linear" className="size-3.5" />
-                                            <span className="text-xs font-medium">{task?.comments_count ?? 0}</span>
-                                        </div>
-                                    </TooltipTrigger>
-                                    <TooltipContent>
-                                        <p>Jumlah Komentar</p>
-                                    </TooltipContent>
-                                </Tooltip>
-
-                            </div>
-
-                            {/* Date range / due date */}
-                            {dateLabel && (
-                                <div className={cn(
-                                    "flex items-center gap-1 text-xs font-geist font-medium",
-                                    overdue ? "text-destructive" : "text-muted-foreground"
-                                )}>
-                                    <CalendarDays className="size-3.5" />
-                                    <span>{dateLabel}</span>
-                                    {overdue && (
+                    {/* Footer */}
+                    {((task?.media_count > 0) || (task?.comments_count > 0) || (task?.checklist_progress?.percent > 0) || dateLabel) && (
+                        <div className="px-3 pt-3 border-t border-dashed">
+                            <div className="flex items-center justify-between gap-2">
+                                <div className="flex gap-2.5">
+                                    {task?.media_count > 0 && (
                                         <Tooltip>
                                             <TooltipTrigger asChild>
-                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="size-4 ms-0.5">
-                                                    <g>
-                                                        <path d="M21.76 15.92L15.36 4.4C14.5 2.85 13.31 2 12 2C10.69 2 9.49998 2.85 8.63998 4.4L2.23998 15.92C1.42998 17.39 1.33998 18.8 1.98998 19.91C2.63998 21.02 3.91998 21.63 5.59998 21.63H18.4C20.08 21.63 21.36 21.02 22.01 19.91C22.66 18.8 22.57 17.38 21.76 15.92ZM11.25 9C11.25 8.59 11.59 8.25 12 8.25C12.41 8.25 12.75 8.59 12.75 9V14C12.75 14.41 12.41 14.75 12 14.75C11.59 14.75 11.25 14.41 11.25 14V9ZM12.71 17.71C12.66 17.75 12.61 17.79 12.56 17.83C12.5 17.87 12.44 17.9 12.38 17.92C12.32 17.95 12.26 17.97 12.19 17.98C12.13 17.99 12.06 18 12 18C11.94 18 11.87 17.99 11.8 17.98C11.74 17.97 11.68 17.95 11.62 17.92C11.56 17.9 11.5 17.87 11.44 17.83C11.39 17.79 11.34 17.75 11.29 17.71C11.11 17.52 11 17.26 11 17C11 16.74 11.11 16.48 11.29 16.29C11.34 16.25 11.39 16.21 11.44 16.17C11.5 16.13 11.56 16.1 11.62 16.08C11.68 16.05 11.74 16.03 11.8 16.02C11.93 15.99 12.07 15.99 12.19 16.02C12.26 16.03 12.32 16.05 12.38 16.08C12.44 16.1 12.5 16.13 12.56 16.17C12.61 16.21 12.66 16.25 12.71 16.29C12.89 16.48 13 16.74 13 17C13 17.26 12.89 17.52 12.71 17.71Z" className="fill-rose-500 animate-pulse" />
-                                                    </g>
-                                                    <defs>
-                                                        <clipPath>
-                                                            <rect className="size-4" fill="white" />
-                                                        </clipPath>
-                                                    </defs>
-                                                </svg>
+                                                <div className="text-muted-foreground flex items-center gap-1 font-geist cursor-default">
+                                                    <Paperclip className="size-3.5" />
+                                                    <span className="text-xs font-medium">{task?.media_count ?? 0}</span>
+                                                </div>
                                             </TooltipTrigger>
                                             <TooltipContent>
-                                                <p>Overdue</p>
+                                                <p>Jumlah Attactment</p>
                                             </TooltipContent>
                                         </Tooltip>
                                     )}
+
+                                    {task?.comments_count > 0 && (
+                                        <Tooltip>
+                                            <TooltipTrigger asChild>
+                                                <div className="flex items-center gap-1 font-geist text-muted-foreground cursor-default">
+                                                    <MessageCircleMore variant="Linear" className="size-3.5" />
+                                                    <span className="text-xs font-medium">{task?.comments_count ?? 0}</span>
+                                                </div>
+                                            </TooltipTrigger>
+                                            <TooltipContent>
+                                                <p>Jumlah Komentar</p>
+                                            </TooltipContent>
+                                        </Tooltip>
+                                    )}
+
+                                    {task?.checklist_progress?.percent > 0 && (
+                                        <Tooltip>
+                                            <TooltipTrigger asChild>
+                                                <div className="flex items-center gap-1.5 font-geist text-muted-foreground cursor-default">
+                                                    <CircularProgress
+                                                        value={task?.checklist_progress?.percent ?? 0}
+                                                        min={0}
+                                                        max={100}
+                                                        size={16}
+                                                        thickness={2.5}
+                                                    >
+                                                        <CircularProgressIndicator>
+                                                            <CircularProgressTrack className="text-emerald-200 dark:text-emerald-900" />
+                                                            <CircularProgressRange className="text-emerald-500" />
+                                                        </CircularProgressIndicator>
+                                                    </CircularProgress>
+                                                    <span className="text-xs font-medium">{task?.checklist_progress?.done}/{task?.checklist_progress?.total}</span>
+                                                </div>
+                                            </TooltipTrigger>
+                                            <TooltipContent>
+                                                <p>Checklist Terselesaikan</p>
+                                            </TooltipContent>
+                                        </Tooltip>
+                                    )}
+
                                 </div>
-                            )}
+
+                                {/* Date range / due date */}
+                                {dateLabel && (
+                                    <div className={cn(
+                                        "flex items-center gap-1 text-xs font-geist font-medium",
+                                        overdue ? "text-destructive" : "text-muted-foreground"
+                                    )}>
+                                        <CalendarDays className="size-3.5" />
+                                        <span>{dateLabel}</span>
+                                        {overdue && (
+                                            <Tooltip>
+                                                <TooltipTrigger asChild>
+                                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="size-4 ms-0.5">
+                                                        <g>
+                                                            <path d="M21.76 15.92L15.36 4.4C14.5 2.85 13.31 2 12 2C10.69 2 9.49998 2.85 8.63998 4.4L2.23998 15.92C1.42998 17.39 1.33998 18.8 1.98998 19.91C2.63998 21.02 3.91998 21.63 5.59998 21.63H18.4C20.08 21.63 21.36 21.02 22.01 19.91C22.66 18.8 22.57 17.38 21.76 15.92ZM11.25 9C11.25 8.59 11.59 8.25 12 8.25C12.41 8.25 12.75 8.59 12.75 9V14C12.75 14.41 12.41 14.75 12 14.75C11.59 14.75 11.25 14.41 11.25 14V9ZM12.71 17.71C12.66 17.75 12.61 17.79 12.56 17.83C12.5 17.87 12.44 17.9 12.38 17.92C12.32 17.95 12.26 17.97 12.19 17.98C12.13 17.99 12.06 18 12 18C11.94 18 11.87 17.99 11.8 17.98C11.74 17.97 11.68 17.95 11.62 17.92C11.56 17.9 11.5 17.87 11.44 17.83C11.39 17.79 11.34 17.75 11.29 17.71C11.11 17.52 11 17.26 11 17C11 16.74 11.11 16.48 11.29 16.29C11.34 16.25 11.39 16.21 11.44 16.17C11.5 16.13 11.56 16.1 11.62 16.08C11.68 16.05 11.74 16.03 11.8 16.02C11.93 15.99 12.07 15.99 12.19 16.02C12.26 16.03 12.32 16.05 12.38 16.08C12.44 16.1 12.5 16.13 12.56 16.17C12.61 16.21 12.66 16.25 12.71 16.29C12.89 16.48 13 16.74 13 17C13 17.26 12.89 17.52 12.71 17.71Z" className="fill-rose-500 animate-pulse" />
+                                                        </g>
+                                                        <defs>
+                                                            <clipPath>
+                                                                <rect className="size-4" fill="white" />
+                                                            </clipPath>
+                                                        </defs>
+                                                    </svg>
+                                                </TooltipTrigger>
+                                                <TooltipContent>
+                                                    <p>Overdue</p>
+                                                </TooltipContent>
+                                            </Tooltip>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
                         </div>
-                    </div>
+                    )}
                 </div>
             </article>
         </KanbanItem>
