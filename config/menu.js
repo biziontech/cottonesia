@@ -8,108 +8,73 @@ export const MENU_CONFIG = [
         submenu: null
     },
     {
-        id: "working",
+        id: "human_resources",
         is_label: true,
-        name: "Working",
-        roles: ['super_admin', 'payroll']
+        name: "Human Resouces",
+        roles: ['super_admin', 'hr', 'payroll']
     },
     {
-        id: 'agenda',
-        name: 'Agenda',
-        path: '/app/panel/agenda',
-        icon: 'Calendar',
-        roles: ['super_admin', 'payroll'],
-        submenu: null
-    },
-    {
-        id: "operational",
-        path: '/app/panel/operational',
+        id: "schedule",
+        path: '/app/panel/schedule',
         icon: 'CalendarDays',
-        name: "Operational",
-        roles: ['super_admin'],
+        name: "Schedule",
+        roles: ['super_admin', 'hr', 'payroll'],
         submenu: null
     },
     {
-        id: "learning_management",
-        is_label: true,
-        name: "Learning Management",
-        roles: ['super_admin']
-    },
-    {
-        id: 'training-modules',
-        name: 'Training Modules',
-        path: '/app/panel/training-modules',
-        icon: 'BookOpen',
-        roles: ['super_admin'],
-        submenu: null
-    },
-    /* {
-        id: 'quiz-results',
-        name: 'Quiz Results',
-        path: '/app/panel/quiz-results',
+        id: "presence",
+        path: '/app/panel/presence',
         icon: 'ClipboardCheck',
-        roles: ['super_admin'],
+        name: "Attendance",
+        roles: ['super_admin', 'hr', 'payroll'],
         submenu: null
-    }, */
+    },
+    {
+        id: "permission",
+        path: '/app/panel/permission',
+        icon: 'FileCheck',
+        name: "Leave & Permission",
+        roles: ['super_admin', 'hr', 'payroll'],
+        submenu: null
+    },
+    {
+        id: "salary",
+        path: '/app/panel/salary',
+        icon: 'Banknote',
+        name: "Payroll Manage",
+        roles: ['super_admin', 'hr', 'payroll'],
+        submenu: null
+    },
     {
         id: "app",
         is_label: true,
-        name: "App",
+        name: "Master Data",
         roles: ['super_admin']
     },
     {
-        id: 'master_data',
-        name: "Master Data",
-        icon: 'DatabaseZap',
-        roles: ['super_admin'],
-        submenu: [
-            {
-                id: 'employees',
-                name: 'Karyawan',
-                path: '/app/panel/employees',
-                icon: 'Users',
-                roles: ['super_admin'],
-                submenu: null
-            }
-        ]
+        id: "shift",
+        path: '/app/panel/shift',
+        icon: 'CalendarDays',
+        name: "Shift Operational",
+        roles: ['super_admin', 'hr']
     },
+    {
+        id: 'department',
+        name: 'Department',
+        path: '/app/panel/department',
+        icon: 'Building',
+        roles: ['super_admin'],
+        submenu: null
+    },
+    {
+        id: 'employees',
+        name: 'Employees',
+        path: '/app/panel/employees',
+        icon: 'Users',
+        roles: ['super_admin'],
+        submenu: null
+    }
 
-    /* {
-        id: "master_data",
-        is_label: true,
-        name: "Master Data",
-        roles: ['super_admin']
-    },
-    {
-        id: 'siswa',
-        name: 'Siswa',
-        path: '/app/panel/settings',
-        icon: 'Users',
-        roles: ['super_admin'],
-        submenu: null
-    },
-    {
-        id: 'staff',
-        name: 'Staff',
-        path: '/app/panel/settings',
-        icon: 'Users',
-        roles: ['super_admin'],
-        submenu: null
-    },
-    {
-        id: "label_ppdb",
-        is_label: true,
-        name: "Peserta Didik Baru",
-        roles: ['super_admin']
-    },
-    {
-        id: 'siswa_baru',
-        name: 'Peserta Didik Baru',
-        path: '/app/panel/settings',
-        icon: 'Users',
-        roles: ['super_admin'],
-        submenu: null
-    } */
 ];
 
 /**

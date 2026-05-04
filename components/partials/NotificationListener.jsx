@@ -111,50 +111,50 @@ export default function NotificationListener({ userUuid, modelType = 'user' }) {
                     )}
                 </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-sm rounded-xl p-2 overflow-hidden">
+            <DropdownMenuContent align="end" className="w-sm rounded-xl border-border bg-popover p-2 text-popover-foreground shadow-lg overflow-hidden">
                 <div className='flex border-b border-dotted border-border pb-1 mb-2'>
                     <DropdownMenuLabel className="text-sm font-bold flex-1">Notification</DropdownMenuLabel>
-                    <Button size="icon" variant="ghost" className="w-4 h-4 p-3.5 me-1"><Settings /></Button>
+                    <Button size="icon" variant="ghost" className="w-4 h-4 p-3.5 me-1 text-muted-foreground hover:text-foreground"><Settings /></Button>
                 </div>
                 <ScrollArea className='flex flex-col max-h-96 overflow-y-auto'>
                     {notifications.length === 0 ? (
-                        <div className="my-10 text-xs text-stone-500 justify-center items-center flex">
+                        <div className="my-10 text-xs text-muted-foreground justify-center items-center flex">
                             <p>Belum ada notifikasi</p>
                         </div>
                     ) : (
                         <>
                             {notifications.map((item) => (
-                                <DropdownMenuItem key={item.id} className="flex py-2 flex-col rounded-xl" onSelect={(e) => e.preventDefault()} onClick={() => {
+                                <DropdownMenuItem key={item.id} className="flex py-2 flex-col rounded-xl text-foreground hover:bg-accent focus:bg-accent" onSelect={(e) => e.preventDefault()} onClick={() => {
                                     if (!item?.is_read) {
                                         handleMarkAsRead(item.id)
                                     }
                                 }}>
                                     <div className="flex gap-4 items-center w-full">
                                         <div className='flex'>
-                                            <div className={`w-2 h-2 rounded-full ${item?.is_read ? 'bg-green-400' : 'bg-rose-400'}`}></div>
+                                            <div className={`w-2 h-2 rounded-full ${item?.is_read ? 'bg-emerald-500 dark:bg-emerald-400' : 'bg-rose-500 dark:bg-rose-400'}`}></div>
                                         </div>
                                         <div className="flex flex-col flex-1">
                                             <div className='flex items-center justify-between mb-0.5'>
                                                 <h4 className='font-bold'>{item.title}</h4>
-                                                <small className='text-medium text-stone-600'><TimeAgo date={item.created_at} /></small>
+                                                <small className='text-medium text-muted-foreground'><TimeAgo date={item.created_at} /></small>
                                             </div>
                                             {item.data?.message_html ? (
                                                 <p
-                                                    className="text-xs text-stone-700"
+                                                    className="text-xs text-muted-foreground"
                                                     dangerouslySetInnerHTML={{
                                                         __html: item.message,
                                                     }}
                                                 />
                                             ) : (
-                                                <p className="text-xs text-stone-700">
+                                                <p className="text-xs text-muted-foreground">
                                                     {item.message}
                                                 </p>
                                             )}
                                         </div>
                                     </div>
                                     {item.action_url && (
-                                        <div className="flex items-start flex-1 w-full py-2 border-t border-dotted border-stone-300">
-                                            <Button variant="secondary" size="sm" className="text-xs ms-6" onClick={() => router.push(item.action_url)}><SquareArrowOutUpRight className='text-white !w-3 !h-3' />Konfimasi</Button>
+                                        <div className="flex items-start flex-1 w-full py-2 border-t border-dotted border-border">
+                                            <Button size="sm" className="text-xs ms-6" onClick={() => router.push(item.action_url)}><SquareArrowOutUpRight className="text-white !w-3 !h-3" />Konfimasi</Button>
                                         </div>
                                     )}
                                 </DropdownMenuItem>
@@ -163,7 +163,7 @@ export default function NotificationListener({ userUuid, modelType = 'user' }) {
                     )}
                 </ScrollArea>
                 {notifications.length > 0 && (
-                    <DropdownMenuItem className="text-xs text-stone-500 font-medium transition-transform justify-center items-center mt-2 cursor-pointer">
+                    <DropdownMenuItem className="text-xs text-muted-foreground hover:text-foreground font-medium transition-transform justify-center items-center mt-2 cursor-pointer">
                         <p>View All Notification</p>
                     </DropdownMenuItem>
                 )}

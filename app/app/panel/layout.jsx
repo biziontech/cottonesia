@@ -295,7 +295,7 @@ function LayoutContent({ children }) {
             </Sidebar>
 
             <SidebarInset data-page={pageName} className={cn(
-                "data-[page=training-modules]:bg-sidebar dark:data-[page=training-modules]:bg-background",
+                //"data-[page=schedule]:bg-sidebar dark:data-[page=schedule]:bg-background",
                 "data-[page=agenda]:bg-sidebar dark:data-[page=agenda]:bg-background" 
             )}>
                 <header className="flex border-b h-14 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">

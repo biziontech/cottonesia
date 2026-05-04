@@ -1,12 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import api from '@/lib/api';
 import { Button } from '@/components/ui/button';
-import { Ellipsis, Trash, IdCard } from "lucide-react";
+import { Building2, Ellipsis, Trash, IdCard } from "lucide-react";
 import { AlertDialog, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Combobox, ComboboxChip, ComboboxChips, ComboboxChipsInput, ComboboxContent, ComboboxEmpty, ComboboxItem, ComboboxList, ComboboxValue, useComboboxAnchor } from "@/components/ui/combobox"
 import { toast } from 'sonner';
 import { Label } from '@/components/ui/label';
+import { Checkbox } from '@/components/ui/checkbox';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -15,22 +17,16 @@ const Actions = ({ row, table }) => {
     const reload = table.options.meta?.reload;
     const [modalOpen, setModalOpen] = useState(false);
     const [modalOpenRole, setModalOpenRole] = useState(false);
+    const [modalOpenDepartment, setModalOpenDepartment] = useState(false);
     const [loading, setLoading] = useState(false);
     const [loadingRole, setLoadingRole] = useState(false);
+    const [loadingDepartment, setLoadingDepartment] = useState(false);
     const [roles, setRoles] = useState([]);
     const [selectedRoles, setSelectedRoles] = useState([]);
+    const [departments, setDepartments] = useState([]);
+    const [selectedDepartments, setSelectedDepartments] = useState([]);
 
-    // Fetch roles saat modal dibuka
-    useEffect(() => {
-        if (modalOpenRole) {
-            fetchRoles();
-            // Set selected roles dari data employee
-            const currentRoles = row?.original?.roles_name || [];
-            setSelectedRoles(currentRoles);
-        }
-    }, [modalOpenRole]);
-
-    const fetchRoles = async () => {
+    const fetchRoles = useCallback(async () => {
         try {
             setLoadingRole(true);
             const response = await api.fetch(`${API_URL}/office/employees/roles`, {
@@ -49,7 +45,56 @@ const Actions = ({ row, table }) => {
         } finally {
             setLoadingRole(false);
         }
-    };
+    }, []);
+
+    const fetchDepartments = useCallback(async () => {
+        try {
+            setLoadingDepartment(true);
+
+            const [departmentResponse, employeeDepartmentResponse] = await Promise.all([
+                api.fetch(`${API_URL}/office/departments/data`, {
+                    method: 'GET'
+                }),
+                api.fetch(`${API_URL}/office/employees/${row.original?.uuid}/departments`, {
+                    method: 'GET'
+                })
+            ]);
+
+            if (departmentResponse?.success) {
+                setDepartments(departmentResponse.data || []);
+            } else {
+                toast.error(departmentResponse?.message || 'Gagal mengambil data department');
+            }
+
+            if (employeeDepartmentResponse?.success) {
+                const currentDepartments = employeeDepartmentResponse?.data?.departments || [];
+                setSelectedDepartments(currentDepartments.map((department) => department.uuid));
+            } else {
+                toast.error(employeeDepartmentResponse?.message || 'Gagal mengambil department karyawan');
+            }
+        } catch (error) {
+            console.error('Error fetching departments:', error);
+            toast.error('Gagal mengambil data department');
+        } finally {
+            setLoadingDepartment(false);
+        }
+    }, [row.original?.uuid]);
+
+    // Fetch roles saat modal dibuka
+    useEffect(() => {
+        if (modalOpenRole) {
+            fetchRoles();
+            // Set selected roles dari data employee
+            const currentRoles = row?.original?.roles_name || [];
+            setSelectedRoles(currentRoles);
+        }
+    }, [fetchRoles, modalOpenRole, row?.original?.roles_name]);
+
+    useEffect(() => {
+        if (modalOpenDepartment) {
+            fetchDepartments();
+        }
+    }, [fetchDepartments, modalOpenDepartment]);
 
     const handleDelete = async (uuid) => {
         try {
@@ -99,6 +144,42 @@ const Actions = ({ row, table }) => {
         }
     };
 
+    const handleToggleDepartment = (uuid, checked) => {
+        setSelectedDepartments((prev) => {
+            if (checked) {
+                return prev.includes(uuid) ? prev : [...prev, uuid];
+            }
+
+            return prev.filter((departmentUuid) => departmentUuid !== uuid);
+        });
+    };
+
+    const handleAssignDepartment = async () => {
+        try {
+            setLoading(true);
+
+            const response = await api.fetch(`${API_URL}/office/employees/${row.original?.uuid}/assign-departments`, {
+                method: 'POST',
+                body: JSON.stringify({
+                    departments: selectedDepartments
+                })
+            });
+
+            if (response?.success) {
+                toast.success(response.message || 'Department berhasil diterapkan');
+                setModalOpenDepartment(false);
+                if (reload) reload();
+            } else {
+                toast.error(response.message || 'Gagal menerapkan department');
+            }
+        } catch (error) {
+            console.error('Error assigning departments:', error);
+            toast.error('Gagal menerapkan department');
+        } finally {
+            setLoading(false);
+        }
+    };
+
     return (
         <div className='flex gap-2'>
             {/* Roles */}
@@ -108,6 +189,15 @@ const Actions = ({ row, table }) => {
                 onClick={() => setModalOpenRole(true)}
             >
                 <IdCard />
+            </Button>
+
+            {/* Departments */}
+            <Button
+                size="icon-sm"
+                variant="outline"
+                onClick={() => setModalOpenDepartment(true)}
+            >
+                <Building2 />
             </Button>
 
             {/* Menu Options */}
@@ -138,6 +228,61 @@ const Actions = ({ row, table }) => {
                         <AlertDialogCancel>Batal</AlertDialogCancel>
                         <Button variant="destructive" onClick={() => handleDelete(row.original?.uuid)} disabled={loading}>
                             {loading ? 'Memproses...' : 'Hapus'}
+                        </Button>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
+
+            {/* Dialog Department Assign */}
+            <AlertDialog open={modalOpenDepartment} onOpenChange={setModalOpenDepartment}>
+                <AlertDialogContent className="sm:max-w-md">
+                    <AlertDialogHeader className="gap-0">
+                        <AlertDialogTitle>Department Karyawan</AlertDialogTitle>
+                        <AlertDialogDescription>Tentukan department untuk {row?.original?.full_name ?? 'Karyawan'}</AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <div className='my-3 flex flex-col gap-2'>
+                        <Label>Departments</Label>
+                        {loadingDepartment ? (
+                            <div className="flex h-32 items-center justify-center text-sm text-stone-500">Memuat department...</div>
+                        ) : (
+                            <ScrollArea className="h-64 rounded-xl border">
+                                <div className="divide-y">
+                                    {departments.length > 0 ? departments.map((department) => {
+                                        const checked = selectedDepartments.includes(department.uuid);
+
+                                        return (
+                                            <label
+                                                key={department.uuid}
+                                                className="flex cursor-pointer items-center gap-3 p-3 text-sm hover:bg-accent/50"
+                                            >
+                                                <Checkbox
+                                                    checked={checked}
+                                                    onCheckedChange={(value) => handleToggleDepartment(department.uuid, Boolean(value))}
+                                                />
+                                                <span className="font-medium">{department.name}</span>
+                                            </label>
+                                        );
+                                    }) : (
+                                        <div className="flex h-32 items-center justify-center text-sm text-muted-foreground">
+                                            Tidak ada department tersedia.
+                                        </div>
+                                    )}
+                                </div>
+                            </ScrollArea>
+                        )}
+                        <p className='text-xs text-stone-600'>Pilih satu atau lebih department untuk karyawan ini.</p>
+                    </div>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel asChild>
+                            <Button variant="outline" disabled={loading}>
+                                Batal
+                            </Button>
+                        </AlertDialogCancel>
+                        <Button
+                            onClick={handleAssignDepartment}
+                            disabled={loading || loadingDepartment}
+                        >
+                            {loading ? 'Menyimpan...' : 'Simpan'}
                         </Button>
                     </AlertDialogFooter>
                 </AlertDialogContent>
