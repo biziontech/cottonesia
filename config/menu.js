@@ -8,41 +8,11 @@ export const MENU_CONFIG = [
         submenu: null
     },
     {
-        id: "human_resources",
-        is_label: true,
-        name: "Human Resouces",
-        roles: ['super_admin', 'hr', 'payroll']
-    },
-    {
-        id: "schedule",
-        path: '/app/panel/schedule',
-        icon: 'CalendarDays',
-        name: "Schedule",
-        roles: ['super_admin', 'hr', 'payroll'],
-        submenu: null
-    },
-    {
-        id: "presence",
-        path: '/app/panel/presence',
-        icon: 'ClipboardCheck',
-        name: "Attendance",
-        roles: ['super_admin', 'hr', 'payroll'],
-        submenu: null
-    },
-    {
-        id: "permission",
-        path: '/app/panel/permission',
-        icon: 'FileCheck',
-        name: "Leave & Permission",
-        roles: ['super_admin', 'hr', 'payroll'],
-        submenu: null
-    },
-    {
-        id: "salary",
-        path: '/app/panel/salary',
-        icon: 'Banknote',
-        name: "Payroll Manage",
-        roles: ['super_admin', 'hr', 'payroll'],
+        id: 'members',
+        name: 'Members',
+        path: '/app/panel/members',
+        icon: 'Users',
+        roles: ['super_admin'],
         submenu: null
     },
     {
@@ -50,21 +20,6 @@ export const MENU_CONFIG = [
         is_label: true,
         name: "Master Data",
         roles: ['super_admin']
-    },
-    {
-        id: "shift",
-        path: '/app/panel/shift',
-        icon: 'CalendarDays',
-        name: "Shift Operational",
-        roles: ['super_admin', 'hr']
-    },
-    {
-        id: 'department',
-        name: 'Department',
-        path: '/app/panel/department',
-        icon: 'Building',
-        roles: ['super_admin'],
-        submenu: null
     },
     {
         id: 'employees',

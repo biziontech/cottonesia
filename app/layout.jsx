@@ -19,7 +19,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "Alex AC Mobil",
+  title: "Binsik Pro",
   description: "Spesialis AC Mobil Semarang",
 };
 
