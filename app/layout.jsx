@@ -19,8 +19,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "Binsik Pro",
-  description: "Spesialis AC Mobil Semarang",
+  title: "Cottonesia",
+  description: "Spesialis Bahan Cotton",
 };
 
 export default function RootLayout({
