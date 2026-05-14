@@ -12,7 +12,6 @@ const nextConfig = {
         pathname: '/storage/**',
       },
     ],
-    domains: ['picsum.photos', 'i.pravatar.cc'],
     //unoptimized: true,
     qualities: [50, 70, 75],
   },
