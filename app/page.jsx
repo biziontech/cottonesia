@@ -1,465 +1,394 @@
-'use client';
+"use client"
 
-import { useState } from 'react';
+import { useState } from "react"
+import Image from "next/image"
+import Link from "next/link"
+
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Badge } from "@/components/ui/badge"
+import { Separator } from "@/components/ui/separator"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
-    Menu, X, ArrowRight, Users, ShieldCheck, TrendingUp, Calendar,
-    ClipboardCheck, Dumbbell, UserCog, Activity, Target, Star,
-    Check, ShieldQuestion, Headphones, MapPin, Phone, Mail, Globe,
-    ChevronDown, Instagram, Youtube, MessageCircle, Award, Flame,
-    Crosshair, Medal, Zap
-} from 'lucide-react';
+    Card,
+    CardContent,
+    CardFooter,
+} from "@/components/ui/card"
 
-import Navbar from '@/components/partials/Navbar';
+import {
+    Search,
+    ShoppingCart,
+    Heart,
+    Star,
+    ArrowRight,
+    ArrowUpRight,
+    Award,
+    Tag,
+    Palette,
+    Truck,
+    Sliders,
+    CreditCard,
+    Package,
+    Users,
+    Clock,
+    Mail,
+    Phone,
+    MapPin,
+    Facebook,
+    Instagram,
+    Youtube,
+    MessageCircle,
+    Quote,
+    Menu,
+    X,
+    Shirt,
+    Send,
+    ShieldCheck,
+} from "lucide-react"
+import { SiteHeader } from "@/components/partials/SiteHeader"
+import { SiteFooter } from "@/components/partials/SiteFooter"
 
+/* =========================================================================
+   COTTONESIA — REFINED PREMIUM PALETTE
+   Carefully tuned to feel editorial, gallery-grade, and luxurious.
+
+   #F8F5EE   page-bg          warm off-white (page background)
+   #FFFFFF   surface          pure white (cards, elevated surfaces)
+   #ECE4D4   beige-section    soft beige (secondary section bg)
+   #1A3461   navy             primary navy (from logo)
+   #142847   navy-deep        darker hover state
+   #0E1B2E   ink              body text (near-black with navy tint)
+   #6B7280   muted            descriptions, secondary text
+   #B89968   gold             refined warm gold (accent)
+   #D4BC95   gold-soft        lighter gold for highlights/borders
+   #E8E1D2   border           soft warm border
+   ========================================================================= */
+
+/* -------------------------------------------------------------------------
+   IMAGE SIZE GUIDE — please prepare images at these dimensions
+   -------------------------------------------------------------------------
+   • HERO IMAGE:        1000 × 1200 px   (5:6 portrait)   /public/hero.jpg
+   • CATEGORY IMAGES:    600 × 600 px   (1:1 square)     /public/categories/
+   • PRODUCT IMAGES:     800 × 800 px   (1:1 square)     /public/products/
+   • SHOWCASE IMAGES:    900 × 900 px   (1:1 square)
+   • AVATAR IMAGES:      200 × 200 px   (1:1 square)     (tightly cropped face)
+
+   Format: jpg/webp, optimized < 200 KB each.
+   For now we use picsum.photos with stable seeds as placeholders.
+   ------------------------------------------------------------------------- */
+
+const PLACEHOLDER = (seed, size = 600) =>
+    `https://picsum.photos/seed/${seed}/${size}/${size}`
+
+const PLACEHOLDER_PORTRAIT = (seed) =>
+    `https://picsum.photos/seed/${seed}/1000/1200`
+
+const AVATAR = (n) => `https://i.pravatar.cc/200?img=${n}`
+
+/* -------------------------------------------------------------------------
+   Tiny typographic primitives
+   ------------------------------------------------------------------------- */
+
+const Eyebrow = ({ children }) => (
+    <div className="flex items-center justify-center gap-3 mb-4">
+        <span className="h-px w-8 bg-[#B89968]/50" />
+        <span className="text-[11px] font-semibold tracking-[0.28em] text-[#B89968] uppercase">
+            {children}
+        </span>
+        <span className="h-px w-8 bg-[#B89968]/50" />
+    </div>
+)
+
+const SectionHeading = ({ children, className = "" }) => (
+    <h2
+        className={`text-center font-serif text-[32px] sm:text-4xl lg:text-[44px] leading-[1.1] tracking-tight text-[#1A3461] ${className}`}
+    >
+        {children}
+    </h2>
+)
+
+const SectionLead = ({ children }) => (
+    <p className="text-center text-[#6B7280] text-base leading-relaxed max-w-lg mx-auto mt-4">
+        {children}
+    </p>
+)
+
+/* =========================================================================
+   PAGE
+   ========================================================================= */
 export default function Page() {
-    const [openFaq, setOpenFaq] = useState(0);
-    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const [mobileOpen, setMobileOpen] = useState(false)
+    const [activeThumb, setActiveThumb] = useState(0)
+    const [activeColor, setActiveColor] = useState(0)
+    const [wishlisted, setWishlisted] = useState({})
 
-    const heroStats = [
-        { icon: Users, value: '2.500+', label: 'Member Aktif' },
-        { icon: ShieldCheck, value: '25+', label: 'Coach Profesional' },
-        { icon: TrendingUp, value: '78%', label: 'Rata-rata Kenaikan Performa' },
-        { icon: Calendar, value: '120+', label: 'Offline Sessions Per Bulan' },
-    ];
+    const navItems = ["Beranda", "Katalog", "Kategori", "Tentang Kami", "Bantuan"]
 
-    const trustStats = [
-        { icon: Users, value: '2.500+', label: 'Member Aktif' },
-        { icon: ShieldCheck, value: '25+', label: 'Coach Berpengalaman' },
-        { icon: TrendingUp, value: '78%', label: 'Rata-rata Kenaikan Performa' },
-        { icon: MapPin, value: '120+', label: 'Sesi Offline / Bulan' },
-    ];
+    /* ---- DATA ---- */
+    const categories = [
+        { name: "Cotton Combed 30s", count: "24 produk", seed: "cotton-30s-tee" },
+        { name: "Cotton Combed 24s", count: "32 produk", seed: "cotton-24s-tee" },
+        { name: "Cotton Combed 20s", count: "18 produk", seed: "cotton-20s-tee" },
+        { name: "Cotton Bamboo", count: "12 produk", seed: "cotton-bamboo" },
+        { name: "Oversize", count: "16 produk", seed: "oversize-fit" },
+        { name: "Kids", count: "20 produk", seed: "kids-tee" },
+    ]
 
-    const programs = [
-        {
-            title: 'TNI',
-            subtitle: 'Siap Hadapi Seleksi',
-            detail: 'TNI AD, AL, AU',
-            icon: Crosshair,
-            tint: 'from-emerald-700/30 via-emerald-900/20 to-transparent',
-            ring: 'ring-emerald-500/20',
-        },
-        {
-            title: 'POLRI',
-            subtitle: 'Persiapan Fisik',
-            detail: 'Polri Terpadu',
-            icon: ShieldCheck,
-            tint: 'from-sky-700/30 via-sky-900/20 to-transparent',
-            ring: 'ring-sky-500/20',
-        },
-        {
-            title: 'KEDINASAN',
-            subtitle: 'Sekolah Kedinasan',
-            detail: '& Ikatan Dinas',
-            icon: Medal,
-            tint: 'from-amber-700/30 via-amber-900/20 to-transparent',
-            ring: 'ring-amber-500/20',
-        },
-    ];
+    const showcaseThumbs = [
+        '/images/1.png',
+        '/images/2.png',
+        '/images/3.png',
+    ]
+
+    const productColors = [
+        { hex: "#0E1B2E", name: "Hitam" },
+        { hex: "#FAFAF8", name: "Putih" },
+        { hex: "#A4AAB4", name: "Abu" },
+        { hex: "#1A3461", name: "Navy" },
+        { hex: "#9A3838", name: "Maroon" },
+        { hex: "#5E7A6E", name: "Olive" },
+        { hex: "#E0D5BE", name: "Krem" },
+    ]
 
     const benefits = [
-        { icon: ClipboardCheck, title: 'Assessment Awal', desc: 'Tes awal untuk memetakan kondisi & potensi diri.' },
-        { icon: Target, title: 'Program Terstruktur', desc: 'Program latihan periodisasi yang terukur & progresif.' },
-        { icon: UserCog, title: 'Coach Offline', desc: 'Dibimbing langsung oleh coach berpengalaman.' },
-        { icon: Activity, title: 'Monitoring Progress', desc: 'Pantau perkembangan lewat sistem digital BINSIK PRO.' },
-        { icon: Flame, title: 'Simulasi Tes', desc: 'Simulasi berkala sesuai standar seleksi resmi.' },
-    ];
+        {
+            icon: Award,
+            title: "Kualitas Premium",
+            desc: "Bahan pilihan terbaik yang nyaman, adem, dan awet untuk pemakaian harian.",
+        },
+        {
+            icon: Tag,
+            title: "Harga Grosir",
+            desc: "Harga kompetitif khusus pembelian grosir, makin banyak makin hemat.",
+        },
+        {
+            icon: Palette,
+            title: "30+ Pilihan Warna",
+            desc: "Koleksi warna terlengkap untuk semua kebutuhan brand bisnismu.",
+        },
+        {
+            icon: Truck,
+            title: "Pengiriman Cepat",
+            desc: "Proses cepat, packing rapi, dikirim aman ke seluruh Indonesia.",
+        },
+    ]
 
     const steps = [
-        { num: '1', title: 'Assessment Awal', desc: 'Tes fisik awal untuk mengetahui kondisi, kekuatan & area yang perlu ditingkatkan.', icon: ClipboardCheck },
-        { num: '2', title: 'Program Latihan', desc: 'Program latihan disusun sesuai hasil assessment & target seleksi yang kamu tuju.', icon: Dumbbell },
-        { num: '3', title: 'Pendampingan Coach', desc: 'Latihan offline bersama coach berpengalaman dengan koreksi dan motivasi setiap sesi.', icon: UserCog },
-        { num: '4', title: 'Simulasi & Evaluasi', desc: 'Simulasi tes berkala & evaluasi untuk memastikan kamu siap maksimal saat ujian.', icon: Target },
-    ];
+        { icon: Shirt, title: "Pilih Produk", desc: "Temukan kategori yang sesuai kebutuhan." },
+        { icon: Sliders, title: "Pilih Opsi", desc: "Tentukan ukuran, warna, dan jumlah pesanan." },
+        { icon: CreditCard, title: "Checkout", desc: "Lakukan pembayaran dengan metode aman." },
+        { icon: Package, title: "Pesanan Dikirim", desc: "Pesanan dikemas dan dikirim tepat waktu." },
+    ]
+
+    const stats = [
+        { num: "10.000+", label: "Customer Terpercaya" },
+        { num: "50+", label: "Pilihan Warna" },
+        { num: "100.000+", label: "Produk Terjual" },
+        { num: "2+ Tahun", label: "Pengalaman" },
+    ]
+
+    const featured = [
+        {
+            id: 1,
+            slug: "basic-tee-30s",
+            tag: "Best Seller",
+            category: "Cotton Combed 30s",
+            name: "Basic Tee 30s",
+            seed: "product-basic-30s",
+            rating: 4.9,
+            reviews: 256,
+            price: "Rp 38.000",
+            priceMax: "Rp 45.000",
+        },
+        {
+            id: 2,
+            slug: "basic-tee-24s",
+            tag: "Baru",
+            category: "Cotton Combed 24s",
+            name: "Basic Tee 24s",
+            seed: "product-basic-24s",
+            rating: 4.8,
+            reviews: 183,
+            price: "Rp 34.000",
+            priceMax: "Rp 40.000",
+        },
+        {
+            id: 3,
+            slug: "oversize-urban-20s",
+            category: "Oversize",
+            name: "Oversize Urban 20s",
+            seed: "product-oversize",
+            rating: 4.9,
+            reviews: 97,
+            price: "Rp 42.000",
+            priceMax: "Rp 50.000",
+        },
+        {
+            id: 4,
+            slug: "cotton-bamboo-tee",
+            tag: "Premium",
+            category: "Bamboo Series",
+            name: "Cotton Bamboo Tee",
+            seed: "product-bamboo",
+            rating: 5.0,
+            reviews: 64,
+            price: "Rp 48.000",
+            priceMax: "Rp 55.000",
+        },
+    ]
 
     const testimonials = [
         {
-            name: 'Rizky Pratama',
-            badge: 'Lolos TNI AD 2024',
-            text: 'BINSIK PRO sangat membantu saya meningkatkan fisik dan mental. Programnya terstruktur dan coach-nya benar-benar perhatian. Hasilnya, saya lolos TNI AD!',
-            initials: 'RP',
+            name: "Rizky Hendriara",
+            role: "Owner Clothing",
+            avatar: AVATAR(12),
+            text: "Kualitas kaosnya premium, jahitan rapi dan warna sesuai. Sudah 2 tahun jadi langganan terus.",
         },
         {
-            name: 'Nabila Putri',
-            badge: 'Lolos Polri 2024',
-            text: 'Latihannya menantang tapi efektif. Simulasi tesnya mirip dengan yang asli. Alhamdulillah saya bisa lolos Polri berkat bimbingan dari BINSIK PRO.',
-            initials: 'NP',
-        },
-    ];
-
-    const pricing = [
-        {
-            name: '1 BULAN',
-            tag: 'Fokus & Adaptasi',
-            price: '950.000',
-            popular: false,
-            features: ['12x Sesi Latihan Offline', 'Assessment Awal', 'Monitoring Digital', 'Simulasi Tes 1x'],
+            name: "Siti Nurhaliza",
+            role: "Reseller",
+            avatar: AVATAR(45),
+            text: "Langganan di Cottonesia selalu puas. Warna lengkap, harga bersaing, pengiriman juga cepat.",
         },
         {
-            name: '3 BULAN',
-            tag: 'Progres Optimal',
-            price: '800.000',
-            popular: true,
-            features: ['36x Sesi Latihan Offline', 'Assessment Awal & Akhir', 'Monitoring Digital', 'Simulasi Tes 3x', 'Konsultasi Coach'],
+            name: "Andi Setiawan",
+            role: "Pengusaha Sablon",
+            avatar: AVATAR(33),
+            text: "Rekomendasi supplier kaos polos terbaik. Bahan tebal, nyaman, dan cocok untuk semua jenis sablon.",
         },
-        {
-            name: '6 BULAN',
-            tag: 'Persiapan Maksimal',
-            price: '750.000',
-            popular: false,
-            features: ['72x Sesi Latihan Offline', 'Assessment Awal & Akhir', 'Monitoring Digital', 'Simulasi Tes 6x', 'Konsultasi Coach Prioritas'],
-        },
-    ];
+    ]
 
-    const faqs = [
-        { q: 'Siapa saja yang bisa bergabung di BINSIK PRO?', a: 'Calon TNI, POLRI, dan siswa Sekolah Kedinasan/Ikatan Dinas berusia minimal 16 tahun yang ingin mempersiapkan diri secara serius untuk menghadapi seleksi fisik.' },
-        { q: 'Apakah ada jaminan lolos seleksi?', a: 'Kami tidak menjanjikan kelulusan instan, namun program dirancang berbasis standar resmi. Garansi: jika tidak ada hasil setelah 1 bulan, kamu bisa mengulang program GRATIS.' },
-        { q: 'Apakah latihan dilakukan setiap hari?', a: 'Latihan offline dilakukan 3x seminggu (12 sesi/bulan), dengan tambahan latihan mandiri yang bisa dipantau melalui aplikasi monitoring digital.' },
-        { q: 'Bagaimana jika saya tidak bisa hadir latihan?', a: 'Kamu bisa rescheduling ke jadwal lain pada minggu yang sama. Tim kami fleksibel dengan kebutuhan jadwal peserta.' },
-        { q: 'Bagaimana sistem monitoring progress?', a: 'Setiap peserta mendapat akses dashboard digital yang mencatat hasil tes, progres latihan, target mingguan, dan evaluasi coach.' },
-        { q: 'Kapan saya bisa mulai latihan?', a: 'Setelah mendaftar dan menyelesaikan Assessment Awal, kamu bisa langsung memulai program di sesi terdekat (3-7 hari).' },
-    ];
+    const toggleWish = (id) =>
+        setWishlisted((p) => ({ ...p, [id]: !p[id] }))
 
-    const navLinks = ['Program', 'Jadwal', 'Coach', 'Testimoni', 'FAQ'];
-
+    /* ============================================================
+       RENDER
+       ============================================================ */
     return (
-        <div className="dark bg-background text-foreground min-h-screen font-geist antialiased selection:bg-primary/30 selection:text-primary-foreground">
-            {/* Font + decorative styles */}
-            <style jsx global>{`
-                .font-body { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; }
-                @keyframes float-up { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-                @keyframes scan-line { 0% { transform: translateY(-100%); } 100% { transform: translateY(100%); } }
-                @keyframes pulse-glow { 0%, 100% { opacity: 0.4; } 50% { opacity: 0.85; } }
-                .anim-float-up { animation: float-up 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
-                .grid-bg {
-                    background-image:
-                        linear-gradient(rgba(219, 149, 73, 0.06) 1px, transparent 1px),
-                        linear-gradient(90deg, rgba(219, 149, 73, 0.06) 1px, transparent 1px);
-                    background-size: 56px 56px;
-                }
-                .dot-bg {
-                    background-image: radial-gradient(circle at 1px 1px, rgba(219, 149, 73, 0.18) 1px, transparent 0);
-                    background-size: 28px 28px;
-                }
-                .text-shadow-strong { text-shadow: 0 4px 30px rgba(0, 0, 0, 0.6); }
-            `}</style>
+        <div className="min-h-screen bg-[#F8F5EE] text-[#0E1B2E] font-sans antialiased selection:bg-[#B89968]/30">
 
-            {/* ─── NAVBAR (separated component) ─── */}
-            <Navbar variant="transparent" ctaHref="/login" ctaLabel="Masuk" ctaClassName="shadow-white/20 bg-white hover:bg-gray-100" />
+            {/* =====================================================
+          HEADER
+          ===================================================== */}
+         <SiteHeader />
+            {/* =====================================================
+          HERO  —  min-h-dvh
+          ===================================================== */}
+            <section className="relative min-h-dvh flex items-center overflow-hidden">
+                <div className="absolute -top-32 -left-40 w-[520px] h-[520px] rounded-full bg-[#ECE4D4]/70 blur-3xl pointer-events-none" />
+                <div className="absolute bottom-10 -right-32 w-[460px] h-[460px] rounded-full bg-[#B89968]/8 blur-3xl pointer-events-none" />
 
-            {/* ============================================ */}
-            {/* HERO                                          */}
-            {/* ============================================ */}
-            <section className="relative overflow-hidden min-h-vh">
-                {/* atmospheric backgrounds */}
-                <div className="absolute inset-0 grid-bg opacity-40 [mask-image:radial-gradient(ellipse_at_center,black,transparent_75%)]" />
-                <div className="absolute -top-40 -right-40 h-[600px] w-[600px] rounded-full bg-primary/10 blur-[120px]" />
-                <div className="absolute -bottom-40 -left-40 h-[500px] w-[500px] rounded-full bg-primary/5 blur-[120px]" />
+                <div className="max-w-[1240px] mx-auto px-5 lg:px-8 py-16 lg:py-20 w-full relative">
+                    <div className="grid lg:grid-cols-[1.05fr_1fr] gap-10 lg:gap-16 items-center">
 
-                <div className="relative mx-auto max-w-7xl px-6 lg:px-8 pt-12 pb-16 lg:pt-20 lg:pb-24">
-                    <div className="grid lg:grid-cols-12 gap-10 lg:gap-16 items-center">
-                        {/* Copy */}
-                        <div className="lg:col-span-7 anim-float-up">
-                            <div className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5 text-xs font-semibold tracking-wider text-primary mb-7">
-                                <span className="relative flex h-2 w-2">
-                                    <span className="absolute inline-flex h-full w-full rounded-full bg-primary opacity-60 animate-ping" />
-                                    <span className="relative inline-flex rounded-full h-2 w-2 bg-primary" />
+                        {/* Left */}
+                        <div className="space-y-7 order-2 lg:order-1">
+                            <div className="inline-flex items-center gap-2.5 pl-1.5 pr-4 py-1.5 rounded-full bg-white border border-[#E8E1D2] shadow-[0_2px_8px_rgba(26,52,97,0.04)]">
+                                <span className="w-6 h-6 rounded-full bg-[#ECE4D4] flex items-center justify-center">
+                                    <ShieldCheck className="w-3 h-3 text-[#B89968]" strokeWidth={2.2} />
                                 </span>
-                                BATCH BARU DIBUKA — KUOTA TERBATAS
+                                <span className="text-[11px] font-semibold tracking-[0.16em] text-[#1A3461] uppercase">
+                                    Supplier Kaos Polos Premium
+                                </span>
                             </div>
 
-                            <h1 className="font-display font-bold leading-[0.95] text-5xl sm:text-6xl lg:text-7xl xl:text-8xl tracking-tight">
-                                <span className="block">TRAIN HARD.</span>
-                                <span className="block text-primary">PASS STRONG.</span>
+                            <h1 className="font-serif text-[44px] sm:text-5xl lg:text-[64px] leading-[1.04] tracking-[-0.02em] text-[#1A3461]">
+                                Cotton Premium.
+                                <br />
+                                Kualitas Terbaik.
+                                <br />
+                                <em className="not-italic font-normal text-[#B89968]">Harga Kompetitif.</em>
                             </h1>
 
-                            <p className="mt-7 max-w-xl text-base sm:text-lg text-muted-foreground leading-relaxed">
-                                Program latihan fisik <span className="text-foreground font-medium">terstruktur, offline premium</span> dengan
-                                monitoring digital untuk calon <span className="text-foreground font-medium">TNI, POLRI &amp; Kedinasan</span>.
+                            <p className="text-[16px] lg:text-[17px] text-[#6B7280] max-w-[460px] leading-[1.7]">
+                                Cottonesia adalah marketplace supplier kaos polos dengan kualitas
+                                terbaik, pilihan terbanyak, dan harga kompetitif untuk skala bisnis Anda.
                             </p>
 
-                            <p className="mt-3 italic text-sm text-muted-foreground/80">
-                                Disiplin hari ini, lolos seleksi esok hari.
-                            </p>
-
-                            <div className="mt-9 flex flex-wrap gap-3">
-                                <a href="#daftar" className="group inline-flex items-center gap-2 h-13 px-7 py-3.5 rounded-xl bg-primary text-primary-foreground font-semibold hover:bg-primary/90 active:scale-[0.98] transition shadow-xl shadow-primary/25">
-                                    Daftar Assessment
-                                    <ArrowRight className="h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
-                                </a>
-                                <a href="#program" className="inline-flex items-center gap-2 h-13 px-7 py-3.5 rounded-xl border border-border bg-card/50 backdrop-blur font-semibold hover:bg-accent transition">
-                                    Lihat Program
-                                    <ArrowRight className="h-4 w-4" />
-                                </a>
+                            <div className="flex flex-wrap gap-3 pt-2">
+                                <Button className="bg-[#1A3461] hover:bg-[#142847] text-white rounded-lg h-12 px-7 text-[14px] font-medium shadow-sm hover:shadow-md group transition-all">
+                                    Belanja Sekarang
+                                    <ArrowRight className="w-4 h-4 ml-1.5 transition-transform group-hover:translate-x-0.5" />
+                                </Button>
+                                <Button
+                                    variant="outline"
+                                    className="border-[#E8E1D2] text-white hover:bg-white hover:border-[#1A3461] rounded-lg h-12 px-7 text-[14px] font-medium bg-white/50 transition-all"
+                                >
+                                    Lihat Katalog
+                                </Button>
                             </div>
 
-                            {/* Hero stat strip */}
-                            <div className="mt-14 grid grid-cols-2 sm:grid-cols-4 gap-3">
-                                {heroStats.map((s) => (
-                                    <div key={s.label} className="rounded-xl border border-border/60 bg-card/40 backdrop-blur p-4 hover:border-primary/30 transition">
-                                        <s.icon className="h-5 w-5 text-primary mb-3" />
-                                        <div className="font-display font-bold text-2xl">{s.value}</div>
-                                        <div className="text-[11px] text-muted-foreground mt-1 leading-tight">{s.label}</div>
+                            <div className="flex items-center gap-6 pt-4">
+                                <div className="flex -space-x-2">
+                                    {[14, 22, 47, 52].map((n, i) => (
+                                        <Avatar
+                                            key={i}
+                                            className="w-9 h-9 border-2 border-[#F8F5EE] ring-0"
+                                        >
+                                            <AvatarImage src={AVATAR(n)} alt="Customer" />
+                                            <AvatarFallback>C{i}</AvatarFallback>
+                                        </Avatar>
+                                    ))}
+                                </div>
+                                <div className="text-sm">
+                                    <div className="flex items-center gap-1 text-[#B89968]">
+                                        {[1, 2, 3, 4, 5].map((s) => (
+                                            <Star key={s} className="w-3.5 h-3.5 fill-current" strokeWidth={0} />
+                                        ))}
+                                        <span className="text-[#0E1B2E] font-semibold ml-1">4.9</span>
                                     </div>
-                                ))}
-                            </div>
-                        </div>
-
-                        {/* Hero visual */}
-                        <div className="lg:col-span-5 relative">
-                            <div className="relative aspect-[4/5] rounded-2xl overflow-hidden border border-border/60 shadow-2xl shadow-black/40">
-                                {/* layered gradient stand-in for athlete photo (replace `<img/>` here with your asset) */}
-                                <div className="absolute inset-0 bg-gradient-to-br from-[#1a3556] via-[#0d1f36] to-[#011021]" />
-                                <div className="absolute inset-0 dot-bg opacity-50" />
-                                <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-background via-background/40 to-transparent" />
-
-                                {/* athlete silhouette SVG */}
-                                <svg viewBox="0 0 400 500" className="absolute inset-0 w-full h-full" preserveAspectRatio="xMidYMax meet" xmlns="http://www.w3.org/2000/svg">
-                                    <defs>
-                                        <linearGradient id="bodyG" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="0%" stopColor="#0b1c30" />
-                                            <stop offset="100%" stopColor="#000814" />
-                                        </linearGradient>
-                                        <linearGradient id="skinG" x1="0" y1="0" x2="1" y2="1">
-                                            <stop offset="0%" stopColor="#c8956a" />
-                                            <stop offset="100%" stopColor="#7a4d28" />
-                                        </linearGradient>
-                                    </defs>
-                                    {/* sun behind */}
-                                    <circle cx="280" cy="180" r="90" fill="rgba(219,149,73,0.18)" />
-                                    <circle cx="280" cy="180" r="50" fill="rgba(219,149,73,0.32)" />
-                                    {/* track lines */}
-                                    <path d="M0 460 Q 200 430 400 460 L400 500 L0 500 Z" fill="rgba(219,149,73,0.08)" />
-                                    <path d="M0 480 Q 200 450 400 480" stroke="rgba(219,149,73,0.25)" strokeWidth="1.5" fill="none" />
-                                    {/* runner silhouette */}
-                                    <g transform="translate(120 120)">
-                                        {/* head */}
-                                        <circle cx="80" cy="30" r="22" fill="url(#skinG)" />
-                                        {/* torso */}
-                                        <path d="M55 55 Q 80 50 105 55 L 115 160 Q 80 170 45 160 Z" fill="url(#bodyG)" />
-                                        {/* arm raised */}
-                                        <path d="M55 65 Q 30 100 25 140 Q 35 145 45 105 Q 55 85 65 75 Z" fill="url(#skinG)" />
-                                        {/* arm down */}
-                                        <path d="M105 65 Q 130 100 135 145 Q 125 150 115 110 Q 110 85 95 75 Z" fill="url(#skinG)" />
-                                        {/* leg forward */}
-                                        <path d="M65 160 Q 60 240 80 300 L 95 300 Q 90 240 90 160 Z" fill="url(#bodyG)" />
-                                        {/* leg back */}
-                                        <path d="M90 160 Q 105 220 130 270 L 145 265 Q 120 215 110 160 Z" fill="url(#bodyG)" />
-                                        {/* shoes */}
-                                        <ellipse cx="85" cy="305" rx="18" ry="6" fill="#1a1a1a" />
-                                        <ellipse cx="138" cy="270" rx="14" ry="5" fill="#1a1a1a" />
-                                        {/* watch glint */}
-                                        <circle cx="135" cy="143" r="3" fill="#db9549" />
-                                    </g>
-                                </svg>
-
-                                {/* corner brackets */}
-                                <div className="absolute top-4 left-4 w-8 h-8 border-l-2 border-t-2 border-primary/70" />
-                                <div className="absolute top-4 right-4 w-8 h-8 border-r-2 border-t-2 border-primary/70" />
-                                <div className="absolute bottom-4 left-4 w-8 h-8 border-l-2 border-b-2 border-primary/70" />
-                                <div className="absolute bottom-4 right-4 w-8 h-8 border-r-2 border-b-2 border-primary/70" />
-
-                                {/* badge bottom */}
-                                <div className="absolute left-1/2 -translate-x-1/2 bottom-6 flex items-center gap-2 rounded-full border border-primary/40 bg-background/70 backdrop-blur px-4 py-1.5 text-xs font-medium">
-                                    <Zap className="h-3.5 w-3.5 text-primary" />
-                                    Offline · Bekasi
-                                </div>
-                            </div>
-
-                            {/* floating spec card */}
-                            <div className="hidden md:flex absolute -bottom-6 -left-6 items-center gap-3 rounded-2xl border border-border bg-card/95 backdrop-blur p-3.5 shadow-xl">
-                                <div className="h-11 w-11 rounded-xl bg-primary/15 flex items-center justify-center">
-                                    <TrendingUp className="h-5 w-5 text-primary" />
-                                </div>
-                                <div className="leading-tight">
-                                    <div className="text-xs text-muted-foreground">Performa rata-rata</div>
-                                    <div className="font-display font-bold text-xl">+78% <span className="text-xs font-medium text-primary">/ 3 bulan</span></div>
+                                    <p className="text-[#6B7280] text-[13px] mt-0.5">
+                                        Dipercaya 10.000+ pelaku bisnis
+                                    </p>
                                 </div>
                             </div>
                         </div>
-                    </div>
 
-                    <div className="rounded-2xl mt-16 border border-border bg-card/60 backdrop-blur p-6 sm:p-8">
-                        <div className="text-center mb-7">
-                            <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-primary">
-                                Dipercaya oleh ribuan calon prajurit &amp; taruna
-                            </div>
-                        </div>
-                        <div className="grid grid-cols-2 lg:grid-cols-4 divide-y lg:divide-y-0 lg:divide-x divide-border/60">
-                            {trustStats.map((s) => (
-                                <div key={s.label} className="flex items-center gap-4 px-4 py-4 lg:py-2">
-                                    <div className="h-12 w-12 rounded-xl bg-primary/10 ring-1 ring-primary/20 flex items-center justify-center shrink-0">
-                                        <s.icon className="h-5 w-5 text-primary" />
+                        {/* Right – portrait image */}
+                        <div className="relative order-1 lg:order-2">
+                            <div className="relative">
+                                {/* Decorative offset frame */}
+                                <div className="absolute -inset-3 lg:-inset-4 rounded-[32px] border border-[#B89968]/30 -z-10" />
+                                <div className="absolute -bottom-6 -right-6 w-32 h-32 rounded-full bg-[#B89968]/10 blur-2xl -z-10" />
+
+                                <div className="relative overflow-hidden rounded-[28px] bg-[#ECE4D4]/40 shadow-[0_30px_60px_-20px_rgba(26,52,97,0.25)]">
+                                    {/*
+                    HERO IMAGE — recommended 1000 × 1200 px (5:6)
+                    Replace with: /public/hero.jpg
+                  */}
+                                    <div className="relative aspect-[5/6] w-full">
+                                        <Image
+                                            src='/images/hero-1.webp'
+                                            alt="Koleksi kaos polos premium Cottonesia"
+                                            fill
+                                            className="object-cover"
+                                            priority
+                                            sizes="(max-width: 1024px) 100vw, 50vw"
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* Floating quality badge */}
+                                <div className="absolute bottom-6 left-6 sm:bottom-8 sm:left-8 flex items-center gap-3 bg-white rounded-2xl px-4 py-3 shadow-xl border border-[#E8E1D2]/60">
+                                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#ECE4D4] to-[#D4BC95]/40 flex items-center justify-center flex-shrink-0">
+                                        <ShieldCheck className="w-5 h-5 text-[#B89968]" strokeWidth={1.8} />
                                     </div>
                                     <div>
-                                        <div className="font-display font-bold text-2xl sm:text-3xl">{s.value}</div>
-                                        <div className="text-[12px] text-muted-foreground leading-tight">{s.label}</div>
+                                        <p className="font-serif text-sm font-semibold text-[#1A3461] leading-tight">
+                                            Import Quality
+                                        </p>
+                                        <p className="text-[11px] text-[#6B7280] mt-0.5">100% Cotton Combed</p>
                                     </div>
                                 </div>
-                            ))}
-                        </div>
-                    </div>
-                </div>
-            </section>
 
-
-            {/* ============================================ */}
-            {/* PROGRAM + BENEFITS                            */}
-            {/* ============================================ */}
-            <section id="program" className="relative py-16 lg:py-24">
-                <div className="absolute inset-0 dot-bg opacity-30 [mask-image:radial-gradient(ellipse_at_top,black,transparent_70%)]" />
-                <div className="relative mx-auto max-w-7xl px-6 lg:px-8">
-                    <div className="mb-12">
-                        <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-primary mb-3">
-                            — Program Kami
-                        </div>
-                        <h2 className="font-display font-bold text-4xl sm:text-5xl lg:text-6xl tracking-tight">
-                            Kenapa Pilih <span className="text-primary">BINSIK PRO</span>?
-                        </h2>
-                    </div>
-
-                    <div className="grid lg:grid-cols-12 gap-6">
-                        {/* Program cards (left) */}
-                        <div className="lg:col-span-5 grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-1 gap-4">
-                            {programs.map((p) => (
-                                <a key={p.title} href="#" className={`group relative overflow-hidden rounded-2xl border border-border ring-1 ${p.ring} aspect-[4/5] sm:aspect-[3/4] lg:aspect-[16/7] flex flex-col justify-end p-5 transition hover:border-primary/40`}>
-                                    <div className={`absolute inset-0 bg-gradient-to-br ${p.tint}`} />
-                                    <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
-                                    <div className="absolute inset-0 grid-bg opacity-25" />
-                                    <p.icon className="absolute top-5 right-5 h-7 w-7 text-primary/60 group-hover:text-primary transition" />
-                                    <div className="relative">
-                                        <div className="font-display font-bold text-3xl">{p.title}</div>
-                                        <div className="text-sm text-muted-foreground mt-1">{p.subtitle}</div>
-                                        <div className="text-xs text-primary/90 font-medium mt-0.5">{p.detail}</div>
-                                    </div>
-                                </a>
-                            ))}
-                        </div>
-
-                        {/* Benefits grid (right) */}
-                        <div className="lg:col-span-7 grid sm:grid-cols-2 gap-4 content-start">
-                            {benefits.map((b, i) => (
-                                <div
-                                    key={b.title}
-                                    className={`group relative rounded-2xl border border-border bg-card p-6 hover:border-primary/40 transition ${i === 0 || i === 1 || i === 2 ? '' : 'sm:col-span-1'}`}
-                                >
-                                    <div className="h-11 w-11 rounded-xl bg-primary/10 ring-1 ring-primary/20 flex items-center justify-center mb-4 group-hover:bg-primary/15 transition">
-                                        <b.icon className="h-5 w-5 text-primary" />
-                                    </div>
-                                    <h3 className="font-display font-semibold text-lg mb-1.5">{b.title}</h3>
-                                    <p className="text-sm text-muted-foreground leading-relaxed">{b.desc}</p>
-                                    <div className="absolute top-4 right-4 text-xs font-mono text-muted-foreground/40">0{i + 1}</div>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            {/* ============================================ */}
-            {/* HOW IT WORKS                                  */}
-            {/* ============================================ */}
-            <section id="jadwal" className="relative py-16 lg:py-40 border-y border-border/40 bg-card/30">
-                <div className="mx-auto max-w-7xl px-6 lg:px-8">
-                    <div className="text-center mb-14">
-                        <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-primary mb-3">
-                            — Cara Kerja
-                        </div>
-                        <h2 className="font-display font-bold text-4xl sm:text-5xl lg:text-6xl tracking-tight">
-                            4 Langkah Menuju <span className="text-primary">Lolos Seleksi</span>
-                        </h2>
-                    </div>
-
-                    <div className="relative">
-                        {/* Connector line */}
-                        <div className="hidden lg:block absolute top-9 left-12 right-12 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
-
-                        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
-                            {steps.map((step) => (
-                                <div key={step.num} className="relative">
-                                    {/* numbered node */}
-                                    <div className="relative z-10 mx-auto h-16 w-16 rounded-full bg-background border-2 border-primary flex items-center justify-center mb-5 shadow-lg shadow-primary/20">
-                                        <span className="font-display font-bold text-2xl text-primary">{step.num}</span>
-                                        <div className="absolute inset-0 rounded-full bg-primary/10 animate-pulse" />
-                                    </div>
-                                    <div className="rounded-2xl border border-border bg-card p-6 text-center hover:border-primary/30 transition h-full">
-                                        <step.icon className="h-6 w-6 text-primary mx-auto mb-3" />
-                                        <h3 className="font-display font-semibold text-lg mb-2">{step.title}</h3>
-                                        <p className="text-sm text-muted-foreground leading-relaxed">{step.desc}</p>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            {/* ============================================ */}
-            {/* TESTIMONIALS                                  */}
-            {/* ============================================ */}
-            <section id="testimoni" className="relative py-16 lg:py-24">
-                <div className="mx-auto max-w-7xl px-6 lg:px-8">
-                    <div className="mb-10">
-                        <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-primary mb-3">
-                            — Testimoni Member
-                        </div>
-                        <h2 className="font-display font-bold text-4xl sm:text-5xl lg:text-6xl tracking-tight">
-                            Cerita dari <span className="text-primary">yang sudah lolos</span>
-                        </h2>
-                    </div>
-
-                    <div className="grid lg:grid-cols-12 gap-6">
-                        {/* Member testimonials */}
-                        <div className="lg:col-span-7 grid sm:grid-cols-2 gap-5">
-                            {testimonials.map((t) => (
-                                <div key={t.name} className="relative rounded-2xl border border-border bg-card p-6 hover:border-primary/30 transition">
-                                    <div className="flex items-center gap-3 mb-4">
-                                        <div className="h-11 w-11 rounded-full bg-gradient-to-br from-primary/40 to-primary/10 ring-1 ring-primary/30 flex items-center justify-center font-display font-bold text-sm">
-                                            {t.initials}
-                                        </div>
-                                        <div className="leading-tight">
-                                            <div className="font-semibold">{t.name}</div>
-                                            <div className="text-xs text-primary">{t.badge}</div>
-                                        </div>
-                                    </div>
-                                    <div className="flex gap-0.5 mb-3">
-                                        {[...Array(5)].map((_, i) => <Star key={i} className="h-3.5 w-3.5 fill-primary text-primary" />)}
-                                    </div>
-                                    <p className="text-sm text-muted-foreground leading-relaxed italic">&ldquo;{t.text}&rdquo;</p>
-                                </div>
-                            ))}
-                        </div>
-
-                        {/* Coach feature card */}
-                        <div className="lg:col-span-5 relative rounded-2xl border border-primary/30 bg-gradient-to-br from-card via-card to-primary/5 p-6 sm:p-8 overflow-hidden">
-                            <div className="absolute -top-20 -right-20 h-60 w-60 rounded-full bg-primary/10 blur-3xl" />
-                            <div className="relative flex flex-col sm:flex-row gap-6 items-start">
-                                <div className="relative shrink-0">
-                                    <div className="h-24 w-24 rounded-2xl bg-gradient-to-br from-primary/30 to-primary/5 ring-1 ring-primary/30 flex items-center justify-center">
-                                        <span className="font-display font-bold text-3xl text-primary">RP</span>
-                                    </div>
-                                    <div className="absolute -bottom-2 -right-2 h-7 w-7 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-lg">
-                                        <Award className="h-4 w-4" />
-                                    </div>
-                                </div>
-                                <div className="flex-1 min-w-0">
-                                    <div className="font-display font-bold text-xl">Coach Reza Pradana</div>
-                                    <div className="text-xs uppercase tracking-wider text-primary mt-1 font-semibold">Head Coach BINSIK PRO</div>
-                                    <ul className="mt-4 space-y-2 text-sm">
-                                        {[
-                                            'Certified Strength & Conditioning Coach',
-                                            '8+ Tahun Pengalaman Melatih',
-                                            'Spesialis Fisik TNI, POLRI & Kedinasan',
-                                            'Alumni Akademi Militer',
-                                        ].map((item) => (
-                                            <li key={item} className="flex items-start gap-2 text-muted-foreground">
-                                                <Check className="h-4 w-4 text-primary mt-0.5 shrink-0" />
-                                                <span>{item}</span>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                    <a href="#coach" className="mt-5 inline-flex items-center gap-2 h-10 px-4 rounded-lg bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary/90 transition">
-                                        Kenali Coach Lainnya <ArrowRight className="h-4 w-4" />
-                                    </a>
+                                {/* Floating stat badge */}
+                                <div className="absolute top-6 right-6 sm:top-8 sm:right-8 flex flex-col items-center bg-white/95 backdrop-blur-md rounded-2xl px-4 py-3 shadow-xl border border-[#E8E1D2]/60">
+                                    <span className="font-serif text-2xl font-semibold text-[#1A3461] leading-none">
+                                        100K+
+                                    </span>
+                                    <span className="text-[10px] text-[#6B7280] tracking-wider uppercase mt-1">
+                                        Terjual
+                                    </span>
                                 </div>
                             </div>
                         </div>
@@ -467,220 +396,568 @@ export default function Page() {
                 </div>
             </section>
 
-            {/* ============================================ */}
-            {/* PRICING                                       */}
-            {/* ============================================ */}
-            <section id="daftar" className="relative py-16 lg:py-24 bg-card/30 border-y border-border/40">
-                <div className="mx-auto max-w-7xl px-6 lg:px-8">
-                    <div className="text-center mb-12">
-                        <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-primary mb-3">
-                            — Pilih Paket Terbaikmu
+            {/* =====================================================
+          KATEGORI — image grid
+          ===================================================== */}
+            <section className="py-20 lg:py-28">
+                <div className="max-w-[1240px] mx-auto px-5 lg:px-8">
+
+                    <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6 mb-12">
+                        <div>
+                            <Eyebrow>Kategori Produk</Eyebrow>
+                            <h2 className="font-serif text-[32px] sm:text-4xl lg:text-[44px] leading-[1.1] tracking-tight text-[#1A3461] max-w-xl">
+                                Pilihan Kaos Polos Terlengkap
+                            </h2>
+                            <p className="text-[#6B7280] text-base leading-relaxed mt-4 max-w-md">
+                                Berbagai jenis bahan, warna, dan ukuran untuk semua kebutuhan bisnismu.
+                            </p>
                         </div>
-                        <h2 className="font-display font-bold text-4xl sm:text-5xl lg:text-6xl tracking-tight">
-                            Investasi untuk <span className="text-primary">masa depanmu</span>
-                        </h2>
+                        <Link
+                            href="/katalog"
+                            className="hidden lg:inline-flex items-center gap-1.5 text-sm font-semibold text-[#1A3461] hover:text-[#B89968] transition-colors group"
+                        >
+                            Lihat Semua Kategori
+                            <ArrowUpRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                        </Link>
                     </div>
 
-                    <div className="grid lg:grid-cols-12 gap-6">
-                        {/* pricing cards */}
-                        <div className="lg:col-span-9 grid md:grid-cols-3 gap-5">
-                            {pricing.map((p) => (
-                                <div key={p.name} className={`relative rounded-2xl border ${p.popular ? 'border-primary/60 bg-gradient-to-b from-primary/10 to-card shadow-2xl shadow-primary/10 lg:scale-[1.03]' : 'border-border bg-card'} p-6 sm:p-7 flex flex-col`}>
-                                    {p.popular && (
-                                        <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-primary text-primary-foreground text-[10px] font-bold tracking-[0.18em] uppercase shadow-lg">
-                                            Paling Populer
-                                        </div>
-                                    )}
-                                    <div className="text-center mb-6">
-                                        <div className="font-display font-bold text-2xl">{p.name}</div>
-                                        <div className="text-xs text-muted-foreground mt-1">{p.tag}</div>
-                                    </div>
-                                    <div className="text-center mb-6">
-                                        <div className="font-display font-bold text-4xl">
-                                            <span className="text-base font-medium text-muted-foreground align-top mr-1">Rp</span>
-                                            {p.price}
-                                        </div>
-                                        <div className="text-xs text-muted-foreground mt-0.5">/ bulan</div>
-                                    </div>
-                                    <ul className="space-y-2.5 mb-7 flex-1">
-                                        {p.features.map((f) => (
-                                            <li key={f} className="flex items-start gap-2.5 text-sm">
-                                                <div className={`h-5 w-5 rounded-full ${p.popular ? 'bg-primary' : 'bg-primary/15 ring-1 ring-primary/30'} flex items-center justify-center shrink-0 mt-0.5`}>
-                                                    <Check className={`h-3 w-3 ${p.popular ? 'text-primary-foreground' : 'text-primary'}`} />
-                                                </div>
-                                                <span className="text-muted-foreground">{f}</span>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                    <a href="#" className={`inline-flex items-center justify-center h-11 px-5 rounded-xl font-semibold text-sm transition ${p.popular
-                                        ? 'bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg shadow-primary/20'
-                                        : 'border border-border hover:bg-accent'
-                                        }`}>
-                                        Pilih Paket
-                                    </a>
-                                </div>
-                            ))}
-                        </div>
-
-                        {/* side info */}
-                        <div className="lg:col-span-3 flex flex-col gap-5">
-                            <div className="rounded-2xl border border-border bg-card p-6">
-                                <div className="h-11 w-11 rounded-xl bg-primary/10 ring-1 ring-primary/20 flex items-center justify-center mb-4">
-                                    <ShieldQuestion className="h-5 w-5 text-primary" />
-                                </div>
-                                <div className="font-display font-bold text-base mb-1.5">Garansi Progres</div>
-                                <p className="text-sm text-muted-foreground leading-relaxed">
-                                    Tidak ada hasil? Ulang program <span className="text-primary font-semibold">GRATIS</span> 1 bulan.
-                                </p>
-                            </div>
-                            <div className="rounded-2xl border border-border bg-card p-6">
-                                <div className="h-11 w-11 rounded-xl bg-primary/10 ring-1 ring-primary/20 flex items-center justify-center mb-4">
-                                    <Headphones className="h-5 w-5 text-primary" />
-                                </div>
-                                <div className="font-display font-bold text-base mb-1.5">Konsultasi Gratis</div>
-                                <p className="text-sm text-muted-foreground leading-relaxed">
-                                    Masih ragu? Konsultasikan kondisi kamu sekarang.
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            {/* ============================================ */}
-            {/* FAQ                                           */}
-            {/* ============================================ */}
-            <section id="faq" className="relative py-16 lg:py-24">
-                <div className="mx-auto max-w-7xl px-6 lg:px-8">
-                    <div className="text-center mb-12">
-                        <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-primary mb-3">
-                            — FAQ
-                        </div>
-                        <h2 className="font-display font-bold text-4xl sm:text-5xl lg:text-6xl tracking-tight">
-                            Pertanyaan yang sering <span className="text-primary">ditanyakan</span>
-                        </h2>
-                    </div>
-
-                    <div className="grid md:grid-cols-2 gap-3 max-w-5xl mx-auto">
-                        {faqs.map((f, i) => (
-                            <button
-                                key={i}
-                                onClick={() => setOpenFaq(openFaq === i ? null : i)}
-                                className={`text-left h-fit rounded-2xl border bg-card transition overflow-hidden ${openFaq === i ? 'border-primary/40' : 'border-border hover:border-primary/20'}`}
+                    {/*
+            CATEGORY IMAGES — recommended 600 × 600 px (1:1 square)
+            Replace with: /public/categories/{slug}.jpg
+          */}
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 lg:gap-5">
+                        {categories.map((cat) => (
+                            <Link
+                                key={cat.name}
+                                href={`/katalog/${cat.seed}`}
+                                className="group flex flex-col gap-3"
                             >
-                                <div className="flex items-start justify-between gap-4 p-5">
-                                    <span className="font-medium text-sm sm:text-base">{f.q}</span>
-                                    <ChevronDown className={`h-5 w-5 text-primary shrink-0 transition-transform ${openFaq === i ? 'rotate-180' : ''}`} />
-                                </div>
-                                {openFaq === i && (
-                                    <div className="px-5 pb-5 -mt-1 text-sm text-muted-foreground leading-relaxed border-t border-border/40 pt-3">
-                                        {f.a}
+                                <div className="relative aspect-square overflow-hidden rounded-2xl bg-[#ECE4D4]/40 border border-[#E8E1D2] transition-all duration-500 group-hover:shadow-lg group-hover:border-[#B89968]/40">
+                                    <Image
+                                        src={'/images/2.png'}
+                                        alt={cat.name}
+                                        fill
+                                        className="object-cover transition-transform duration-700 group-hover:scale-110"
+                                        sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 17vw"
+                                    />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-[#0E1B2E]/30 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                                    <div className="absolute bottom-3 right-3 w-8 h-8 rounded-full bg-white text-[#1A3461] flex items-center justify-center opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-500">
+                                        <ArrowUpRight className="w-4 h-4" strokeWidth={2} />
                                     </div>
-                                )}
-                            </button>
+                                </div>
+                                <div className="px-1">
+                                    <h3 className="font-serif text-[15px] text-[#1A3461] leading-tight group-hover:text-[#B89968] transition-colors">
+                                        {cat.name}
+                                    </h3>
+                                    <p className="text-[11px] text-[#6B7280] tracking-wider uppercase mt-1">
+                                        {cat.count}
+                                    </p>
+                                </div>
+                            </Link>
+                        ))}
+                    </div>
+
+                    <div className="flex justify-center mt-10 lg:hidden">
+                        <Link
+                            href="/katalog"
+                            className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#1A3461] hover:text-[#B89968] transition-colors"
+                        >
+                            Lihat Semua Kategori
+                            <ArrowUpRight className="w-4 h-4" />
+                        </Link>
+                    </div>
+                </div>
+            </section>
+
+            {/* =====================================================
+          PRODUCT SHOWCASE — editorial split
+          ===================================================== */}
+            <section className="py-20 lg:py-28 bg-[#ECE4D4]/35">
+                <div className="max-w-[1240px] mx-auto px-5 lg:px-8">
+                    <div className="grid lg:grid-cols-[1fr_1.05fr] gap-10 lg:gap-16 items-start">
+
+                        {/* Gallery */}
+                        <div className="flex gap-3 lg:gap-4">
+                            <div className="flex flex-col gap-2.5 w-[68px] sm:w-20 flex-shrink-0">
+                                {showcaseThumbs.map((src, i) => (
+                                    <button
+                                        key={i}
+                                        onClick={() => setActiveThumb(i)}
+                                        className={`relative aspect-square rounded-xl overflow-hidden border-2 transition-all ${activeThumb === i
+                                                ? "border-[#B89968] shadow-sm"
+                                                : "border-[#E8E1D2] hover:border-[#B89968]/50"
+                                            }`}
+                                    >
+                                        <Image
+                                            src={src}
+                                            alt={`Tampilan ${i + 1}`}
+                                            fill
+                                            className="object-cover"
+                                            sizes="80px"
+                                        />
+                                    </button>
+                                ))}
+                            </div>
+                            <div className="relative flex-1 aspect-square rounded-2xl overflow-hidden border border-[#E8E1D2] bg-white">
+                                <Image
+                                    src={showcaseThumbs[activeThumb]}
+                                    alt="Cotton Combed 30s"
+                                    fill
+                                    className="object-cover transition-all duration-500"
+                                    sizes="(max-width: 1024px) 100vw, 50vw"
+                                />
+                                <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    onClick={() => toggleWish("showcase")}
+                                    className={`absolute top-4 right-4 rounded-full backdrop-blur-md border transition-all ${wishlisted["showcase"]
+                                            ? "bg-rose-50 border-rose-200 text-rose-500 hover:bg-rose-100"
+                                            : "bg-white/90 border-[#E8E1D2] text-[#1A3461] hover:bg-white"
+                                        }`}
+                                    aria-label="Wishlist"
+                                >
+                                    <Heart
+                                        className="w-4 h-4"
+                                        strokeWidth={1.8}
+                                        fill={wishlisted["showcase"] ? "currentColor" : "none"}
+                                    />
+                                </Button>
+                            </div>
+                        </div>
+
+                        {/* Details */}
+                        <div className="space-y-6 lg:pt-2">
+                            <Badge className="bg-[#ECE4D4] text-[#B89968] hover:bg-[#ECE4D4] border border-[#B89968]/20 text-[10px] tracking-[0.18em] uppercase font-semibold px-3 py-1 rounded-full">
+                                Cotton Combed 30s
+                            </Badge>
+
+                            <h2 className="font-serif text-[34px] lg:text-[46px] leading-[1.05] tracking-tight text-[#1A3461]">
+                                Premium Cotton Combed
+                                <br />
+                                <em className="not-italic text-[#B89968]">untuk bisnis Anda.</em>
+                            </h2>
+
+                            <div className="flex items-center gap-3">
+                                <div className="flex gap-0.5">
+                                    {[1, 2, 3, 4, 5].map((s) => (
+                                        <Star key={s} className="w-4 h-4 fill-[#B89968] text-[#B89968]" strokeWidth={0} />
+                                    ))}
+                                </div>
+                                <Separator orientation="vertical" className="h-4 bg-[#E8E1D2]" />
+                                <span className="text-sm text-[#6B7280]">
+                                    <span className="font-semibold text-[#0E1B2E]">4.8</span> · 120+ ulasan
+                                </span>
+                            </div>
+
+                            <div className="flex items-baseline gap-3 font-serif">
+                                <span className="text-3xl lg:text-[36px] font-semibold text-[#1A3461]">
+                                    Rp 38.000
+                                </span>
+                                <span className="text-lg text-[#6B7280]">— Rp 45.000</span>
+                            </div>
+
+                            <p className="text-[#6B7280] leading-[1.75] max-w-[480px]">
+                                Terbuat dari 100% cotton combed premium yang lembut, nyaman, dan
+                                tidak panas. Ideal untuk sablon rubber, DTF, DTG, dan screen printing.
+                            </p>
+
+                            <Separator className="bg-[#E8E1D2]" />
+
+                            <dl className="grid grid-cols-1 gap-2.5">
+                                {[
+                                    ["Bahan", "100% Cotton Combed"],
+                                    ["Gramasi", "140–150 gsm"],
+                                    ["Ukuran", "S, M, L, XL, 2XL, 3XL"],
+                                    ["Warna", "30+ pilihan warna"],
+                                ].map(([k, v]) => (
+                                    <div key={k} className="flex items-center text-sm">
+                                        <dt className="w-24 text-[#6B7280]">{k}</dt>
+                                        <dd className="text-[#0E1B2E] font-medium">{v}</dd>
+                                    </div>
+                                ))}
+                            </dl>
+
+                            <Separator className="bg-[#E8E1D2]" />
+
+                            <div>
+                                <p className="text-sm text-[#6B7280] mb-3">
+                                    Pilih Warna ·{" "}
+                                    <span className="text-[#1A3461] font-semibold">
+                                        {productColors[activeColor].name}
+                                    </span>
+                                </p>
+                                <div className="flex flex-wrap gap-2">
+                                    {productColors.map((c, i) => (
+                                        <button
+                                            key={i}
+                                            onClick={() => setActiveColor(i)}
+                                            className={`w-9 h-9 rounded-full border-2 transition-all ${activeColor === i
+                                                    ? "border-[#B89968] scale-110 shadow-md"
+                                                    : "border-[#E8E1D2] hover:border-[#B89968]/60"
+                                                }`}
+                                            style={{ backgroundColor: c.hex }}
+                                            aria-label={c.name}
+                                        />
+                                    ))}
+                                </div>
+                            </div>
+
+                            <div className="flex flex-col sm:flex-row gap-3 pt-2">
+                                <Button
+                                    variant="outline"
+                                    className="flex-1  border-[#E8E1D2] text-white hover:bg-[#1A3461] hover:text-white hover:border-[#1A3461] rounded-lg h-12 px-6 font-medium bg-white transition-all"
+                                >
+                                    Pilih Opsi
+                                </Button>
+                                <Button className="flex-1 bg-[#B89968] hover:bg-[#a08458] text-white rounded-lg h-12 px-6 font-medium shadow-sm hover:shadow-md transition-all">
+                                    <ShoppingCart className="w-4 h-4 mr-1.5" />
+                                    Tambahkan ke Keranjang
+                                </Button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* =====================================================
+          BENEFITS
+          ===================================================== */}
+            <section className="py-20 lg:py-28">
+                <div className="max-w-[1240px] mx-auto px-5 lg:px-8">
+                    <Eyebrow>Kenapa Cottonesia?</Eyebrow>
+                    <SectionHeading>Keunggulan yang Bisa Diandalkan</SectionHeading>
+                    <SectionLead>
+                        Kami hadir agar bisnis tekstilmu berjalan lebih mudah, cepat, dan menguntungkan.
+                    </SectionLead>
+
+                    <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5 mt-14">
+                        {benefits.map((b, i) => {
+                            const Icon = b.icon
+                            return (
+                                <Card
+                                    key={i}
+                                    className="group bg-white border-[#E8E1D2]/80 hover:border-[#B89968]/30 hover:shadow-xl hover:-translate-y-1 transition-all duration-500 py-7"
+                                >
+                                    <CardContent className="px-6">
+                                        <div className="w-12 h-12 rounded-xl bg-[#ECE4D4] flex items-center justify-center mb-5 group-hover:bg-[#1A3461] transition-colors duration-500">
+                                            <Icon
+                                                className="w-6 h-6 text-[#B89968] transition-colors duration-500"
+                                                strokeWidth={1.6}
+                                            />
+                                        </div>
+                                        <h3 className="font-serif text-[18px] text-[#1A3461] mb-2 leading-tight">
+                                            {b.title}
+                                        </h3>
+                                        <p className="text-[13.5px] text-[#6B7280] leading-relaxed">{b.desc}</p>
+                                    </CardContent>
+                                </Card>
+                            )
+                        })}
+                    </div>
+                </div>
+            </section>
+
+            {/* =====================================================
+          HOW IT WORKS
+          ===================================================== */}
+            <section className="py-20 lg:py-28 bg-[#ECE4D4]/35">
+                <div className="max-w-[1240px] mx-auto px-5 lg:px-8">
+                    <Eyebrow>Cara Kerja</Eyebrow>
+                    <SectionHeading>Belanja Mudah dalam 4 Langkah</SectionHeading>
+                    <SectionLead>Proses sederhana, transparan, dan bisa diandalkan.</SectionLead>
+
+                    <div className="relative grid sm:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-6 mt-16">
+                        <div
+                            className="hidden lg:block absolute top-6 left-[14%] right-[14%] h-px"
+                            style={{
+                                backgroundImage:
+                                    "repeating-linear-gradient(to right,#B89968 0,#B89968 5px,transparent 5px,transparent 11px)",
+                            }}
+                        />
+                        {steps.map((s, i) => {
+                            const Icon = s.icon
+                            return (
+                                <div key={i} className="relative flex flex-col items-center text-center">
+                                    <div className="relative z-10 mb-6">
+                                        <div className="w-12 h-12 rounded-full bg-[#B89968] flex items-center justify-center font-serif text-white text-[17px] font-semibold shadow-md ring-[6px] ring-[#F8F5EE]">
+                                            {i + 1}
+                                        </div>
+                                    </div>
+                                    <div className="w-14 h-14 rounded-2xl bg-white border border-[#E8E1D2] flex items-center justify-center mb-4 shadow-sm">
+                                        <Icon className="w-6 h-6 text-[#1A3461]" strokeWidth={1.5} />
+                                    </div>
+                                    <h3 className="font-serif text-[18px] text-[#1A3461] mb-2">{s.title}</h3>
+                                    <p className="text-sm text-[#6B7280] leading-relaxed max-w-[200px]">
+                                        {s.desc}
+                                    </p>
+                                </div>
+                            )
+                        })}
+                    </div>
+                </div>
+            </section>
+
+            {/* =====================================================
+          STATS BAR — dark navy
+          ===================================================== */}
+            <section className="bg-[#1A3461] relative overflow-hidden">
+                <div
+                    className="absolute inset-0 opacity-[0.05]"
+                    style={{
+                        backgroundImage: "radial-gradient(circle, #B89968 1px, transparent 1px)",
+                        backgroundSize: "24px 24px",
+                    }}
+                />
+                <div className="max-w-[1240px] mx-auto px-5 lg:px-8 py-14 lg:py-16 relative">
+                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-y-10 gap-x-4 divide-y lg:divide-y-0 lg:divide-x divide-white/10">
+                        {stats.map((s, i) => (
+                            <div
+                                key={i}
+                                className={`text-center ${i > 1 ? "pt-10 lg:pt-0" : ""} ${i > 0 ? "lg:pl-4" : ""}`}
+                            >
+                                <div className="font-serif text-[36px] lg:text-[44px] text-white leading-none tracking-tight">
+                                    {s.num}
+                                </div>
+                                <div className="text-[12px] text-[#B89968] tracking-[0.18em] uppercase mt-2 font-medium">
+                                    {s.label}
+                                </div>
+                            </div>
                         ))}
                     </div>
                 </div>
             </section>
 
-            {/* ============================================ */}
-            {/* FOOTER                                        */}
-            {/* ============================================ */}
-            <footer className="relative border-t border-border/40 bg-card/40">
-                <div className="mx-auto max-w-7xl px-6 lg:px-8 py-14">
-                    <div className="grid md:grid-cols-2 lg:grid-cols-12 gap-10">
-                        {/* brand */}
-                        <div className="lg:col-span-4">
-                            <a href="#" className="flex items-center gap-2.5">
-                                <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center">
-                                    <span className="font-display font-bold text-xl text-primary-foreground">B</span>
-                                </div>
-                                <div className="leading-none">
-                                    <div className="font-display font-bold text-lg tracking-wide">BINSIK <span className="text-primary">PRO</span></div>
-                                    <div className="text-[9px] uppercase tracking-[0.18em] text-muted-foreground/80 mt-0.5">Train Hard. Pass Strong.</div>
-                                </div>
-                            </a>
-                            <p className="mt-5 text-sm text-muted-foreground max-w-md leading-relaxed">
-                                BINSIK PRO adalah program latihan fisik premium untuk calon TNI, POLRI &amp; Kedinasan dengan metode terstruktur, coach berpengalaman, dan monitoring digital.
+            {/* =====================================================
+          FEATURED PRODUCTS — clean white cards, square images
+          ===================================================== */}
+            <section className="py-20 lg:py-28">
+                <div className="max-w-[1240px] mx-auto px-5 lg:px-8">
+
+                    <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6 mb-12">
+                        <div>
+                            <Eyebrow>Produk Unggulan</Eyebrow>
+                            <h2 className="font-serif text-[32px] sm:text-4xl lg:text-[44px] leading-[1.1] tracking-tight text-[#1A3461] max-w-xl">
+                                Produk Pilihan Kami
+                            </h2>
+                            <p className="text-[#6B7280] text-base leading-relaxed mt-4 max-w-md">
+                                Produk berkualitas dengan harga terbaik, dipilih khusus untuk bisnismu.
                             </p>
-                            <div className="mt-6 flex gap-3">
-                                {[Instagram, Youtube, MessageCircle].map((Ic, i) => (
-                                    <a key={i} href="#" className="h-9 w-9 rounded-lg border border-border bg-background flex items-center justify-center hover:border-primary/40 hover:text-primary transition">
-                                        <Ic className="h-4 w-4" />
-                                    </a>
-                                ))}
-                            </div>
                         </div>
-
-                        {/* link cepat */}
-                        <div className="lg:col-span-2">
-                            <h4 className="font-display font-semibold text-sm uppercase tracking-wider mb-4">Link Cepat</h4>
-                            <ul className="space-y-2.5">
-                                {['Program', 'Jadwal', 'Coach', 'Testimoni', 'FAQ', 'Daftar Assessment'].map((x) => (
-                                    <li key={x}><a href="#" className="text-sm text-muted-foreground hover:text-primary transition">{x}</a></li>
-                                ))}
-                            </ul>
-                        </div>
-
-                        {/* program */}
-                        <div className="lg:col-span-2">
-                            <h4 className="font-display font-semibold text-sm uppercase tracking-wider mb-4">Program</h4>
-                            <ul className="space-y-2.5">
-                                {['TNI', 'POLRI', 'Kedinasan', 'Simulasi Tes', 'Paket & Harga'].map((x) => (
-                                    <li key={x}><a href="#" className="text-sm text-muted-foreground hover:text-primary transition">{x}</a></li>
-                                ))}
-                            </ul>
-                        </div>
-
-                        {/* kontak */}
-                        <div className="lg:col-span-4">
-                            <h4 className="font-display font-semibold text-sm uppercase tracking-wider mb-4">Kontak</h4>
-                            <ul className="space-y-3 text-sm text-muted-foreground">
-                                <li className="flex items-start gap-3">
-                                    <MapPin className="h-4 w-4 text-primary mt-0.5 shrink-0" />
-                                    <span>Jl. Patriot No.45, Bekasi, Jawa Barat 17141</span>
-                                </li>
-                                <li className="flex items-center gap-3">
-                                    <Phone className="h-4 w-4 text-primary shrink-0" />
-                                    <a href="tel:08123456789" className="hover:text-primary transition">0812-3456-7890</a>
-                                </li>
-                                <li className="flex items-center gap-3">
-                                    <Mail className="h-4 w-4 text-primary shrink-0" />
-                                    <a href="mailto:info@binsikpro.id" className="hover:text-primary transition">info@binsikpro.id</a>
-                                </li>
-                                <li className="flex items-center gap-3">
-                                    <Globe className="h-4 w-4 text-primary shrink-0" />
-                                    <span>www.binsikpro.id</span>
-                                </li>
-                            </ul>
-
-                            {/* newsletter */}
-                            <div className="mt-7">
-                                <h4 className="font-display font-semibold text-sm uppercase tracking-wider mb-3">Newsletter</h4>
-                                <p className="text-xs text-muted-foreground mb-3">Dapatkan tips latihan, info seleksi &amp; promo terbaru dari BINSIK PRO.</p>
-                                <form onSubmit={(e) => e.preventDefault()} className="flex gap-2">
-                                    <input
-                                        type="email"
-                                        placeholder="Masukkan email kamu"
-                                        className="flex-1 h-11 px-4 rounded-xl bg-background border border-border text-sm placeholder:text-muted-foreground/60 focus:outline-none focus:border-primary/60 focus:ring-1 focus:ring-primary/30"
-                                    />
-                                    <button className="h-11 w-11 rounded-xl bg-primary text-primary-foreground flex items-center justify-center hover:bg-primary/90 transition shrink-0">
-                                        <ArrowRight className="h-4 w-4" />
-                                    </button>
-                                </form>
-                            </div>
-                        </div>
+                        <Link
+                            href="/katalog"
+                            className="hidden lg:inline-flex items-center gap-1.5 text-sm font-semibold text-white hover:text-[#B89968] transition-colors group"
+                        >
+                            Lihat Semua Produk
+                            <ArrowUpRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                        </Link>
                     </div>
 
-                    <div className="mt-12 pt-6 border-t border-border/40 flex flex-col sm:flex-row gap-3 items-center justify-between text-xs text-muted-foreground">
-                        <div>© 2026 BINSIK PRO. All Rights Reserved.</div>
-                        <div className="flex gap-5">
-                            <a href="#" className="hover:text-primary transition">Privacy Policy</a>
-                            <a href="#" className="hover:text-primary transition">Terms of Service</a>
+                    {/*
+            PRODUCT IMAGES — recommended 800 × 800 px (1:1 square)
+            Replace with: /public/products/{slug}.jpg
+          */}
+                    <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                        {featured.map((p) => (
+                            <Card
+                                key={p.id}
+                                className="group bg-white border-[#E8E1D2]/80 hover:border-[#B89968]/30 hover:shadow-xl hover:-translate-y-1 transition-all duration-500 py-0 gap-0 overflow-hidden"
+                            >
+                                {/* Image — square */}
+                                <div className="relative aspect-square overflow-hidden bg-[#ECE4D4]/30">
+                                    {p.tag && (
+                                        <Badge
+                                            className={`absolute top-3 left-3 z-10 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full border-0 ${p.tag === "Baru"
+                                                    ? "bg-[#1A3461] text-white"
+                                                    : p.tag === "Best Seller"
+                                                        ? "bg-[#B89968] text-white"
+                                                        : "bg-[#0E1B2E] text-white"
+                                                }`}
+                                        >
+                                            {p.tag}
+                                        </Badge>
+                                    )}
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        onClick={() => toggleWish(p.id)}
+                                        className={`absolute top-2.5 right-2.5 z-10 h-9 w-9 rounded-full backdrop-blur-md border transition-all ${wishlisted[p.id]
+                                                ? "bg-rose-50 border-rose-200 text-rose-500 hover:bg-rose-100"
+                                                : "bg-white/90 border-[#E8E1D2] text-[#1A3461] hover:bg-white"
+                                            }`}
+                                        aria-label="Wishlist"
+                                    >
+                                        <Heart
+                                            className="w-3.5 h-3.5"
+                                            strokeWidth={2}
+                                            fill={wishlisted[p.id] ? "currentColor" : "none"}
+                                        />
+                                    </Button>
+                                    <Image
+                                        src={'/images/2.png'}
+                                        alt={p.name}
+                                        fill
+                                        className="object-cover transition-transform duration-700 group-hover:scale-110"
+                                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                                    />
+                                </div>
+
+                                <CardContent className="px-5 pt-4 pb-1">
+                                    <p className="text-[10px] font-semibold tracking-[0.16em] text-[#B89968] uppercase mb-1.5">
+                                        {p.category}
+                                    </p>
+                                    <h3 className="font-serif text-[17px] text-[#1A3461] leading-snug mb-2">
+                                        {p.name}
+                                    </h3>
+                                    <div className="flex items-center gap-1.5 mb-3">
+                                        <Star className="w-3.5 h-3.5 fill-[#B89968] text-[#B89968]" strokeWidth={0} />
+                                        <span className="text-xs text-[#0E1B2E] font-semibold">{p.rating}</span>
+                                        <span className="text-xs text-[#6B7280]">· {p.reviews} ulasan</span>
+                                    </div>
+                                    <Separator className="bg-[#E8E1D2] my-1" />
+                                    <div className="pt-3 flex items-baseline gap-2">
+                                        <span className="font-serif text-[17px] font-semibold text-[#1A3461]">
+                                            {p.price}
+                                        </span>
+                                        <span className="text-xs text-[#6B7280]">— {p.priceMax}</span>
+                                    </div>
+                                </CardContent>
+
+                                <CardFooter className="px-5 pb-5 pt-3">
+                                    <Button
+                                        asChild
+                                        className="w-full h-10 bg-[#1A3461] hover:bg-[#142847] text-white text-[12px] font-semibold rounded-lg transition-all"
+                                    >
+                                        <Link href={`/katalog/${p.slug}`}>
+                                            Lihat Detail
+                                            <ArrowRight className="w-3.5 h-3.5 ml-1" />
+                                        </Link>
+                                    </Button>
+                                </CardFooter>
+                            </Card>
+                        ))}
+                    </div>
+
+                    <div className="flex justify-center mt-12">
+                        <Button
+                            asChild
+                            variant="outline"
+                            className="border-[#1A3461]/15 bg-white text-white hover:bg-[#1A3461] hover:text-white hover:border-[#1A3461] rounded-full h-12 px-8 font-medium transition-all group"
+                        >
+                            <Link href="/katalog">
+                                Jelajahi Semua Produk
+                                <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
+                            </Link>
+                        </Button>
+                    </div>
+                </div>
+            </section>
+
+            {/* =====================================================
+          TESTIMONIALS
+          ===================================================== */}
+            <section className="py-20 lg:py-28 bg-[#ECE4D4]/35">
+                <div className="max-w-[1240px] mx-auto px-5 lg:px-8">
+                    <Eyebrow>Apa Kata Mereka?</Eyebrow>
+                    <SectionHeading>Testimoni Customer</SectionHeading>
+                    <SectionLead>Cerita dari pelaku bisnis yang telah mempercayakan produk mereka kepada kami.</SectionLead>
+
+                    <div className="grid md:grid-cols-3 gap-5 lg:gap-6 mt-14">
+                        {testimonials.map((t, i) => (
+                            <Card
+                                key={i}
+                                className="bg-white border-[#E8E1D2]/80 hover:border-[#B89968]/25 hover:shadow-lg transition-all duration-500 py-7 relative"
+                            >
+                                <Quote
+                                    className="absolute top-6 right-6 w-10 h-10 text-[#B89968]/15"
+                                    fill="#B89968"
+                                    strokeWidth={0}
+                                />
+                                <CardContent className="px-7">
+                                    <div className="flex gap-0.5 mb-4">
+                                        {[1, 2, 3, 4, 5].map((s) => (
+                                            <Star
+                                                key={s}
+                                                className="w-4 h-4 fill-[#B89968] text-[#B89968]"
+                                                strokeWidth={0}
+                                            />
+                                        ))}
+                                    </div>
+                                    <p className="text-[15px] text-[#0E1B2E]/80 leading-[1.7] mb-6 font-serif italic min-h-[70px]">
+                                        &ldquo;{t.text}&rdquo;
+                                    </p>
+                                    <Separator className="bg-[#E8E1D2] mb-4" />
+                                    <div className="flex items-center gap-3">
+                                        <Avatar className="w-11 h-11 border border-[#E8E1D2]">
+                                            <AvatarImage src={t.avatar} alt={t.name} />
+                                            <AvatarFallback className="bg-[#1A3461] text-white text-sm font-semibold">
+                                                {t.name.split(" ").slice(0, 2).map((n) => n[0]).join("")}
+                                            </AvatarFallback>
+                                        </Avatar>
+                                        <div>
+                                            <p className="font-serif text-[14px] font-semibold text-[#1A3461] leading-tight">
+                                                {t.name}
+                                            </p>
+                                            <p className="text-[12px] text-[#6B7280] mt-0.5">{t.role}</p>
+                                        </div>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        ))}
+                    </div>
+                </div>
+            </section>
+
+            {/* =====================================================
+          CTA BANNER
+          ===================================================== */}
+            <section className="py-20 lg:py-24">
+                <div className="max-w-[1240px] mx-auto px-5 lg:px-8">
+                    <div className="relative overflow-hidden rounded-3xl bg-[#1A3461] px-6 py-14 lg:p-16">
+                        <div
+                            className="absolute inset-0 opacity-[0.06]"
+                            style={{
+                                backgroundImage:
+                                    "radial-gradient(circle, #B89968 1px, transparent 1px)",
+                                backgroundSize: "26px 26px",
+                            }}
+                        />
+                        <div className="absolute -top-32 -right-32 w-96 h-96 rounded-full bg-[#B89968]/15 blur-3xl pointer-events-none" />
+
+                        <div className="relative grid lg:grid-cols-[1.4fr_1fr] gap-8 items-center">
+                            <div className="text-center lg:text-left">
+                                <span className="inline-block text-[10px] font-semibold tracking-[0.22em] text-[#B89968] uppercase mb-3">
+                                    Mulai Hari Ini
+                                </span>
+                                <h2 className="font-serif text-3xl lg:text-[44px] leading-[1.1] text-white tracking-tight">
+                                    Siap memulai bisnis tekstil
+                                    <br />
+                                    <em className="not-italic text-[#D4BC95]">bersama Cottonesia?</em>
+                                </h2>
+                                <p className="text-white/70 mt-4 lg:max-w-md leading-relaxed">
+                                    Daftar sekarang dan dapatkan akses ke katalog lengkap, harga grosir, dan dukungan tim kami.
+                                </p>
+                            </div>
+                            <div className="flex flex-col sm:flex-row lg:flex-col xl:flex-row gap-3 lg:items-end lg:justify-end">
+                                <Button className="bg-[#B89968] hover:bg-[#a08458] text-white rounded-lg h-12 px-7 font-medium shadow-md">
+                                    Daftar Sekarang
+                                    <ArrowRight className="w-4 h-4 ml-1.5" />
+                                </Button>
+                                <Button
+                                    variant="outline"
+                                    className="border-white/20 text-white hover:bg-white hover:text-[#1A3461] hover:border-white rounded-lg h-12 px-7 font-medium bg-transparent"
+                                >
+                                    Hubungi Kami
+                                </Button>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </footer>
+            </section>
+
+            {/* =====================================================
+          FOOTER — dark
+          ===================================================== */}
+            <SiteFooter />
         </div>
-    );
+    )
 }
