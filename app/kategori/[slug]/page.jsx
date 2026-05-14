@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { SiteHeader } from "@/components/partials/SiteHeader";
 import { SiteFooter } from "@/components/partials/SiteFooter"
 import { CartToast } from "@/components/partials/CartToast"
-import { ProductCard } from "@/components/product-card"
+import { ProductCard } from "@/components/partials/ProductCard"
 import { CATEGORIES, PRODUCTS } from "@/lib/dummy-data"
 import { ChevronRight, Layers, ArrowRight } from "lucide-react"
 
